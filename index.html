@@ -6,9 +6,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SALDAÑA">
+<meta name="apple-mobile-web-app-title" content="Kippo">
 <meta name="theme-color" content="#07111f">
-<title>SALDAÑA</title>
+<title>Kippo</title>
 <script>
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAoxabxDT6YG_ofQDHVHn3IYk-cr5Ie4FI",
@@ -303,7 +303,7 @@ input[type=number]{-moz-appearance:textfield}
 
 <!-- LOADING -->
 <div id="loading" class="screen active">
-  <div class="loader-logo">SALDAÑA</div>
+  <div class="loader-logo brand-nombre">Mi Kiosko</div>
   <div class="loader-dot"></div>
   <div style="color:var(--text3);font-size:.8rem;margin-top:.5rem">Conectando...</div>
 </div>
@@ -314,8 +314,8 @@ input[type=number]{-moz-appearance:textfield}
   <div class="home-glow"></div>
   <div class="home-content">
     <div>
-      <div class="home-logo">SALDAÑA</div>
-      <div class="home-tagline">Sistema de kiosko</div>
+      <div class="home-logo brand-nombre">Mi Kiosko</div>
+      <div class="home-tagline brand-tagline">Sistema de kiosko</div>
     </div>
     <div class="home-btns">
       <button class="btn-home monitor" onclick="goMonitorLogin()">🙋 Soy Monitor</button>
@@ -352,7 +352,7 @@ input[type=number]{-moz-appearance:textfield}
 <div id="mon-login-screen" class="screen">
   <div class="topbar">
     <button class="btn-back" onclick="showScreen('home')">←</button>
-    <div class="topbar-logo">SALDAÑA</div>
+    <div class="topbar-logo brand-nombre">Mi Kiosko</div>
     <div class="topbar-badge">Monitor</div>
   </div>
   <div class="scroll">
@@ -402,7 +402,7 @@ input[type=number]{-moz-appearance:textfield}
 <div id="enc-screen" class="screen">
   <div class="topbar">
     <button class="btn-back" onclick="showScreen('home')">←</button>
-    <div class="topbar-logo">SALDAÑA</div>
+    <div class="topbar-logo brand-nombre">Mi Kiosko</div>
     <div class="topbar-badge enc">⭐ Encargado</div>
   </div>
   <div class="enc-tabs">
@@ -448,15 +448,55 @@ try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();}catch(e){con
 // ══════════ STATE ══════════
 let S={
   config:{pin:'1234'},
-  monitores:['Ana','Carlos','Laura','Pablo','Marta','Sergio'],
+  branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',colorAccent:'#f0c040',colorBg:'#07111f'},
+  monitores:[],
   grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],
   stockKiosko:{},stockAlmacen:{}
 };
 let monitorActual=null,grupoActual=null,acampadoActual=null,carrito=[];
 let pinVal='',pinIntentos=0,pinBloqueado=false;
 
+// ══════════ BRANDING ══════════
+function applyBranding(){
+  const b=S.branding||{};
+  const nombre=b.nombre||'Mi Kiosko';
+  const tagline=b.tagline||'Sistema de kiosko';
+  const accent=b.colorAccent||'#f0c040';
+  const bg=b.colorBg||'#07111f';
+
+  // Colores CSS dinámicos
+  const r=document.documentElement.style;
+  r.setProperty('--accent',accent);
+  r.setProperty('--accent2',accent+'22');
+  r.setProperty('--accent3',accent+'44');
+  r.setProperty('--bg',bg);
+
+  // Calcular bg2/bg3/bg4 como versiones más claras del bg
+  const bgNum=parseInt(bg.replace('#',''),16);
+  const lighten=(hex,amt)=>{let n=parseInt(hex.replace('#',''),16);let r=Math.min(255,(n>>16)+amt);let g=Math.min(255,((n>>8)&0xff)+amt);let bl=Math.min(255,(n&0xff)+amt);return'#'+[r,g,bl].map(x=>x.toString(16).padStart(2,'0')).join('');};
+  r.setProperty('--bg2',lighten(bg,10));
+  r.setProperty('--bg3',lighten(bg,20));
+  r.setProperty('--bg4',lighten(bg,30));
+
+  // theme-color meta
+  document.querySelector('meta[name="theme-color"]').content=bg;
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').content=nombre;
+  document.title=nombre;
+
+  // Textos en HTML estático
+  document.querySelectorAll('.brand-nombre').forEach(el=>el.textContent=nombre);
+  document.querySelectorAll('.brand-tagline').forEach(el=>el.textContent=tagline);
+}
+
+function saveBranding(){
+  const nombre=document.getElementById('br-nombre').value.trim()||'Mi Kiosko';
+  const tagline=document.getElementById('br-tagline').value.trim()||'Sistema de kiosko';
+  const accent=document.getElementById('br-accent').value||'#f0c040';
+  const bg=document.getElementById('br-bg').value||'#07111f';
+  S.branding={nombre,tagline,colorAccent:accent,colorBg:bg};
+  save();applyBranding();toast('✅ Branding guardado');renderEncPanel('config');
+}
 // ══════════ STORAGE ══════════
-const SK='saldana_v4';
 async function save(){
   if(db){db.ref('saldana').set(S).catch(()=>{try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}});}
   else{try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
@@ -484,6 +524,7 @@ async function load(){
     }
   }catch(e){const saved=localStorage.getItem(SK);if(saved)try{S=JSON.parse(saved);}catch(e2){}}
   showScreen('home');
+  applyBranding();
 }
 
 // ══════════ NAV ══════════
@@ -1713,14 +1754,41 @@ function exportarExcel(){
   ];
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(resumenData),'Resumen');
 
-  const nombre=`SALDANA_${periodo==='todo'?'completo':periodo.replace(/\//g,'-')}.xlsx`;
-  XLSX.writeFile(wb,nombre);
+  const nombreArchivo=`${(S.branding?.nombre||'Kiosko').replace(/\s+/g,'_')}_${periodo==='todo'?'completo':periodo.replace(/\//g,'-')}.xlsx`;
+  XLSX.writeFile(wb,nombreArchivo);
   toast('✅ Excel exportado');
 }
 
 // ─── CONFIG ───
 function config(el){
+  const b=S.branding||{};
   el.innerHTML=`
+    <div class="card" style="border-color:rgba(240,192,64,.25)">
+      <div class="card-title" style="color:var(--accent)">🎨 Identidad del kiosko</div>
+      <div style="font-size:.83rem;color:var(--text2);margin-bottom:.75rem">Personaliza el nombre, descripción y colores que verán monitores y acampados.</div>
+      <div class="form-row">
+        <div class="fld"><label>Nombre del kiosko</label><input id="br-nombre" value="${b.nombre||''}" placeholder="Ej: Campamento Sol"></div>
+        <div class="fld"><label>Descripción corta</label><input id="br-tagline" value="${b.tagline||''}" placeholder="Ej: Sistema de kiosko"></div>
+      </div>
+      <div class="form-row">
+        <div class="fld"><label>Color principal</label>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <input type="color" id="br-accent" value="${b.colorAccent||'#f0c040'}" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--bg3);cursor:pointer;padding:2px">
+            <span style="font-size:.82rem;color:var(--text2)">Botones, logos, precios</span>
+          </div>
+        </div>
+        <div class="fld"><label>Color de fondo</label>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <input type="color" id="br-bg" value="${b.colorBg||'#07111f'}" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--bg3);cursor:pointer;padding:2px">
+            <span style="font-size:.82rem;color:var(--text2)">Fondo general de la app</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-acc" onclick="saveBranding()">💾 Guardar identidad</button>
+        <div style="font-size:.78rem;color:var(--text3)">Los cambios se aplican al instante en toda la app</div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-title">Grupos</div>
       <div class="form-row"><div class="fld"><label>Nombre del grupo</label><input id="cfg-g-nom" placeholder="Ej: Grupo Osos"></div></div>
@@ -1837,7 +1905,7 @@ function printDevolucion(){
     const gst=getGastado(a.id);const rest=(a.dineroInicial||0)-gst;
     return `<tr><td>${a.nombre}</td><td>${g?g.nombre:''}</td><td>${(a.dineroInicial||0).toFixed(2)}€</td><td>${gst.toFixed(2)}€</td><td><b>${rest.toFixed(2)}€</b></td></tr>`;
   }).join('');
-  w.document.write(`<!DOCTYPE html><html><head><title>Devolución SALDAÑA</title><style>body{font-family:sans-serif;padding:2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5}</style></head><body><h1>SALDAÑA — Devolución de dinero</h1><p>${new Date().toLocaleDateString('es-ES')}</p><table><thead><tr><th>Acampado</th><th>Grupo</th><th>Inicial</th><th>Gastado</th><th>A devolver</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><title>Devolución ${S.branding?.nombre||'Kiosko'}</title><style>body{font-family:sans-serif;padding:2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5}</style></head><body><h1>${S.branding?.nombre||'Kiosko'} — Devolución de dinero</h1><p>${new Date().toLocaleDateString('es-ES')}</p><table><thead><tr><th>Acampado</th><th>Grupo</th><th>Inicial</th><th>Gastado</th><th>A devolver</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
   w.print();
 }
 
