@@ -647,6 +647,7 @@ function entrarMonitor(){
   if(!monitorActual)return;
   document.getElementById('tb-monitor').textContent=monitorActual+' 👋';
   renderGrupos();showScreen('mon-grupos-screen');
+  setTimeout(tryShowOnboardingMon,400);
 }
 
 // ══════════ GRUPOS ══════════
@@ -695,7 +696,6 @@ function selAcampado(id){
   renderVenta();showScreen('mon-venta-screen');
   // Forzar scroll al top siempre al entrar en un acampado
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
-  setTimeout(tryShowOnboardingMon,400);
 }
 
 // ══════════ VENTA ══════════
