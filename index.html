@@ -307,7 +307,10 @@ tr:first-child td{border-top:none}
   .screen{display:block!important;height:auto!important;overflow:visible!important}
   .scroll{overflow:visible!important}
 }
-.hist-scroll::-webkit-scrollbar{width:3px}
+@media(max-width:600px){
+  .cfg-grid-3{grid-template-columns:1fr!important}
+  .cfg-grid-2{grid-template-columns:1fr!important}
+}
 .hist-scroll::-webkit-scrollbar-track{background:transparent}
 .hist-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 input[type=number]::-webkit-inner-spin-button,
@@ -371,12 +374,14 @@ input[type=number]{-moz-appearance:textfield}
   <div class="topbar">
     <button class="btn-back" onclick="showScreen('home')">←</button>
     <div class="topbar-logo brand-nombre">Mi Kiosko</div>
-    <div class="topbar-badge">Monitor</div>
+    <div class="topbar-badge brand-term">Monitor</div>
   </div>
-  <div class="scroll">
+  <div class="scroll" style="padding-bottom:80px">
     <div class="slabel">¿Quién eres hoy?</div>
     <div class="mon-grid" id="mon-grid"></div>
-    <button class="btn btn-acc" id="btn-entrar" onclick="entrarMonitor()" style="display:none;margin-top:.5rem">Entrar →</button>
+  </div>
+  <div id="mon-entrar-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.4)">
+    <button class="btn btn-acc" style="width:100%;justify-content:center;font-size:1rem;padding:.85rem" onclick="entrarMonitor()">Entrar como <span id="mon-entrar-nombre" style="font-weight:800"></span> →</button>
   </div>
 </div>
 
@@ -496,7 +501,9 @@ try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();}catch(e){con
 // ══════════ STATE ══════════
 let S={
   config:{pin:'1234'},
-  branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',tema:'oscuro'},
+  branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',tema:'oscuro',
+    termSing:'Monitor',termPlur:'Monitores',
+    clienteSing:'Acampado',clientePlur:'Acampados'},
   monitores:[],
   grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],
   stockKiosko:{},stockAlmacen:{}
@@ -537,16 +544,36 @@ function _applyTema(t){
   document.body.style.background=t.bg;
 }
 
+function getTerm(plural){return plural?(S.branding?.termPlur||'Monitores'):(S.branding?.termSing||'Monitor');}
+function getCliente(plural){return plural?(S.branding?.clientePlur||'Acampados'):(S.branding?.clienteSing||'Acampado');}
+
 function applyBranding(){
   const b=S.branding||{};
   const nombre=b.nombre||'Mi Kiosko';
   const tagline=b.tagline||'Sistema de kiosko';
+  const termSing=b.termSing||'Monitor';
+  const termPlur=b.termPlur||'Monitores';
+  const clienteSing=b.clienteSing||'Acampado';
+  const clientePlur=b.clientePlur||'Acampados';
   const tema=TEMAS[b.tema||'oscuro']||TEMAS.oscuro;
   _applyTema(tema);
   document.querySelector('meta[name="apple-mobile-web-app-title"]').content=nombre;
   document.title=nombre;
   document.querySelectorAll('.brand-nombre').forEach(el=>el.textContent=nombre);
   document.querySelectorAll('.brand-tagline').forEach(el=>el.textContent=tagline);
+  document.querySelectorAll('.brand-term').forEach(el=>el.textContent=termSing);
+  document.querySelectorAll('.brand-term-pl').forEach(el=>el.textContent=termPlur);
+  document.querySelectorAll('.brand-cliente').forEach(el=>el.textContent=clienteSing);
+  document.querySelectorAll('.brand-cliente-pl').forEach(el=>el.textContent=clientePlur);
+  // Botón home
+  const btnMon=document.querySelector('.btn-home.monitor');
+  if(btnMon)btnMon.textContent=`🙋 Soy ${termSing}`;
+  // Tab monitores
+  const tabMon=document.querySelector('.enc-tab[onclick*="\'monitores\'"]');
+  if(tabMon)tabMon.innerHTML=`👤 ${termPlur}`;
+  // Tab acampados
+  const tabAc=document.querySelector('.enc-tab[onclick*="\'acampados\'"]');
+  if(tabAc)tabAc.innerHTML=`👦 ${clientePlur}`;
 }
 
 let _previewSnapshot=null;
@@ -574,10 +601,14 @@ function revertirPreview(){
 function saveBranding(){
   const nombre=document.getElementById('br-nombre').value.trim()||'Mi Kiosko';
   const tagline=document.getElementById('br-tagline').value.trim()||'Sistema de kiosko';
+  const termSing=document.getElementById('br-term-sing').value.trim()||'Monitor';
+  const termPlur=document.getElementById('br-term-plur').value.trim()||'Monitores';
+  const clienteSing=document.getElementById('br-cli-sing').value.trim()||'Acampado';
+  const clientePlur=document.getElementById('br-cli-plur').value.trim()||'Acampados';
   const tema=document.querySelector('.tema-btn.sel')?.dataset.tema||S.branding?.tema||'oscuro';
-  S.branding={nombre,tagline,tema};
+  S.branding={nombre,tagline,tema,termSing,termPlur,clienteSing,clientePlur};
   _previewSnapshot=null;
-  save();applyBranding();toast('✅ Identidad guardada');renderEncPanel('config');
+  save();applyBranding();toast('✅ Configuración guardada');renderEncPanel('config');
 }
 // ══════════ STORAGE ══════════
 async function save(){
@@ -666,17 +697,21 @@ function pinOk(){
 // ══════════ MONITOR LOGIN ══════════
 function goMonitorLogin(){
   monitorActual=null;showScreen('mon-login-screen');
+  const bar=document.getElementById('mon-entrar-bar');
+  if(bar)bar.style.display='none';
   document.getElementById('mon-grid').innerHTML=(S.monitores||[]).map(m=>`
-    <div class="mon-card" onclick="selectMon('${m}',this)">
+    <div class="mon-card" onclick="selectMon('${m.replace(/'/g,"\\'")}',this)">
       <div class="mon-av">${m[0].toUpperCase()}</div>
       <div class="mon-name">${m}</div>
     </div>`).join('');
-  document.getElementById('btn-entrar').style.display='none';
 }
 function selectMon(nombre,el){
   document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');monitorActual=nombre;
-  document.getElementById('btn-entrar').style.display='';
+  const bar=document.getElementById('mon-entrar-bar');
+  const nom=document.getElementById('mon-entrar-nombre');
+  if(bar)bar.style.display='';
+  if(nom)nom.textContent=nombre;
 }
 function entrarMonitor(){
   if(!monitorActual)return;
@@ -713,11 +748,13 @@ function renderAcampados(){
   const el=document.getElementById('mon-acs-list');
   if(!lista.length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Sin acampados</div>';return;}
   el.innerHTML=lista.map(a=>{
-    const g=getGastado(a.id);const r=(a.dineroInicial||0)-g;const warn=r<5&&r>=0&&!a.bloqueado;
-    return `<div class="ac-item ${a.bloqueado?'blocked':''}" onclick="${a.bloqueado?'':('selAcampado('+a.id+')')}">
+    const g=getGastado(a.id);const r=(a.dineroInicial||0)-g;
+    const warn=r<5&&r>0&&!a.bloqueado;
+    const cero=r<=0&&!a.bloqueado;
+    return `<div class="ac-item ${a.bloqueado||cero?'blocked':''}" onclick="${a.bloqueado||cero?'':('selAcampado('+a.id+')')}">
       <div class="ac-av" style="background:${strColor(a.nombre)}">${a.nombre[0].toUpperCase()}</div>
       <div class="ac-name">${a.nombre}</div>
-      <div>${a.bloqueado?'<div class="saldo-block">⛔ Sin kiosko</div>':warn?`<div class="saldo-warn">⚠ ${r.toFixed(2)}€</div>`:'<div style="color:var(--text3);font-size:.85rem">›</div>'}</div>
+      <div>${a.bloqueado?'<div class="saldo-block">⛔ Sin kiosko</div>':cero?'<div class="saldo-block">⛔ Sin saldo</div>':warn?`<div class="saldo-warn">⚠ ${r.toFixed(2)}€</div>`:'<div style="color:var(--text3);font-size:.85rem">›</div>'}</div>
     </div>`;
   }).join('');
 }
@@ -1618,13 +1655,13 @@ function monitores(el){
 
   el.innerHTML=`
     <div class="stat-grid">
-      <div class="stat"><div class="stat-lbl">Nº monitores</div><div class="stat-val c-blue">${(S.monitores||[]).length}</div></div>
+      <div class="stat"><div class="stat-lbl">Nº ${getTerm(true)}</div><div class="stat-val c-blue">${(S.monitores||[]).length}</div></div>
       <div class="stat"><div class="stat-lbl">Top hoy</div><div class="stat-val c-acc" style="font-size:.85rem">${starHoy?starHoy[0]:'—'}</div></div>
       <div class="stat"><div class="stat-lbl">Recaudado hoy</div><div class="stat-val c-green">${totalHoy.toFixed(2)}€</div></div>
       <div class="stat"><div class="stat-lbl">Top total</div><div class="stat-val c-purple" style="font-size:.85rem">${starTotal&&starTotal[1].tot>0?starTotal[0]:'—'}</div></div>
     </div>
     <div class="card" style="padding:.75rem">
-      <div class="card-title">👤 Monitores</div>
+      <div class="card-title">👤 ${getTerm(true)}</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
         <thead><tr><th>Monitor</th><th>Ventas hoy</th><th>Total hoy</th><th>Ventas total</th><th>Total acumulado</th><th></th></tr></thead>
         <tbody>${(S.monitores||[]).map(m=>`<tr>
@@ -1640,8 +1677,8 @@ function monitores(el){
     <div class="card" style="padding:.75rem">
       <div class="card-title">🕐 Últimas 20 ventas</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
-        <thead><tr><th>Fecha</th><th>Monitor</th><th>Acampado</th><th>Items</th><th>Total</th></tr></thead>
-        <tbody>${(S.ventas||[]).slice(-20).reverse().map(v=>{
+        <thead><tr><th>Fecha</th><th>${getTerm()}</th><th>Acampado</th><th>Items</th><th>Total</th><th></th></tr></thead>
+        <tbody>${(S.ventas||[]).filter(v=>!v.anulada).slice(-20).reverse().map(v=>{
           const a=(S.acampados||[]).find(a=>a.id===v.acampadoId);
           return `<tr>
             <td style="font-size:.78rem;color:var(--text3)">${v.fecha}</td>
@@ -1649,6 +1686,7 @@ function monitores(el){
             <td>${a?a.nombre:'?'}</td>
             <td style="font-size:.78rem;color:var(--text2)">${(v.items||[]).map(i=>`${i.nombre}×${i.qty}`).join(', ')}</td>
             <td style="font-weight:700;color:var(--accent)">${v.total.toFixed(2)}€</td>
+            <td><button class="btn btn-danger btn-sm" onclick="anularVenta(${v.id})">✕ Anular</button></td>
           </tr>`;
         }).join('')}</tbody>
       </table></div></div>
@@ -1721,7 +1759,7 @@ function estadistica(el){
     <div class="card" style="padding:.75rem">
       <div class="card-title">📋 Resumen por día</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table style="table-layout:fixed">
-        <thead><tr><th style="width:25%">Día</th><th style="width:25%">Ventas</th><th style="width:25%">Recaudado</th><th style="width:25%">Monitor top</th></tr></thead>
+        <thead><tr><th style="width:25%">Día</th><th style="width:25%">Ventas</th><th style="width:25%">Recaudado</th><th style="width:25%">${getTerm(false)} top</th></tr></thead>
         <tbody>${dias.map(([dia,val])=>{
           const vDia=(S.ventas||[]).filter(v=>v.dia===dia);
           const n=vDia.length;
@@ -1738,7 +1776,7 @@ function estadistica(el){
     </div>
 
     <div class="card">
-      <div class="card-title">👦 Acampados destacados</div>
+      <div class="card-title">👦 ${getCliente(true)} destacados</div>
       ${acMaxHoy?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span>🔥 Más gasta hoy</span><span style="font-weight:700;color:var(--accent)">${acMaxHoy.n} · ${acMaxHoy.g.toFixed(2)}€</span></div>`:''}
       ${acMax?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span>🏆 Más gasta total</span><span style="font-weight:700;color:var(--accent)">${acMax.n} · ${acMax.g.toFixed(2)}€</span></div>`:''}
       ${acMin&&acMin.n!==acMax?.n?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;font-size:.88rem"><span>🪙 Menos gasta total</span><span style="font-weight:700;color:var(--text2)">${acMin.n} · ${acMin.g.toFixed(2)}€</span></div>`:''}
@@ -1860,8 +1898,28 @@ function exportarExcel(){
 // ─── CONFIG ───
 function config(el){
   const b=S.branding||{};
+  const tS=b.termSing||'Monitor';
+  const tP=b.termPlur||'Monitores';
+  const cS=b.clienteSing||'Acampado';
+  const cP=b.clientePlur||'Acampados';
   el.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:start">
+    <div class="card">
+      <div class="card-title" style="color:var(--accent)">✏️ Personalización</div>
+      <div style="font-size:.83rem;color:var(--text2);margin-bottom:.75rem">Adapta la app a tu negocio — nombre, descripción y cómo llamar a tus trabajadores y clientes.</div>
+      <div class="form-row">
+        <div class="fld"><label>Nombre del negocio</label><input id="br-nombre" value="${b.nombre||''}" placeholder="Ej: Campamento Sol"></div>
+        <div class="fld"><label>Descripción corta</label><input id="br-tagline" value="${b.tagline||''}" placeholder="Ej: Sistema de kiosko"></div>
+        <div class="fld"><label>Trabajador — singular</label><input id="br-term-sing" value="${tS}" placeholder="Ej: Monitor" oninput="autoPlural('br-term-sing','br-term-plur')"></div>
+        <div class="fld"><label>Trabajador — plural</label><input id="br-term-plur" value="${tP}" placeholder="Ej: Monitores"></div>
+        <div class="fld"><label>Cliente — singular</label><input id="br-cli-sing" value="${cS}" placeholder="Ej: Acampado" oninput="autoPlural('br-cli-sing','br-cli-plur')"></div>
+        <div class="fld"><label>Cliente — plural</label><input id="br-cli-plur" value="${cP}" placeholder="Ej: Acampados"></div>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+        <button class="btn btn-acc" onclick="saveBranding()">💾 Guardar</button>
+        <button class="btn btn-ghost" onclick="revertirPreview();renderEncPanel('config')">✕ Cancelar</button>
+      </div>
+    </div>
+    <div class="cfg-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:start">
       <div class="card">
         <div class="card-title">Grupos</div>
         <div class="form-row"><div class="fld"><label>Nombre del grupo</label><input id="cfg-g-nom" placeholder="Ej: Grupo Osos"></div></div>
@@ -1875,9 +1933,9 @@ function config(el){
         </div>
       </div>
       <div class="card">
-        <div class="card-title">Monitores del kiosko</div>
-        <div class="form-row"><div class="fld"><label>Nombre del monitor</label><input id="cfg-m-nom" placeholder="Ej: Ana García"></div></div>
-        <button class="btn btn-acc" onclick="addMonitor()">➕ Añadir monitor</button>
+        <div class="card-title">${tP}</div>
+        <div class="form-row"><div class="fld"><label>Nombre</label><input id="cfg-m-nom" placeholder="Ej: Ana García"></div></div>
+        <button class="btn btn-acc" onclick="addMonitor()">➕ Añadir ${tS}</button>
         <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.3rem">
           ${(S.monitores||[]).map(m=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--border)">
             <span style="flex:1;font-weight:600">${m}</span>
@@ -1887,29 +1945,7 @@ function config(el){
         </div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:stretch">
-      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title" style="color:var(--accent)">🎨 Identidad</div>
-        <div style="font-size:.83rem;color:var(--text2)">Personaliza el nombre, descripción y aspecto visual que verán monitores y acampados.</div>
-        <div class="fld"><label>Nombre del kiosko</label><input id="br-nombre" value="${b.nombre||''}" placeholder="Ej: Campamento Sol"></div>
-        <div class="fld"><label>Descripción corta</label><input id="br-tagline" value="${b.tagline||''}" placeholder="Ej: Sistema de kiosko"></div>
-        <div class="fld"><label>Tema</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-            <button class="tema-btn ${(b.tema||'oscuro')==='oscuro'?'sel':''}" data-tema="oscuro" onclick="selectTema(this)" style="padding:.75rem;border-radius:var(--r);border:2px solid ${(b.tema||'oscuro')==='oscuro'?'var(--accent)':'var(--border2)'};background:${(b.tema||'oscuro')==='oscuro'?'var(--accent2)':'var(--bg3)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem">
-              <span style="font-size:1.3rem">🌑</span>
-              <span style="font-size:.82rem;font-weight:600;color:var(--text)">Oscuro</span>
-            </button>
-            <button class="tema-btn ${b.tema==='claro'?'sel':''}" data-tema="claro" onclick="selectTema(this)" style="padding:.75rem;border-radius:var(--r);border:2px solid ${b.tema==='claro'?'var(--accent)':'var(--border2)'};background:${b.tema==='claro'?'var(--accent2)':'var(--bg3)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem">
-              <span style="font-size:1.3rem">☀️</span>
-              <span style="font-size:.82rem;font-weight:600;color:var(--text)">Claro</span>
-            </button>
-          </div>
-        </div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto">
-          <button class="btn btn-acc" onclick="saveBranding()">💾 Guardar</button>
-          <button class="btn btn-ghost" onclick="revertirPreview();renderEncPanel('config')">✕ Cancelar</button>
-        </div>
-      </div>
+    <div class="cfg-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:stretch">
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
         <div class="card-title">🔐 Cambiar PIN</div>
         <div style="font-size:.83rem;color:var(--text2)">Cambia el PIN de acceso al panel de encargado.</div>
@@ -1932,14 +1968,29 @@ function config(el){
           <button class="btn btn-acc" onclick="exportarExcel()">📊 Exportar Excel</button>
         </div>
       </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title">🎨 Tema</div>
+        <div style="font-size:.83rem;color:var(--text2)">Elige el aspecto visual de la app.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;flex:1;align-items:center">
+          <button class="tema-btn ${(b.tema||'oscuro')==='oscuro'?'sel':''}" data-tema="oscuro" onclick="selectTema(this)" style="padding:.75rem;border-radius:var(--r);border:2px solid ${(b.tema||'oscuro')==='oscuro'?'var(--accent)':'var(--border2)'};background:${(b.tema||'oscuro')==='oscuro'?'var(--accent2)':'var(--bg3)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem">
+            <span style="font-size:1.3rem">🌑</span>
+            <span style="font-size:.82rem;font-weight:600;color:var(--text)">Oscuro</span>
+          </button>
+          <button class="tema-btn ${b.tema==='claro'?'sel':''}" data-tema="claro" onclick="selectTema(this)" style="padding:.75rem;border-radius:var(--r);border:2px solid ${b.tema==='claro'?'var(--accent)':'var(--border2)'};background:${b.tema==='claro'?'var(--accent2)':'var(--bg3)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem">
+            <span style="font-size:1.3rem">☀️</span>
+            <span style="font-size:.82rem;font-weight:600;color:var(--text)">Claro</span>
+          </button>
+        </div>
+        <div style="margin-top:auto">
+          <button class="btn btn-acc" onclick="saveTema()">💾 Guardar tema</button>
+        </div>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:stretch">
+    <div class="cfg-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:stretch">
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
         <div class="card-title">📖 Guía de configuración</div>
-        <div style="font-size:.83rem;color:var(--text2);flex:1">Vuelve a ver el asistente de configuración inicial paso a paso. Útil si eres nuevo o quieres repasar cómo está todo montado.</div>
-        <div>
-          <button class="btn btn-ghost" onclick="S.config.obEncDone=false;save();obEncStep=0;renderObStep('enc');document.getElementById('ob-enc').classList.add('open')">📖 Ver guía inicial</button>
-        </div>
+        <div style="font-size:.83rem;color:var(--text2);flex:1">Vuelve a ver el asistente de configuración inicial paso a paso.</div>
+        <div><button class="btn btn-ghost" onclick="S.config.obEncDone=false;save();obEncStep=0;renderObStep('enc');document.getElementById('ob-enc').classList.add('open')">📖 Ver guía inicial</button></div>
       </div>
       <div class="card" style="border-color:rgba(255,87,87,.3);display:flex;flex-direction:column;gap:.75rem">
         <div class="card-title" style="color:var(--red)">⚠ Zona de peligro</div>
@@ -1950,6 +2001,56 @@ function config(el){
         </div>
       </div>
     </div>`;}
+
+function autoPlural(singId, plurId){
+  const sing=document.getElementById(singId)?.value||'';
+  const plurEl=document.getElementById(plurId);
+  if(!plurEl)return;
+  // Solo autocompletar si el plural está vacío o coincide con el patrón automático anterior
+  const auto=sing+'s';
+  plurEl.value=auto;
+}
+
+function saveTema(){
+  const tema=document.querySelector('.tema-btn.sel')?.dataset.tema||S.branding?.tema||'oscuro';
+  S.branding={...S.branding,tema};
+  _previewSnapshot=null;
+  save();applyBranding();toast('✅ Tema guardado');
+}
+
+function anularVenta(id){
+  const v=(S.ventas||[]).find(v=>v.id===id);if(!v)return;
+  const ac=(S.acampados||[]).find(a=>a.id===v.acampadoId);
+  openEditModal('Anular venta',`
+    <div style="font-size:.9rem;color:var(--text2);margin-bottom:.5rem">
+      <b style="color:var(--text)">${ac?ac.nombre:'?'}</b> · ${v.total.toFixed(2)}€ · ${v.fecha}
+    </div>
+    <div style="font-size:.83rem;color:var(--text2);margin-bottom:.75rem">
+      El saldo se devolverá automáticamente al acampado y el stock al kiosko.
+    </div>
+    <div class="fld"><label>Motivo de anulación</label><input id="anular-motivo" placeholder="Ej: Pedido equivocado"></div>
+  `,()=>{
+    const motivo=document.getElementById('anular-motivo').value.trim();
+    if(!motivo){toast('⚠ Indica el motivo',true);return;}
+    v.anulada=true;
+    v.anuladaPor='Encargado';
+    v.anuladaMotivo=motivo;
+    v.anuladaFecha=new Date().toLocaleString('es-ES');
+    // Devolver stock al kiosko
+    (v.items||[]).forEach(item=>{
+      const pids=item.esOferta?(item.prodIds||[]):[item.prodId];
+      pids.forEach(pid=>{
+        if(!S.stockKiosko[pid])S.stockKiosko[pid]={cantidad:0,minimo:5,tamPaquete:1};
+        S.stockKiosko[pid].cantidad+=item.qty;
+      });
+    });
+    save();toast('✅ Venta anulada — saldo y stock restaurados');
+    closeModal('edit-modal');renderEncPanel('monitores');
+  });
+  document.getElementById('em-btn').textContent='Anular venta';
+  document.getElementById('em-btn').style.background='var(--red)';
+  document.getElementById('em-btn').style.color='#fff';
+}
 
 function addGrupo(){
   const nom=document.getElementById('cfg-g-nom').value.trim();
@@ -2081,7 +2182,7 @@ function confirmDelete(tipo,id,msg,customCb){
     else if(tipo==='oferta'){S.ofertas=S.ofertas.filter(o=>o.id!==id);save();toast('Pack eliminado');renderEncPanel('productos');}
     else if(tipo==='grupo'){S.grupos=S.grupos.filter(g=>g.id!==id);save();toast('Eliminado');renderEncPanel('config');}
     else if(tipo==='ventas'){S.ventas=[];save();toast('Ventas borradas');renderEncPanel('config');}
-    else if(tipo==='todo'){S={config:{pin:'1234'},branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',tema:'oscuro'},monitores:[],grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],stockKiosko:{},stockAlmacen:{}};save();applyBranding();toast('App reiniciada');showScreen('home');}
+    else if(tipo==='todo'){S={config:{pin:'1234'},branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',tema:'oscuro',termSing:'Monitor',termPlur:'Monitores',clienteSing:'Acampado',clientePlur:'Acampados'},monitores:[],grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],stockKiosko:{},stockAlmacen:{}};save();applyBranding();toast('App reiniciada');showScreen('home');}
     closeModal('confirm-modal');
   };
   document.getElementById('confirm-modal').classList.add('open');
