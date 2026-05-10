@@ -496,7 +496,7 @@ try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();}catch(e){con
 // ══════════ STATE ══════════
 let S={
   config:{pin:'1234'},
-  branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',colorAccent:'#f0c040',colorBg:'#07111f'},
+  branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',tema:'oscuro',colorAccent:'#f0c040',colorSecundario:'#4a9eff'},
   monitores:[],
   grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],
   stockKiosko:{},stockAlmacen:{}
@@ -505,44 +505,114 @@ let monitorActual=null,grupoActual=null,acampadoActual=null,carrito=[];
 let pinVal='',pinIntentos=0,pinBloqueado=false;
 
 // ══════════ BRANDING ══════════
+const TEMAS={
+  oscuro:{
+    bg:'#07111f',bg2:'#0d1e30',bg3:'#142840',bg4:'#1a3350',
+    text:'#f0f0f5',text2:'#9090a8',text3:'#5a5a70',
+    border:'rgba(255,255,255,0.08)',border2:'rgba(255,255,255,0.14)',
+    label:'🌑 Oscuro'
+  },
+  claro:{
+    bg:'#f0f2f5',bg2:'#ffffff',bg3:'#e4e8ef',bg4:'#d4dae5',
+    text:'#1a1f2e',text2:'#4a5568',text3:'#8a9ab5',
+    border:'rgba(0,0,0,0.09)',border2:'rgba(0,0,0,0.16)',
+    label:'☀️ Claro'
+  },
+  atardecer:{
+    bg:'#1a0f0a',bg2:'#2a1810',bg3:'#3a2418',bg4:'#4a3020',
+    text:'#fdf0e8',text2:'#c8a882',text3:'#8a6848',
+    border:'rgba(255,160,80,0.1)',border2:'rgba(255,160,80,0.2)',
+    label:'🌅 Atardecer'
+  },
+  noche:{
+    bg:'#0d0d14',bg2:'#14141f',bg3:'#1c1c2e',bg4:'#24243c',
+    text:'#e8e8ff',text2:'#8888bb',text3:'#55557a',
+    border:'rgba(150,150,255,0.08)',border2:'rgba(150,150,255,0.15)',
+    label:'🌙 Noche'
+  },
+};
+
+function _applyTema(tema){
+  const r=document.documentElement.style;
+  r.setProperty('--bg',tema.bg);
+  r.setProperty('--bg2',tema.bg2);
+  r.setProperty('--bg3',tema.bg3);
+  r.setProperty('--bg4',tema.bg4);
+  r.setProperty('--text',tema.text);
+  r.setProperty('--text2',tema.text2);
+  r.setProperty('--text3',tema.text3);
+  r.setProperty('--border',tema.border);
+  r.setProperty('--border2',tema.border2);
+  document.querySelector('meta[name="theme-color"]').content=tema.bg;
+  // Forzar re-render de elementos con color dinámico
+  document.body.style.color=tema.text;
+  document.body.style.background=tema.bg;
+}
+function _applyAccent(accent){
+  const r=document.documentElement.style;
+  r.setProperty('--accent',accent);
+  r.setProperty('--accent2',accent+'28');
+  r.setProperty('--accent3',accent+'44');
+}
+function _applySecundario(sec){
+  const r=document.documentElement.style;
+  r.setProperty('--blue',sec);
+  r.setProperty('--blue2',sec+'28');
+  r.setProperty('--purple',sec);
+  r.setProperty('--purple2',sec+'18');
+}
+
 function applyBranding(){
   const b=S.branding||{};
   const nombre=b.nombre||'Mi Kiosko';
   const tagline=b.tagline||'Sistema de kiosko';
-  const accent=b.colorAccent||'#f0c040';
-  const bg=b.colorBg||'#07111f';
-
-  // Colores CSS dinámicos
-  const r=document.documentElement.style;
-  r.setProperty('--accent',accent);
-  r.setProperty('--accent2',accent+'22');
-  r.setProperty('--accent3',accent+'44');
-  r.setProperty('--bg',bg);
-
-  // Calcular bg2/bg3/bg4 como versiones más claras del bg
-  const bgNum=parseInt(bg.replace('#',''),16);
-  const lighten=(hex,amt)=>{let n=parseInt(hex.replace('#',''),16);let r=Math.min(255,(n>>16)+amt);let g=Math.min(255,((n>>8)&0xff)+amt);let bl=Math.min(255,(n&0xff)+amt);return'#'+[r,g,bl].map(x=>x.toString(16).padStart(2,'0')).join('');};
-  r.setProperty('--bg2',lighten(bg,10));
-  r.setProperty('--bg3',lighten(bg,20));
-  r.setProperty('--bg4',lighten(bg,30));
-
-  // theme-color meta
-  document.querySelector('meta[name="theme-color"]').content=bg;
+  const tema=TEMAS[b.tema||'oscuro']||TEMAS.oscuro;
+  _applyTema(tema);
+  _applyAccent(b.colorAccent||'#f0c040');
+  _applySecundario(b.colorSecundario||'#4a9eff');
   document.querySelector('meta[name="apple-mobile-web-app-title"]').content=nombre;
   document.title=nombre;
-
-  // Textos en HTML estático
   document.querySelectorAll('.brand-nombre').forEach(el=>el.textContent=nombre);
   document.querySelectorAll('.brand-tagline').forEach(el=>el.textContent=tagline);
+}
+
+// Preview en tiempo real — guarda estado anterior para poder revertir
+let _previewSnapshot=null;
+function _saveSnapshot(){
+  const b=S.branding||{};
+  _previewSnapshot={tema:b.tema||'oscuro',accent:b.colorAccent||'#f0c040',sec:b.colorSecundario||'#4a9eff'};
+}
+function previewTema(val){
+  if(!_previewSnapshot)_saveSnapshot();
+  const t=TEMAS[val]||TEMAS.oscuro;
+  _applyTema(t);
+}
+function previewAccent(val){
+  if(!_previewSnapshot)_saveSnapshot();
+  _applyAccent(val);
+}
+function previewSec(val){
+  if(!_previewSnapshot)_saveSnapshot();
+  _applySecundario(val);
+}
+function revertirPreview(){
+  if(!_previewSnapshot)return;
+  const t=TEMAS[_previewSnapshot.tema]||TEMAS.oscuro;
+  _applyTema(t);
+  _applyAccent(_previewSnapshot.accent);
+  _applySecundario(_previewSnapshot.sec);
+  _previewSnapshot=null;
 }
 
 function saveBranding(){
   const nombre=document.getElementById('br-nombre').value.trim()||'Mi Kiosko';
   const tagline=document.getElementById('br-tagline').value.trim()||'Sistema de kiosko';
+  const tema=document.getElementById('br-tema').value||'oscuro';
   const accent=document.getElementById('br-accent').value||'#f0c040';
-  const bg=document.getElementById('br-bg').value||'#07111f';
-  S.branding={nombre,tagline,colorAccent:accent,colorBg:bg};
-  save();applyBranding();toast('✅ Branding guardado');renderEncPanel('config');
+  const secundario=document.getElementById('br-sec').value||'#4a9eff';
+  S.branding={nombre,tagline,tema,colorAccent:accent,colorSecundario:secundario};
+  _previewSnapshot=null;
+  save();applyBranding();toast('✅ Identidad guardada');renderEncPanel('config');
 }
 // ══════════ STORAGE ══════════
 async function save(){
@@ -1438,6 +1508,7 @@ function editPack(id){
   });
 }
 function toggleOferta(id){const o=(S.ofertas||[]).find(o=>o.id===id);if(o){o.activo=!o.activo;save();renderEncPanel('productos');}}
+function toggleProd(id){const p=(S.productos||[]).find(p=>p.id===id);if(p){p.activo=!p.activo;save();renderEncPanel('productos');}}
 
 // ─── STOCK ───
 function stock(el){
@@ -1825,33 +1896,6 @@ function exportarExcel(){
 function config(el){
   const b=S.branding||{};
   el.innerHTML=`
-    <div class="card" style="border-color:rgba(240,192,64,.25)">
-      <div class="card-title" style="color:var(--accent)">🎨 Identidad del kiosko</div>
-      <div style="font-size:.83rem;color:var(--text2);margin-bottom:.75rem">Personaliza el nombre, descripción y colores que verán monitores y acampados.</div>
-      <div class="form-row">
-        <div class="fld"><label>Nombre del kiosko</label><input id="br-nombre" value="${b.nombre||''}" placeholder="Ej: Campamento Sol"></div>
-        <div class="fld"><label>Descripción corta</label><input id="br-tagline" value="${b.tagline||''}" placeholder="Ej: Sistema de kiosko"></div>
-      </div>
-      <div class="form-row">
-        <div class="fld"><label>Color principal</label>
-          <div style="display:flex;align-items:center;gap:.5rem">
-            <input type="color" id="br-accent" value="${b.colorAccent||'#f0c040'}" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--bg3);cursor:pointer;padding:2px">
-            <span style="font-size:.82rem;color:var(--text2)">Botones, logos, precios</span>
-          </div>
-        </div>
-        <div class="fld"><label>Color de fondo</label>
-          <div style="display:flex;align-items:center;gap:.5rem">
-            <input type="color" id="br-bg" value="${b.colorBg||'#07111f'}" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--bg3);cursor:pointer;padding:2px">
-            <span style="font-size:.82rem;color:var(--text2)">Fondo general de la app</span>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-acc" onclick="saveBranding()">💾 Guardar identidad</button>
-        <button class="btn btn-ghost" onclick="S.config.obEncDone=false;save();obEncStep=0;renderObStep('enc');document.getElementById('ob-enc').classList.add('open')">📖 Ver guía inicial</button>
-        <div style="font-size:.78rem;color:var(--text3)">Los cambios se aplican al instante en toda la app</div>
-      </div>
-    </div>
     <div class="card">
       <div class="card-title">Grupos</div>
       <div class="form-row"><div class="fld"><label>Nombre del grupo</label><input id="cfg-g-nom" placeholder="Ej: Grupo Osos"></div></div>
@@ -1874,35 +1918,79 @@ function config(el){
         </div>`).join('')}
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">Cambiar PIN</div>
-      <div class="form-row">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:stretch">
+      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title" style="color:var(--accent)">🎨 Identidad</div>
+        <div class="fld"><label>Nombre del kiosko</label><input id="br-nombre" value="${b.nombre||''}" placeholder="Ej: Campamento Sol"></div>
+        <div class="fld"><label>Descripción corta</label><input id="br-tagline" value="${b.tagline||''}" placeholder="Ej: Sistema de kiosko"></div>
+        <div class="fld"><label>Tema base</label>
+          <select id="br-tema" onchange="previewTema(this.value)" style="width:100%">
+            <option value="oscuro" ${(b.tema||'oscuro')==='oscuro'?'selected':''}>🌑 Oscuro</option>
+            <option value="claro" ${b.tema==='claro'?'selected':''}>☀️ Claro</option>
+            <option value="atardecer" ${b.tema==='atardecer'?'selected':''}>🌅 Atardecer</option>
+            <option value="noche" ${b.tema==='noche'?'selected':''}>🌙 Noche</option>
+          </select>
+        </div>
+        <div class="fld"><label>Color principal</label>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <input type="color" id="br-accent" value="${b.colorAccent||'#f0c040'}" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--bg3);cursor:pointer;padding:2px" oninput="previewAccent(this.value)">
+            <span style="font-size:.82rem;color:var(--text2)">Botones y precios</span>
+          </div>
+        </div>
+        <div class="fld"><label>Color secundario</label>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <input type="color" id="br-sec" value="${b.colorSecundario||'#4a9eff'}" style="width:44px;height:36px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--bg3);cursor:pointer;padding:2px" oninput="previewSec(this.value)">
+            <span style="font-size:.82rem;color:var(--text2)">Badges y stats</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto">
+          <button class="btn btn-acc" onclick="saveBranding()">💾 Guardar</button>
+          <button class="btn btn-ghost" onclick="revertirPreview();renderEncPanel('config')">✕ Cancelar</button>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title">🔐 Cambiar PIN</div>
+        <div style="font-size:.83rem;color:var(--text2)">Cambia el PIN de acceso al panel de encargado.</div>
         <div class="fld"><label>PIN actual</label><input type="password" id="pin-act" placeholder="PIN actual"></div>
         <div class="fld"><label>PIN nuevo (mín. 4 dígitos)</label><input type="password" id="pin-nuevo" placeholder="PIN nuevo"></div>
+        <div style="margin-top:auto">
+          <button class="btn btn-acc" onclick="cambiarPin()">🔐 Cambiar PIN</button>
+        </div>
       </div>
-      <button class="btn btn-acc" onclick="cambiarPin()">🔐 Cambiar PIN</button>
-    </div>
-<div class="card">
-      <div class="card-title">📊 Exportar a Excel</div>
-      <div style="font-size:.83rem;color:var(--text2);margin-bottom:.75rem">Exporta todos los datos del campamento o de un día concreto.</div>
-      <div class="form-row">
-        <div class="fld" style="min-width:220px"><label>Período</label>
+      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title">📊 Exportar a Excel</div>
+        <div style="font-size:.83rem;color:var(--text2)">Exporta todos los datos del campamento o de un día concreto.</div>
+        <div class="fld"><label>Período</label>
           <select id="exp-periodo" style="width:100%">
             <option value="todo">Todo el campamento</option>
             ${[...new Set((S.ventas||[]).map(v=>v.dia))].sort().map(d=>`<option value="${d}">${d}</option>`).join('')}
           </select>
         </div>
+        <div style="margin-top:auto">
+          <button class="btn btn-green" onclick="exportarExcel()">📊 Exportar Excel</button>
+        </div>
       </div>
-      <button class="btn btn-green" onclick="exportarExcel()">📊 Exportar Excel</button>
     </div>
-    <div class="card" style="border-color:rgba(255,87,87,.3)">
-      <div class="card-title" style="color:var(--red)">⚠ Zona de peligro</div>
-      <div style="display:flex;flex-wrap:wrap;gap:.5rem">
-        <button class="btn btn-danger" onclick="confirmDelete('ventas',null,'¿Borrar TODAS las ventas?')">Borrar todas las ventas</button>
-        <button class="btn btn-danger" onclick="confirmDelete('todo',null,'¿REINICIAR toda la app? Se borra todo.')">Reiniciar app</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:stretch">
+      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title">📖 Guía de configuración</div>
+        <div style="font-size:.83rem;color:var(--text2);flex:1">Vuelve a ver el asistente de configuración inicial paso a paso. Útil si eres nuevo o quieres repasar cómo está todo montado.</div>
+        <div>
+          <button class="btn btn-ghost" onclick="S.config.obEncDone=false;save();obEncStep=0;renderObStep('enc');document.getElementById('ob-enc').classList.add('open')">📖 Ver guía inicial</button>
+        </div>
       </div>
-    </div>`;
+      <div class="card" style="border-color:rgba(255,87,87,.3);display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title" style="color:var(--red)">⚠ Zona de peligro</div>
+        <div style="font-size:.83rem;color:var(--text2);flex:1">Acciones irreversibles. Úsalas con cuidado.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+          <button class="btn btn-danger" onclick="confirmDelete('ventas',null,'¿Borrar TODAS las ventas?')">🗑 Borrar ventas</button>
+          <button class="btn btn-danger" onclick="confirmDelete('todo',null,'¿REINICIAR toda la app? Se borra todo.')">⚠ Reiniciar app</button>
+        </div>
+      </div>
+    </div>`;}
+
 }
+
 function addGrupo(){
   const nom=document.getElementById('cfg-g-nom').value.trim();
   if(!nom){toast('⚠ Nombre vacío',true);return;}
@@ -2022,7 +2110,7 @@ function confirmDelete(tipo,id,msg,customCb){
     else if(tipo==='oferta'){S.ofertas=S.ofertas.filter(o=>o.id!==id);save();toast('Pack eliminado');renderEncPanel('productos');}
     else if(tipo==='grupo'){S.grupos=S.grupos.filter(g=>g.id!==id);save();toast('Eliminado');renderEncPanel('config');}
     else if(tipo==='ventas'){S.ventas=[];save();toast('Ventas borradas');renderEncPanel('config');}
-    else if(tipo==='todo'){S={config:{pin:'1234'},monitores:[],grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],stockKiosko:{},stockAlmacen:{}};save();toast('App reiniciada');showScreen('home');}
+    else if(tipo==='todo'){S={config:{pin:'1234'},branding:{nombre:'Mi Kiosko',tagline:'Sistema de kiosko',tema:'oscuro',colorAccent:'#f0c040',colorSecundario:'#4a9eff'},monitores:[],grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],stockKiosko:{},stockAlmacen:{}};save();applyBranding();toast('App reiniciada');showScreen('home');}
     closeModal('confirm-modal');
   };
   document.getElementById('confirm-modal').classList.add('open');
