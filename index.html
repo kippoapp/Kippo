@@ -709,12 +709,13 @@ function goMonitorLogin(){
   monitorActual=null;showScreen('mon-login-screen');
   const bar=document.getElementById('mon-entrar-bar');
   if(bar)bar.style.display='none';
-  document.getElementById('mon-grid').innerHTML=(S.monitores||[]).map(m=>`
-    <div class="mon-card" onclick="selectMon('${m.replace(/'/g,"\\'")}',this)">
-      <div class="mon-av">${m[0].toUpperCase()}</div>
-      <div class="mon-name">${m}</div>
-    </div>`).join('');
+  document.getElementById('mon-grid').innerHTML=(S.monitores||[]).map((m,idx)=>
+    '<div class="mon-card" onclick="selectMonIdx('+idx+',this)">'
+    +'<div class="mon-av">'+m[0].toUpperCase()+'</div>'
+    +'<div class="mon-name">'+m+'</div></div>').join('');
 }
+
+function selectMonIdx(idx,el){selectMon((S.monitores||[])[idx],el);}
 function selectMon(nombre,el){
   document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');monitorActual=nombre;
@@ -1119,7 +1120,7 @@ function grupos(el){
             <td style="display:flex;gap:.3rem;flex-wrap:nowrap">
               <button class="btn btn-ghost btn-sm" onclick="editNotaGrupo(${g.id})">📝</button>
               <button class="btn btn-acc btn-sm" onclick="editGrupo(${g.id})">✏</button>
-              <button class="btn btn-danger btn-sm" onclick="confirmDelete('grupo',${g.id},'¿Eliminar ${g.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete('grupo',${g.id},'¿Eliminar ${g.nombre}?')">🗑</button>
             </td>
           </tr>`;
         }).join('')}</tbody>
@@ -1194,7 +1195,7 @@ function acampados(el){
                   <button class="btn btn-acc btn-sm" onclick="editAcampado(${a.id})">✏</button>
                   <button class="btn btn-ghost btn-sm" onclick="editNota(${a.id})">📝</button>
                   <button class="btn btn-ghost btn-sm" onclick="toggleBloqueo(${a.id})">${a.bloqueado?'✅':'⛔'}</button>
-                  <button class="btn btn-danger btn-sm" onclick="confirmDelete('acampado',${a.id},'¿Eliminar a ${a.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+                  <button class="btn btn-danger btn-sm" onclick="confirmDelete('acampado',${a.id},'¿Eliminar a ${a.nombre}?')">🗑</button>
                 </td>
               </tr>`;
             }).join('')}</tbody>
@@ -1356,7 +1357,7 @@ function productos(el){
         <td><div class="toggle" onclick="toggleOfertaProd(${p.id})"><div class="tgl-track ${p.oferta?'on':''}"><div class="tgl-thumb"></div></div></td>
         <td style="display:flex;gap:.35rem;flex-wrap:wrap">
           <button class="btn btn-acc btn-sm" onclick="editProducto(${p.id})">✏</button>
-          <button class="btn btn-danger btn-sm" onclick="confirmDelete('producto',${p.id},'¿Eliminar ${p.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete('producto',${p.id},'¿Eliminar ${p.nombre}?')">🗑</button>
         </td>
       </tr>`).join('')}</tbody>
     </table></div></div>
@@ -1377,7 +1378,7 @@ function productos(el){
           <td><div class="toggle" onclick="toggleOferta(${o.id})"><div class="tgl-track ${o.activo?'on':''}"><div class="tgl-thumb"></div></div></div></td>
           <td style="display:flex;gap:.3rem">
             <button class="btn btn-acc btn-sm" onclick="editPack(${o.id})">✏</button>
-            <button class="btn btn-danger btn-sm" onclick="confirmDelete('oferta',${o.id},'¿Eliminar pack ${o.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete('oferta',${o.id},'¿Eliminar pack ${o.nombre}?')">🗑</button>
           </td>
         </tr>`;
       }).join('')}</tbody>
@@ -1797,9 +1798,9 @@ function monitores(el){
           <td><span class="badge badge-blue">${totM[m]?.n||0}</span></td>
           <td style="color:var(--text2)">${(totM[m]?.tot||0).toFixed(2)}€</td>
           <td style="display:flex;gap:.3rem;flex-wrap:nowrap">
-            <button class="btn btn-ghost btn-sm" onclick="verResumenMonitor('${m.replace(/'/g,"\\'")}')">📊</button>
-            <button class="btn btn-acc btn-sm" onclick="editMonitor('${m.replace(/'/g,"\\'")}')">✏</button>
-            <button class="btn btn-danger btn-sm" onclick="confirmDelete('monitor',null,'¿Eliminar a ${m.replace(/'/g,"\\'")}?',()=>delMonitor('${m.replace(/'/g,"\\'")}'))">🗑</button>
+            <button class="btn btn-ghost btn-sm" onclick="verResumenMonitor('${m}')">📊</button>
+            <button class="btn btn-acc btn-sm" onclick="editMonitor('${m}')">✏</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete('monitor',null,'¿Eliminar a ${m}?',()=>delMonitor('${m}'))">🗑</button>
           </td>
         </tr>`).join('')}</tbody>
       </table></div></div>
