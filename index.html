@@ -1959,14 +1959,7 @@ function estadistica(el){
       </div>
       <div id="lista-hv"></div>
     </div>
-    ${(()=>{const anuladas=(S.ventas||[]).filter(v=>v.anulada);return anuladas.length?`
-    <div class="card" style="border-color:rgba(255,87,87,.2)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="card-title" style="margin:0;color:var(--red)">📋 Historial de anulaciones</div>
-        ${anuladas.length>5?`<button class="btn btn-ghost btn-sm" id="btn-toggle-ha" onclick="toggleHistorial('ha',5,20,'btn-toggle-ha','lista-ha')">Ver más</button>`:''}
-      </div>
-      <div id="lista-ha"></div>
-    </div>`:'';})()}
+    ${_renderBloqueAnuladas()}
   `;
   // Rellenar historiales después de insertar el HTML
   setTimeout(()=>{
@@ -1977,6 +1970,15 @@ function estadistica(el){
   },0);
 }
 
+function _renderBloqueAnuladas(){
+  var anuladas=(S.ventas||[]).filter(function(v){return v.anulada;});
+  if(!anuladas.length)return '';
+  var btn=anuladas.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ha" onclick="toggleHistorial(&apos;ha&apos;,5,20,&apos;btn-toggle-ha&apos;,&apos;lista-ha&apos;)">Ver m\u00e1s<\/button>':'';
+  return '<div class="card" style="border-color:rgba(255,87,87,.2)">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">'
+    +'<div class="card-title" style="margin:0;color:var(--red)">Historial de anulaciones<\/div>'
+    +btn+'<\/div><div id="lista-ha"><\/div><\/div>';
+}
 function renderHistorialVentas(limite){
   const ventas=(S.ventas||[]).filter(v=>!v.anulada);
   const lista=limite?ventas.slice(-limite).reverse():ventas.slice().reverse();
@@ -2462,9 +2464,17 @@ function printDevolucion(){
   const rows=(S.acampados||[]).map(a=>{
     const g=(S.grupos||[]).find(g=>g.id===a.grupoId);
     const gst=getGastado(a.id);const rest=(a.dineroInicial||0)-gst;
-    return `<tr><td>${a.nombre}</td><td>${g?g.nombre:''}</td><td>${(a.dineroInicial||0).toFixed(2)}€</td><td>${gst.toFixed(2)}€</td><td><b>${rest.toFixed(2)}€</b></td></tr>`;
+    return '<tr><td>'+a.nombre+'</td><td>'+(g?g.nombre:'')+'</td><td>'+((a.dineroInicial||0).toFixed(2))+'\u20ac</td><td>'+gst.toFixed(2)+'\u20ac</td><td><b>'+rest.toFixed(2)+'\u20ac</b></td></tr>';
   }).join('');
-  w.document.write(`<!DOCTYPE html><html><head><title>Devolución ${S.branding?.nombre||'Kiosko'}</title><style>body{font-family:sans-serif;padding:2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5}</style></head><body><h1>${S.branding?.nombre||'Kiosko'} — Devolución de dinero</h1><p>${new Date().toLocaleDateString('es-ES')}</p><table><thead><tr><th>Acampado</th><th>Grupo</th><th>Inicial</th><th>Gastado</th><th>A devolver</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+  const _n=S.branding&&S.branding.nombre?S.branding.nombre:'Kiosko';
+  const _d=new Date().toLocaleDateString('es-ES');
+  const _h='<!DOCTYPE html><html>'
+    +'<head><title>Devoluci\u00f3n '+_n+'<\/title>'
+    +'<style>body{font-family:sans-serif;padding:2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5}<\/style><\/head>'
+    +'<body><h1>'+_n+' \u2014 Devoluci\u00f3n de dinero<\/h1><p>'+_d+'<\/p>'
+    +'<table><thead><tr><th>Acampado<\/th><th>Grupo<\/th><th>Inicial<\/th><th>Gastado<\/th><th>A devolver<\/th><\/tr><\/thead>'
+    +'<tbody>'+rows+'<\/tbody><\/table><\/body><\/html>';
+  w.document.write(_h);
   w.print();
 }
 
