@@ -498,9 +498,13 @@ input[type=number]{-moz-appearance:textfield}
 <script>
 // ══════════ FIREBASE ══════════
 let db;
-try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();}catch(e){console.warn('Firebase error',e)}
+try{
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db=firebase.database();
+}catch(e){console.warn('Firebase error',e)}
 
 // ══════════ STATE ══════════
+const SK = 'kippo_state';
 let S={
   config:{pin:'1234'},
   branding:{nombre:'Kippo',tagline:'Sistema de kiosko',tema:'oscuro',
@@ -2494,6 +2498,9 @@ function strColor(str){
 // ══════════ INIT ══════════
 window.addEventListener('load',()=>{
   document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+  if(!db){
+    try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();}catch(e){}
+  }
   setTimeout(load,600);
 });
 </script>
