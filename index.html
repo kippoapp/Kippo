@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kippo">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <meta name="theme-color" content="#07111f">
 <title>Kippo</title>
 <script>
@@ -258,7 +261,7 @@ tr:first-child td{border-top:none}
 /* BOTTOM PADDING for floating bar */
 .venta-scroll-pad{height:80px;flex-shrink:0}
 
-/* STOCK GRID - 50/50 escritorio, 100% móvil */
+/* STOCK GRID */
 .stock-top{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:start}
 .prod-top{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:stretch}
 @media(max-width:600px){.prod-top{grid-template-columns:1fr}}
@@ -267,13 +270,13 @@ tr:first-child td{border-top:none}
 @media(max-width:600px){.stock-top{grid-template-columns:1fr}.prod-top{grid-template-columns:1fr}}
 
 /* TOAST */
-#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.875rem;font-weight:500;padding:.65rem 1.25rem;border-radius:99px;z-index:9999;white-space:nowrap;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.875rem;font-weight:500;padding:.65rem 1.25rem;border-radius:99px;z-index:9999;white-space:nowrap;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04)}
 #toast.show{transform:translateX(-50%) translateY(0)}
 
 /* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(8px)}
 .modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:380px;display:flex;flex-direction:column;gap:1rem}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:1.5rem;width:100%;max-width:380px;display:flex;flex-direction:column;gap:1rem;box-shadow:0 24px 64px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04)}
 .modal-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700}
 .modal-body{font-size:.9rem;color:var(--text2);line-height:1.6}
 .modal-actions{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
@@ -283,22 +286,88 @@ tr:first-child td{border-top:none}
 .c-red{color:var(--red)}.c-purple{color:var(--purple)}.c-orange{color:var(--orange)}
 
 /* ONBOARDING WIZARD */
-.ob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.ob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(12px)}
 .ob-overlay.open{display:flex}
-.ob-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;width:100%;max-width:400px;overflow:hidden;display:flex;flex-direction:column}
-.ob-progress{height:3px;background:var(--bg4)}
-.ob-bar{height:100%;background:var(--accent);transition:width .4s ease}
-.ob-body{padding:1.75rem 1.5rem;display:flex;flex-direction:column;gap:1rem}
+.ob-card{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:400px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04)}
+.ob-progress{height:2px;background:var(--bg4)}
+.ob-bar{height:100%;background:var(--accent);transition:width .4s ease;box-shadow:0 0 8px rgba(240,192,64,.6)}
+.ob-body{padding:2rem 1.75rem;display:flex;flex-direction:column;gap:1rem}
 .ob-step-label{font-size:.72rem;font-weight:600;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase}
 .ob-icon{font-size:2.5rem;line-height:1}
 .ob-title{font-family:var(--font-head);font-size:1.2rem;font-weight:800;line-height:1.3}
 .ob-desc{font-size:.9rem;color:var(--text2);line-height:1.6}
 .ob-tip{background:var(--accent2);border:1px solid var(--accent3);border-radius:var(--r2);padding:.65rem .85rem;font-size:.82rem;color:var(--accent);line-height:1.5}
-.ob-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.75rem;background:var(--bg)}
-.ob-dots{display:flex;gap:.4rem}
-.ob-dot{width:7px;height:7px;border-radius:50%;background:var(--bg4);transition:background .2s}
-.ob-dot.active{background:var(--accent)}
+.ob-footer{padding:1rem 1.75rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.75rem;background:var(--bg)}
+.ob-dots{display:flex;gap:.4rem;align-items:center}
+.ob-dot{width:6px;height:6px;border-radius:99px;background:var(--bg4);transition:background .25s,width .25s}
+.ob-dot.active{background:var(--accent);width:18px;box-shadow:0 0 6px rgba(240,192,64,.5)}
 .ob-dot.done{background:var(--green)}
+
+/* HOVER — cards interactivas */
+.grupo-item{transition:background .15s,border-color .15s}
+.grupo-item:hover{background:var(--bg3);border-color:var(--border2)}
+.ac-item{transition:background .15s,border-color .15s}
+.ac-item:not(.blocked):hover{background:var(--bg3);border-color:var(--border2)}
+.mon-card{transition:border-color .15s,background .15s,box-shadow .15s}
+.mon-card:hover{border-color:var(--accent);background:var(--accent2);box-shadow:0 0 0 1px var(--accent3),0 4px 16px rgba(240,192,64,.08)}
+.prod-card{transition:border-color .12s,transform .1s,box-shadow .12s,background .12s}
+.prod-card:hover{border-color:var(--accent3);box-shadow:0 0 16px rgba(240,192,64,.08)}
+
+/* HOVER — buttons */
+.btn{transition:opacity .12s,transform .08s,box-shadow .12s,background .12s,border-color .12s,filter .12s}
+.btn-acc:hover{box-shadow:0 0 20px rgba(240,192,64,.3);filter:brightness(1.06)}
+.btn-ghost:hover{border-color:var(--border2);background:var(--bg4);color:var(--text)}
+.btn-danger:hover{background:rgba(255,87,87,.22);border-color:rgba(255,87,87,.5)}
+.btn-green:hover{background:rgba(61,214,140,.22)}
+.btn-home.monitor:hover{box-shadow:0 0 28px rgba(240,192,64,.35);filter:brightness(1.06)}
+.btn-home.enc:hover{border-color:var(--accent);color:var(--accent);background:var(--accent2)}
+.btn-back:hover{background:var(--bg4);border-color:var(--border2);color:var(--text)}
+
+/* HOVER — tabs */
+.enc-tab:hover:not(.active){color:var(--text2);background:rgba(255,255,255,.03)}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.card-title{font-family:var(--font-head);font-size:.82rem;font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:.75rem}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;flex-shrink:0;position:relative;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+
+/* INPUTS — focus glow */
+.fld input:focus,.fld select:focus,.fld textarea:focus,.search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,192,64,.1)}
+
+/* LOADING */
+#loading{background:var(--bg);align-items:center;justify-content:center;gap:1.5rem;flex-direction:column}
+.loader-logo{font-family:var(--font-head);font-size:2.8rem;font-weight:800;color:var(--accent);letter-spacing:8px;text-shadow:0 0 40px rgba(240,192,64,.4)}
+.loader-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite;box-shadow:0 0 10px rgba(240,192,64,.6)}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* HOME */
+.home-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(240,192,64,.1) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none}
+.home-logo{font-family:var(--font-head);font-size:clamp(1.8rem,8vw,3rem);font-weight:800;color:var(--accent);letter-spacing:clamp(3px,2vw,8px);text-align:center;text-shadow:0 0 30px rgba(240,192,64,.35)}
+
+/* PIN */
+.pin-card{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:2rem 1.75rem;width:100%;max-width:300px;display:flex;flex-direction:column;gap:1.25rem;align-items:center;box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03)}
+.pin-key{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);color:var(--text);font-family:var(--font-head);font-size:1.3rem;font-weight:700;padding:.85rem;cursor:pointer;transition:background .1s,transform .08s,border-color .1s,box-shadow .1s;text-align:center}
+.pin-key:hover{background:var(--bg4);border-color:var(--border2)}
+.pin-key:active{transform:scale(.93);box-shadow:0 0 0 2px var(--accent3)}
+.pin-key.confirm{background:var(--accent);color:#1a1400}
+.pin-key.confirm:hover{box-shadow:0 0 18px rgba(240,192,64,.45)}
+
+/* BADGE */
+.topbar-badge.enc{background:var(--purple2);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+
+/* STATS */
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1rem;min-width:0;transition:border-color .15s}
+.stat:hover{border-color:var(--border2)}
+
+/* FLOATING BAR */
+.floating-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
+.floating-btn{background:var(--green);color:#0a1a12;border:none;font-family:var(--font-head);font-size:.95rem;font-weight:700;padding:.75rem 1.5rem;border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .1s,box-shadow .15s}
+.floating-btn:not(:disabled):hover{box-shadow:0 0 20px rgba(61,214,140,.35)}
+.floating-btn:not(:disabled):active{opacity:.85;transform:scale(.98)}
+.floating-btn:disabled{opacity:.35;cursor:not-allowed}
+
 @media print{
   body{background:#fff;color:#000}
   .topbar,.enc-tabs,.btn,.btn-back,.search-wrap{display:none!important}
@@ -319,6 +388,7 @@ input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
@@ -326,7 +396,7 @@ input[type=number]{-moz-appearance:textfield}
 <div id="loading" class="screen active">
   <div class="loader-logo brand-nombre">Kippo</div>
   <div class="loader-dot"></div>
-  <div style="color:var(--text3);font-size:.8rem;margin-top:.5rem">Conectando...</div>
+  <div style="color:var(--text3);font-size:.78rem;margin-top:.25rem;letter-spacing:2px;text-transform:uppercase">Conectando</div>
 </div>
 
 <!-- HOME -->
@@ -334,13 +404,17 @@ input[type=number]{-moz-appearance:textfield}
   <div class="home-grid"></div>
   <div class="home-glow"></div>
   <div class="home-content">
-    <div>
+    <div style="text-align:center">
       <div class="home-logo brand-nombre">Kippo</div>
       <div class="home-tagline brand-tagline">Sistema de kiosko</div>
     </div>
     <div class="home-btns">
-      <button class="btn-home monitor" onclick="goMonitorLogin()">🙋 Soy Monitor</button>
-      <button class="btn-home enc" onclick="goPin()">🔐 Encargado / Director</button>
+      <button class="btn-home monitor" onclick="goMonitorLogin()">
+        <i data-lucide="user" style="width:18px;height:18px"></i> Soy Monitor
+      </button>
+      <button class="btn-home enc" onclick="goPin()">
+        <i data-lucide="shield" style="width:18px;height:18px"></i> Encargado / Director
+      </button>
     </div>
   </div>
 </div>
@@ -360,20 +434,20 @@ input[type=number]{-moz-appearance:textfield}
       <button class="pin-key" onclick="pinKey('7')">7</button>
       <button class="pin-key" onclick="pinKey('8')">8</button>
       <button class="pin-key" onclick="pinKey('9')">9</button>
-      <button class="pin-key" onclick="pinDel()">⌫</button>
+      <button class="pin-key" onclick="pinDel()"><i data-lucide="delete" style="width:16px;height:16px;vertical-align:-2px"></i></button>
       <button class="pin-key" onclick="pinKey('0')">0</button>
-      <button class="pin-key confirm" onclick="pinOk()">✓</button>
+      <button class="pin-key confirm" onclick="pinOk()"><i data-lucide="check" style="width:16px;height:16px;vertical-align:-2px"></i></button>
     </div>
     <div class="pin-err" id="pin-err"></div>
     <div id="pin-default-hint" style="font-size:.78rem;color:var(--text3);text-align:center;margin-top:.25rem;line-height:1.5"></div>
-    <button class="btn-back" onclick="showScreen('home')" style="margin-top:.25rem">← Volver</button>
+    <button class="btn-back" onclick="showScreen('home')" style="margin-top:.25rem"><i data-lucide="arrow-left" style="width:13px;height:13px;vertical-align:-2px"></i> Volver</button>
   </div>
 </div>
 
 <!-- MON: LOGIN -->
 <div id="mon-login-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('home')">←</button>
+    <button class="btn-back" onclick="showScreen('home')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-logo brand-nombre">Kippo</div>
     <div class="topbar-badge brand-term">Monitor</div>
   </div>
@@ -382,14 +456,14 @@ input[type=number]{-moz-appearance:textfield}
     <div class="mon-grid" id="mon-grid"></div>
   </div>
   <div id="mon-entrar-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.4)">
-    <button class="btn btn-acc" style="width:100%;justify-content:center;font-size:1rem;padding:.85rem" onclick="entrarMonitor()">Entrar como <span id="mon-entrar-nombre" style="font-weight:800"></span> →</button>
+    <button class="btn btn-acc" style="width:100%;justify-content:center;font-size:1rem;padding:.85rem" onclick="entrarMonitor()">Entrar como <span id="mon-entrar-nombre" style="font-weight:800"></span> <i data-lucide="arrow-right" style="width:14px;height:14px;vertical-align:-2px"></i></button>
   </div>
 </div>
 
 <!-- MON: GRUPOS -->
 <div id="mon-grupos-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-login-screen')">←</button>
+    <button class="btn-back" onclick="showScreen('mon-login-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-monitor">Grupos</div>
     <button class="btn-back" onclick="cerrarTurno()" style="background:var(--red2);border-color:rgba(255,87,87,.3);color:var(--red)">Cerrar turno</button>
   </div>
@@ -399,13 +473,13 @@ input[type=number]{-moz-appearance:textfield}
 <!-- MON: ACAMPADOS -->
 <div id="mon-acs-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-grupos-screen')">←</button>
+    <button class="btn-back" onclick="showScreen('mon-grupos-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-grupo">Grupo</div>
     <div class="topbar-badge">Monitor</div>
   </div>
   <div class="scroll">
     <div class="search-wrap">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><i data-lucide="search" style="width:14px;height:14px;vertical-align:-2px"></i></span>
       <input class="search-input" type="search" id="search-ac" placeholder="Buscar acampado..." oninput="renderAcampados()">
     </div>
     <div id="mon-acs-list" style="display:flex;flex-direction:column;gap:.6rem"></div>
@@ -415,7 +489,7 @@ input[type=number]{-moz-appearance:textfield}
 <!-- MON: VENTA -->
 <div id="mon-venta-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-acs-screen')">←</button>
+    <button class="btn-back" onclick="showScreen('mon-acs-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-acampado">Venta</div>
     <div class="topbar-badge">Monitor</div>
   </div>
@@ -425,19 +499,19 @@ input[type=number]{-moz-appearance:textfield}
 <!-- ENC PANEL -->
 <div id="enc-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('home')">←</button>
+    <button class="btn-back" onclick="showScreen('home')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-logo brand-nombre">Kippo</div>
-    <div class="topbar-badge enc">⭐ Encargado</div>
+    <div class="topbar-badge enc"><i data-lucide="star" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"></i>Encargado</div>
   </div>
   <div class="enc-tabs">
-    <button class="enc-tab active" onclick="encTab('resumen',this)">📊 Resumen</button>
-    <button class="enc-tab" onclick="encTab('grupos',this)">👥 Grupos</button>
-    <button class="enc-tab" onclick="encTab('acampados',this)">👦 Acampados</button>
-    <button class="enc-tab" onclick="encTab('monitores',this)">👤 Monitores</button>
-    <button class="enc-tab" onclick="encTab('productos',this)">🛒 Productos</button>
-    <button class="enc-tab" onclick="encTab('stock',this)">📦 Stock</button>
-    <button class="enc-tab" onclick="encTab('estadistica',this)">📈 Estadística</button>
-    <button class="enc-tab" onclick="encTab('config',this)">⚙️ Configuración</button>
+    <button class="enc-tab active" onclick="encTab('resumen',this)"><i data-lucide="layout-dashboard" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Resumen</button>
+    <button class="enc-tab" onclick="encTab('grupos',this)"><i data-lucide="users" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Grupos</button>
+    <button class="enc-tab" onclick="encTab('acampados',this)"><i data-lucide="user-round" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i><span class="brand-cliente-pl">Acampados</span></button>
+    <button class="enc-tab" onclick="encTab('monitores',this)"><i data-lucide="user-check" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i><span class="brand-term-pl">Monitores</span></button>
+    <button class="enc-tab" onclick="encTab('productos',this)"><i data-lucide="shopping-bag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Productos</button>
+    <button class="enc-tab" onclick="encTab('stock',this)"><i data-lucide="package" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Stock</button>
+    <button class="enc-tab" onclick="encTab('estadistica',this)"><i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Estadística</button>
+    <button class="enc-tab" onclick="encTab('config',this)"><i data-lucide="settings" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Config</button>
   </div>
   <div class="scroll" id="enc-content"></div>
 </div>
@@ -493,6 +567,40 @@ input[type=number]{-moz-appearance:textfield}
     </div>
   </div>
 </div>
+<!-- MODAL CONTACTO -->
+<div class="ob-overlay" id="ob-contacto">
+  <div class="ob-card" style="max-width:420px">
+    <div class="ob-body" style="gap:.85rem">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:.6rem">
+          <i data-lucide="message-circle" style="width:20px;height:20px;vertical-align:-2px"></i>
+          <div class="ob-title" style="font-size:1rem;margin:0">Contactar con Kippo</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ob-contacto').classList.remove('open')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+      </div>
+      <div class="ob-desc" style="font-size:.82rem;margin:0">¿Tienes un problema o una sugerencia? Te respondemos lo antes posible.</div>
+      <div class="fld"><label>Nombre de la empresa</label><input id="ct-empresa" type="text" placeholder="Ej: Campamento Sol"></div>
+      <div class="fld"><label>Email de contacto</label><input id="ct-email" type="email" placeholder="tu@email.com"></div>
+      <div class="fld"><label>Tipo de consulta</label>
+        <select id="ct-tipo">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="Error en la app">🔴 Error en la app</option>
+          <option value="Problema con ventas o cobros">💰 Problema con ventas o cobros</option>
+          <option value="Problema con acampados o saldos">Problema con acampados o saldos</option>
+          <option value="Problema con el stock">Problema con el stock</option>
+          <option value="Idea o sugerencia">💡 Idea o sugerencia</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="fld"><label>Descripción</label><textarea id="ct-desc" placeholder="Cuéntanos qué ha pasado o qué tienes en mente..." style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-family:var(--font-body);font-size:.9rem;padding:.55rem .75rem;resize:vertical;min-height:90px;width:100%"></textarea></div>
+    </div>
+    <div class="ob-footer" style="justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('ob-contacto').classList.remove('open')">Cancelar</button>
+      <button class="btn btn-acc" onclick="enviarContacto()"><i data-lucide="send" style="width:13px;height:13px;vertical-align:-2px"></i> Enviar mensaje</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -569,13 +677,13 @@ function applyBranding(){
   document.querySelectorAll('.brand-cliente-pl').forEach(el=>el.textContent=clientePlur);
   // Botón home
   const btnMon=document.querySelector('.btn-home.monitor');
-  if(btnMon)btnMon.textContent=`🙋 Soy ${termSing}`;
+  if(btnMon)btnMon.innerHTML=`<i data-lucide="user" style="width:18px;height:18px"></i> Soy ${termSing}`;
   // Tab monitores
   const tabMon=document.querySelector('.enc-tab[onclick*="\'monitores\'"]');
-  if(tabMon)tabMon.innerHTML=`👤 ${termPlur}`;
+  if(tabMon)tabMon.innerHTML=`<i data-lucide="user-check" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>${termPlur}`;
   // Tab acampados
   const tabAc=document.querySelector('.enc-tab[onclick*="\'acampados\'"]');
-  if(tabAc)tabAc.innerHTML=`👦 ${clientePlur}`;
+  if(tabAc)tabAc.innerHTML=`<i data-lucide="user-round" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>${clientePlur}`;
 }
 
 let _previewSnapshot=null;
@@ -660,6 +768,7 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen=id;
+  if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
   const map={'mon-grupos-screen':renderGrupos,'mon-acs-screen':renderAcampados,'mon-venta-screen':renderVenta,'enc-screen':()=>{const a=document.querySelector('.enc-tab.active');if(a)a.click();}};
@@ -674,7 +783,7 @@ function goPin(){
   // Mostrar hint solo si el PIN sigue siendo el de por defecto
   const hint=document.getElementById('pin-default-hint');
   if(S.config.pin==='1234'){
-    hint.innerHTML='PIN por defecto: <b style="color:var(--accent);letter-spacing:2px">1234</b><br><span style="font-size:.72rem">Cámbialo desde ⚙️ Configuración una vez dentro</span>';
+    hint.innerHTML='PIN por defecto: <b style="color:var(--accent);letter-spacing:2px">1234</b><br><span style="font-size:.72rem">Cámbialo desde Configuración una vez dentro</span>';
   } else {
     hint.innerHTML='';
   }
@@ -689,19 +798,22 @@ function updatePinDots(){
 }
 function pinOk(){
   if(pinBloqueado){document.getElementById('pin-err').textContent='Bloqueado. Espera 2 minutos.';return;}
-  if(pinVal===S.config.pin){
-    pinIntentos=0;pinVal='';updatePinDots();document.getElementById('pin-err').textContent='';
-    document.removeEventListener('keydown',pinKeyboard);
-    document.querySelectorAll('.enc-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelector('.enc-tab').classList.add('active');
-    renderEncPanel('resumen');showScreen('enc-screen');
-    setTimeout(tryShowOnboardingEnc,400);
-  } else {
-    pinIntentos++;
-    if(pinIntentos>=5){pinBloqueado=true;document.getElementById('pin-err').textContent='5 intentos fallidos. Bloqueado 2 minutos.';setTimeout(()=>{pinBloqueado=false;pinIntentos=0;document.getElementById('pin-err').textContent='';},120000);}
-    else document.getElementById('pin-err').textContent=`PIN incorrecto. Intento ${pinIntentos}/5`;
-    pinVal='';updatePinDots();
-  }
+  const intentado=pinVal;
+  isMasterPin(intentado).then(esMaestro=>{
+    if(esMaestro||intentado===S.config.pin){
+      pinIntentos=0;pinVal='';updatePinDots();document.getElementById('pin-err').textContent='';
+      document.removeEventListener('keydown',pinKeyboard);
+      document.querySelectorAll('.enc-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelector('.enc-tab').classList.add('active');
+      renderEncPanel('resumen');showScreen('enc-screen');
+      setTimeout(tryShowOnboardingEnc,400);
+    } else {
+      pinIntentos++;
+      if(pinIntentos>=5){pinBloqueado=true;document.getElementById('pin-err').textContent='5 intentos fallidos. Bloqueado 2 minutos.';setTimeout(()=>{pinBloqueado=false;pinIntentos=0;document.getElementById('pin-err').textContent='';},120000);}
+      else document.getElementById('pin-err').textContent=`PIN incorrecto. Intento ${pinIntentos}/5`;
+      pinVal='';updatePinDots();
+    }
+  });
 }
 
 // ══════════ MONITOR LOGIN ══════════
@@ -764,7 +876,7 @@ function renderAcampados(){
     return `<div class="ac-item ${a.bloqueado||cero?'blocked':''}" onclick="${a.bloqueado||cero?'':('selAcampado('+a.id+')')}">
       <div class="ac-av" style="background:${strColor(a.nombre)}">${a.nombre[0].toUpperCase()}</div>
       <div class="ac-name">${a.nombre}</div>
-      <div>${a.bloqueado?'<div class="saldo-block">⛔ Sin kiosko</div>':cero?'<div class="saldo-block">⛔ Sin saldo</div>':warn?`<div class="saldo-warn">⚠ ${r.toFixed(2)}€</div>`:'<div style="color:var(--text3);font-size:.85rem">›</div>'}</div>
+      <div>${a.bloqueado?'<div class="saldo-block">Sin kiosko</div>':cero?'<div class="saldo-block">Sin saldo</div>':warn?`<div class="saldo-warn">⚠ ${r.toFixed(2)}€</div>`:'<div style="color:var(--text3);font-size:.85rem">›</div>'}</div>
     </div>`;
   }).join('');
 }
@@ -802,7 +914,7 @@ function renderProdPorCategoria(prods){
   prods.forEach(p=>{const c=p.categoria||'Otros';if(!cats[c])cats[c]=[];cats[c].push(p);});
   if(!Object.keys(cats).length)return '<div style="color:var(--text3);text-align:center;padding:1rem">Sin productos activos</div>';
   return Object.entries(cats).map(([cat,ps])=>`
-    <div class="slabel" style="margin-top:.1rem">${getCatEmoji(cat)} ${cat}</div>
+    <div class="slabel" style="margin-top:.1rem">${catChip(cat,true)}</div>
     <div class="prod-grid">${ps.map(renderProdCard).join('')}</div>
   `).join('');
 }
@@ -834,15 +946,15 @@ function renderVenta(){
     <div class="venta-header">
       <div class="ac-av" style="background:${strColor(ac.nombre)};width:44px;height:44px">${ac.nombre[0].toUpperCase()}</div>
       <div><div class="venta-name">${ac.nombre}</div>
-        <div class="venta-saldo ${warn?'saldo-warn':'saldo-ok'}">${warn?`⚠ Saldo bajo: ${restante.toFixed(2)}€`:'Saldo disponible'}</div>
+        <div class="venta-saldo ${warn?'saldo-warn':'saldo-ok'}">${warn?`Saldo bajo: ${restante.toFixed(2)}€`:'Saldo disponible'}</div>
       </div>
     </div>
     <div class="search-wrap">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon"><i data-lucide="search" style="width:14px;height:14px;vertical-align:-2px"></i></span>
       <input class="search-input" type="search" id="search-prod" placeholder="Buscar producto..." oninput="filtrarProductos()">
     </div>
     ${ofertas.length?`
-    <div class="slabel">🎁 Packs / Ofertas</div>
+    <div class="slabel"><i data-lucide="gift" style="width:13px;height:13px;vertical-align:-2px"></i> Packs / Ofertas</div>
     <div class="prod-grid">${ofertas.map(o=>{
       const pn=o.prodIds.reduce((s,pid)=>{const p=(S.productos||[]).find(p=>p.id===pid);return s+(p?p.precio:0);},0);
       const enC=carrito.find(i=>i.ofertaId===o.id);const qO=enC?enC.qty:0;
@@ -858,7 +970,7 @@ function renderVenta(){
     }).join('')}</div>`:''}
     <div id="prod-lista">${renderProdPorCategoria(prods)}</div>
     ${carrito.length?`<div class="carrito-card">
-      <div class="carrito-titulo">🧺 PEDIDO ACTUAL</div>
+      <div class="carrito-titulo"><i data-lucide="shopping-cart" style="width:13px;height:13px;vertical-align:-2px;margin-right:5px"></i> PEDIDO ACTUAL</div>
       ${carrito.map((item,i)=>`
         <div class="carrito-item">
           <span class="ci-name">${item.nombre} ×${item.qty}</span>
@@ -882,10 +994,11 @@ function renderVenta(){
       <div class="floating-amount">${totalCarrito.toFixed(2)}€</div>
     </div>
     <button class="floating-btn" ${carrito.length===0||saldoTras<0?'disabled':''} onclick="enviarVenta()">
-      ✅ Confirmar
+      <i data-lucide="check-circle" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px"></i> Confirmar
     </button>
   `;
   screen.appendChild(bar);
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function addProd(id){
   const p=(S.productos||[]).find(p=>p.id===id);if(!p)return;
@@ -940,12 +1053,23 @@ function cerrarTurno(){
       </div>
       ${top.length?`<div style="padding:.5rem 0"><div style="color:var(--text2);margin-bottom:.35rem;font-size:.85rem">Más vendidos</div>
         ${top.map((p,i)=>`<div style="display:flex;justify-content:space-between;font-size:.88rem;padding:.15rem 0">
-          <span>${['🥇','🥈','🥉'][i]} ${p[0]}</span><span style="color:var(--accent)">${p[1]} uds</span>
+          <span>${`<span style='color:var(--accent);font-weight:700;font-size:.78rem'>#${i+1}</span>`} ${p[0]}</span><span style="color:var(--accent)">${p[1]} uds</span>
         </div>`).join('')}</div>`:''}
       ${(()=>{const acGasto={};vT.forEach(v=>{acGasto[v.acampadoId]=(acGasto[v.acampadoId]||0)+v.total;});const topAc=Object.entries(acGasto).sort((a,b)=>b[1]-a[1])[0];const acNom=topAc?(S.acampados||[]).find(a=>a.id==topAc[0]):null;return acNom?`<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem"><span style="color:var(--text2)">Mayor compra</span><span style="font-weight:700;color:var(--accent)">${acNom.nombre} · ${topAc[1].toFixed(2)}€</span></div>`:'';})()}
-      <div style="color:var(--text3);font-size:.8rem;text-align:center;padding-top:.25rem">¡Buen trabajo! 💪</div>
+      <div style="color:var(--text3);font-size:.8rem;text-align:center;padding-top:.25rem">¡Buen trabajo!</div>
     </div>`,()=>{closeModal('edit-modal');showScreen('home');});
   document.getElementById('em-btn').textContent='Cerrar sesión';
+}
+
+// ══════════ PIN MAESTRO ══════════
+const MASTER_PIN_HASH='5b87cf2a5ebc4d839c93e6474ef66d73d35d5246806b49a71023230788abca0a';
+async function hashPin(pin){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pin));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function isMasterPin(pin){
+  const h=await hashPin(pin);
+  return h===MASTER_PIN_HASH;
 }
 
 // ══════════ ENCARGADO ══════════
@@ -967,6 +1091,7 @@ function renderEncPanel(tab){
   el.appendChild(sec);
   const renders={resumen,grupos,acampados,monitores,productos,stock,estadistica,config};
   if(renders[tab])renders[tab](sec);
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),50);
 }
 
 // ─── RESUMEN ───
@@ -1011,24 +1136,24 @@ function resumen(el){
       <div class="stat"><div class="stat-lbl">Hora punta hoy</div><div class="stat-val c-green">${(()=>{const h={};vHoy.forEach(v=>{const hora=parseInt((v.fecha||'').split(',')[1]?.trim()?.split(':')[0]||'0');h[hora]=(h[hora]||0)+1;});const top=Object.entries(h).sort((a,b)=>b[1]-a[1])[0];return top?top[0]+'h':'—';})()}</div></div>
     </div>
     ${stockBajoK.map(p=>`<div class="alert danger"><div class="alert-dot"></div>⚠ Stock bajo kiosko: <b>${p.nombre}</b> (${(S.stockKiosko[p.id]||{cantidad:0}).cantidad} uds)</div>`).join('')}
-    ${stockBajoA.map(p=>`<div class="alert warn"><div class="alert-dot"></div>📦 Stock bajo almacén: <b>${p.nombre}</b> (${(S.stockAlmacen[p.id]||{cantidad:0}).cantidad} uds)</div>`).join('')}
+    ${stockBajoA.map(p=>`<div class="alert warn"><div class="alert-dot"></div><i data-lucide="warehouse" style="width:13px;height:13px;vertical-align:-2px"></i> Stock bajo almacén: <b>${p.nombre}</b> (${(S.stockAlmacen[p.id]||{cantidad:0}).cantidad} uds)</div>`).join('')}
     ${sinSaldo.length?`<div class="alert info"><div class="alert-dot"></div>Saldo bajo: ${sinSaldo.map(a=>a.nombre).join(', ')}</div>`:''}
     <div class="card">
-      <div class="card-title">📦 Ranking productos hoy</div>
-      ${top.length?top.map((t,i)=>`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.9rem"><span>${['🥇','🥈','🥉','🏅','🎖️'][i]} ${t.n}</span><span class="c-acc" style="font-weight:700">${t.q} uds</span></div>`).join(''):'<div style="color:var(--text3);font-size:.85rem">Sin ventas hoy</div>'}
+      <div class="card-title"><i data-lucide="package" style="width:13px;height:13px;vertical-align:-2px"></i> Ranking productos hoy</div>
+      ${top.length?top.map((t,i)=>`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.9rem"><span>${`<span style='color:var(--accent);font-weight:700;font-size:.78rem'>#${i+1}</span>`} ${t.n}</span><span class="c-acc" style="font-weight:700">${t.q} uds</span></div>`).join(''):'<div style="color:var(--text3);font-size:.85rem">Sin ventas hoy</div>'}
       <div style="margin-top:.5rem"><div class="slabel" style="margin-bottom:.25rem">Menos vendidos hoy</div>
-        ${bot.map(t=>`<div style="display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.85rem"><span>📉 ${t.n}</span><span style="color:${t.q===0?'var(--red)':'var(--text3)'}">${t.q===0?'Sin ventas':t.q+' uds'}</span></div>`).join('')}
+        ${bot.map(t=>`<div style="display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.85rem"><span><i data-lucide="trending-down" style="width:12px;height:12px;vertical-align:-2px;margin-right:3px"></i> ${t.n}</span><span style="color:${t.q===0?'var(--red)':'var(--text3)'}">${t.q===0?'Sin ventas':t.q+' uds'}</span></div>`).join('')}
       </div>
     </div>
     <div class="card">
-      <div class="card-title">👦 Top acampados hoy</div>
+      <div class="card-title"><i data-lucide="user-round" style="width:13px;height:13px;vertical-align:-2px"></i> Top acampados hoy</div>
       ${top3Ac.length?top3Ac.map((a,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem">
-        <span>${['🥇','🥈','🥉'][i]} ${a.n}</span>
+        <span>${`<span style='color:var(--accent);font-weight:700;font-size:.78rem'>#${i+1}</span>`} ${a.n}</span>
         <span style="font-weight:700;color:var(--accent)">${a.g.toFixed(2)}€</span>
       </div>`).join(''):'<div style="color:var(--text3);font-size:.85rem">Sin ventas hoy</div>'}
     </div>
     <div class="card">
-      <div class="card-title">👥 Grupos hoy</div>
+      <div class="card-title"><i data-lucide="users" style="width:13px;height:13px;vertical-align:-2px"></i> Grupos hoy</div>
       ${grpHoy.length?`
         ${grpHoy.map(g=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem">
           <span style="font-weight:600">${g.n}</span>
@@ -1038,7 +1163,7 @@ function resumen(el){
     </div>
     <div class="card" id="card-ventas-hoy">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="card-title" style="margin:0">🕐 Ventas de hoy</div>
+        <div class="card-title" style="margin:0"><i data-lucide="clock" style="width:13px;height:13px;vertical-align:-2px"></i> Ventas de hoy</div>
         <button class="btn btn-ghost btn-sm" id="btn-toggle-vhoy" onclick="toggleHistorial('vhoy',20,50,'btn-toggle-vhoy','lista-vhoy')">Ver más</button>
       </div>
       <div id="lista-vhoy">
@@ -1092,14 +1217,14 @@ function grupos(el){
       <div class="stat"><div class="stat-lbl">Por devolver</div><div class="stat-val c-purple">${totalDev.toFixed(2)}€</div></div>
     </div>
     <div class="card">
-      <div class="card-title">➕ Añadir grupo</div>
+      <div class="card-title"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir grupo</div>
       <div style="display:flex;gap:.5rem;align-items:flex-end">
         <div class="fld" style="flex:1;margin:0"><label>Nombre del grupo</label><input id="grp-nom" placeholder="Ej: Grupo Osos"></div>
-        <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0" onclick="addGrupoDesdeTab()">➕ Añadir</button>
+        <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0" onclick="addGrupoDesdeTab()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir</button>
       </div>
     </div>
     <div class="card" style="padding:.75rem">
-      <div class="card-title">👥 Grupos</div>
+      <div class="card-title"><i data-lucide="users" style="width:13px;height:13px;vertical-align:-2px"></i> Grupos</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
         <thead><tr><th>Grupo</th><th>${cP}</th><th>Custodiado</th><th>Gastado</th><th>Restante</th><th>Progreso</th><th>Nota</th><th>Acciones</th></tr></thead>
         <tbody>${gastoGrupo.map(g=>{
@@ -1117,9 +1242,9 @@ function grupos(el){
             </td>
             <td style="font-size:.78rem;color:var(--blue);max-width:150px">${g.nota||'—'}</td>
             <td style="display:flex;gap:.3rem;flex-wrap:nowrap">
-              <button class="btn btn-ghost btn-sm" onclick="editNotaGrupo(${g.id})">📝</button>
-              <button class="btn btn-acc btn-sm" onclick="editGrupo(${g.id})">✏</button>
-              <button class="btn btn-danger btn-sm" onclick="confirmDelete('grupo',${g.id},'¿Eliminar ${g.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+              <button class="btn btn-ghost btn-sm" onclick="editNotaGrupo(${g.id})"><i data-lucide="file-pen-line" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+              <button class="btn btn-acc btn-sm" onclick="editGrupo(${g.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete('grupo',${g.id},'¿Eliminar ${g.nombre.replace(/'/g,"\\'")}?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
             </td>
           </tr>`;
         }).join('')}</tbody>
@@ -1159,12 +1284,12 @@ function acampados(el){
       <div class="stat"><div class="stat-lbl">Por devolver</div><div class="stat-val c-green">${(totalDin-totalGast).toFixed(2)}€</div></div>
     </div>
     <div class="card">
-      <div class="card-title">➕ Añadir ${cS}</div>
+      <div class="card-title"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px"></i> ${cS}</div>
       <div style="display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap">
         <div class="fld" style="flex:2;min-width:140px;margin:0"><label>Nombre completo</label><input type="text" id="nac-nom" placeholder="Nombre y apellido"></div>
         <div class="fld" style="flex:1;min-width:110px;margin:0"><label>Grupo</label><select id="nac-grp" style="width:100%">${(S.grupos||[]).map(g=>`<option value="${g.id}">${g.nombre}</option>`).join('')}</select></div>
         <div class="fld" style="flex:1;min-width:100px;margin:0"><label>Dinero inicial (€)</label><input type="number" id="nac-din" step="0.01" min="0" placeholder="0.00"></div>
-        <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0;align-self:flex-end" onclick="addAcampado()">➕ Añadir</button>
+        <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0;align-self:flex-end" onclick="addAcampado()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir</button>
       </div>
     </div>
     <div class="card" style="padding:.75rem">
@@ -1181,20 +1306,20 @@ function acampados(el){
             <thead><tr><th>Nombre</th><th>Inicial</th><th>Gastado</th><th>Favorito</th><th>Restante</th><th>Nota</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>${acs.map(a=>{
               const g2=getGastado(a.id);const r=(a.dineroInicial||0)-g2;
-              const fav=(()=>{const c={};(S.ventas||[]).filter(v=>v.acampadoId===a.id).forEach(v=>(v.items||[]).forEach(i=>{c[i.nombre]=(c[i.nombre]||0)+i.qty;}));const t=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return t?'🛒 '+t[0]+' ('+t[1]+'uds)':'—';})();
+              const fav=(()=>{const c={};(S.ventas||[]).filter(v=>v.acampadoId===a.id).forEach(v=>(v.items||[]).forEach(i=>{c[i.nombre]=(c[i.nombre]||0)+i.qty;}));const t=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return t?t[0]+' ('+t[1]+'uds)':'—';})();
               return `<tr>
                 <td style="font-weight:600">${a.nombre}</td>
                 <td>${(a.dineroInicial||0).toFixed(2)}€</td>
                 <td>${g2.toFixed(2)}€</td>
                 <td style="color:var(--blue);font-size:.8rem">${fav}</td>
                 <td style="font-weight:700;color:${r<5?'var(--orange)':'var(--green)'}">${r.toFixed(2)}€</td>
-                <td style="font-size:.78rem;color:var(--orange)">${a.nota?'⚠ '+a.nota:'—'}</td>
+                <td style="font-size:.78rem;color:var(--orange)">${a.nota?''+a.nota:'—'}</td>
                 <td>${a.bloqueado?'<span class="badge badge-red">Sin kiosko</span>':'<span class="badge badge-green">OK</span>'}</td>
                 <td style="display:flex;gap:.3rem;flex-wrap:nowrap;align-items:center">
-                  <button class="btn btn-acc btn-sm" onclick="editAcampado(${a.id})">✏</button>
-                  <button class="btn btn-ghost btn-sm" onclick="editNota(${a.id})">📝</button>
-                  <button class="btn btn-ghost btn-sm" onclick="toggleBloqueo(${a.id})">${a.bloqueado?'✅':'⛔'}</button>
-                  <button class="btn btn-danger btn-sm" onclick="confirmDelete('acampado',${a.id},'¿Eliminar a ${a.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+                  <button class="btn btn-acc btn-sm" onclick="editAcampado(${a.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+                  <button class="btn btn-ghost btn-sm" onclick="editNota(${a.id})"><i data-lucide="file-pen-line" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+                  <button class="btn btn-ghost btn-sm" onclick="toggleBloqueo(${a.id})">${a.bloqueado?'<i data-lucide="check-circle" style="width:13px;height:13px;vertical-align:-2px"></i>':'<i data-lucide="ban" style="width:13px;height:13px;vertical-align:-2px"></i>'}</button>
+                  <button class="btn btn-danger btn-sm" onclick="confirmDelete('acampado',${a.id},'¿Eliminar a ${a.nombre.replace(/'/g,"\\'")}?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
                 </td>
               </tr>`;
             }).join('')}</tbody>
@@ -1247,31 +1372,31 @@ function productos(el){
   el.innerHTML=`
     <div class="prod-top">
       <div class="card">
-        <div class="card-title">➕ Añadir producto</div>
+        <div class="card-title"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir producto</div>
         <div style="font-size:.83rem;color:var(--text2);margin-bottom:.65rem">Añade nuevos productos al kiosko con su precio y categoría.</div>
         <div class="form-row">
           <div class="fld"><label>Nombre</label><input id="np-n" placeholder="Ej: Cocacola"></div>
           <div class="fld"><label>Precio (€)</label><input id="np-p" type="number" step="0.01" min="0" placeholder="0.00"></div>
-         <div class="fld"><label>Categoría</label><select id="np-cat">${cats.map(c=>`<option value="${c}">${getCatEmoji(c)} ${c}</option>`).join('')}</select></div>
+         <div class="fld"><label>Categoría</label><select id="np-cat">${cats.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div>
         </div>
-        <button class="btn btn-acc" onclick="addProducto()">➕ Añadir producto</button>
+        <button class="btn btn-acc" onclick="addProducto()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir producto</button>
       </div>
       <div class="card">
-        <div class="card-title">🏷️ Crear categoría</div>
+        <div class="card-title"><i data-lucide="tag" style="width:13px;height:13px;vertical-align:-2px"></i> Crear categoría</div>
         <div style="font-size:.83rem;color:var(--text2);margin-bottom:.65rem">Organiza los productos en categorías personalizadas.</div>
         <div class="form-row">
           <div class="fld"><label>Nombre</label><input id="nc-n" placeholder="Ej: Snacks"></div>
-          <div class="fld"><label>Emoji</label><input id="nc-e" placeholder="Ej: 🍿" maxlength="2"></div>
+          <div class="fld"><label>Icono (emoji)</label><input id="nc-e" placeholder="Ej: 🍿" maxlength="2"></div>
         </div>
-        <button class="btn btn-acc" onclick="addCategoria()">➕ Crear categoría</button>
+        <button class="btn btn-acc" onclick="addCategoria()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Crear categoría</button>
       </div>
     </div>
     <div class="prod-ranking-grid">
     <div class="card" style="padding:.75rem">
-      <div class="card-title">📊 Ranking ventas</div>
+      <div class="card-title"><i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px"></i> Ranking ventas</div>
       <div style="font-size:.83rem;color:var(--text2);margin-bottom:.65rem">Filtra por categoría para descubrir qué productos compran más.</div>
       <div style="margin-bottom:.6rem;display:flex;flex-wrap:wrap;gap:.3rem" id="ranking-cat-filtros">
-        ${getCats().map(c=>`<button onclick="toggleFiltroRanking('${c}',this)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:.72rem;padding:.2rem .55rem;border-radius:99px;cursor:pointer">${getCatEmoji(c)} ${c}</button>`).join('')}
+        ${getCats().map(c=>`<button onclick="toggleFiltroRanking('${c}',this)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:.72rem;padding:.2rem .45rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem">${getCatEmoji(c)} ${c}</button>`).join('')}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div>
@@ -1285,7 +1410,7 @@ function productos(el){
       </div>
     </div>
     <div class="card">
-      <div class="card-title">➕ Añadir pack / oferta combinada</div>
+      <div class="card-title"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir pack / oferta combinada</div>
       <div style="color:var(--text2);font-size:.85rem;margin-bottom:.75rem">Selecciona 2 o más productos que se venderán juntos a precio especial.</div>
       <div class="form-row">
         <div class="fld"><label>Nombre del pack</label><input id="no-nom" placeholder="Ej: Pack Refresco+Bocadillo"></div>
@@ -1295,7 +1420,7 @@ function productos(el){
         <label>Productos incluidos</label>
         <div style="margin-top:.25rem">
           <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem" id="pack-cat-filtros">
-            ${getCats().map(c=>`<button type="button" onclick="filtrarPackCat('${c}',this)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:.72rem;padding:.2rem .55rem;border-radius:99px;cursor:pointer">${getCatEmoji(c)} ${c}</button>`).join('')}
+            ${getCats().map(c=>`<button type="button" onclick="filtrarPackCat('${c}',this)" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:.72rem;padding:.2rem .45rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem">${getCatEmoji(c)} ${c}</button>`).join('')}
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:.35rem" id="pack-prods">
             ${(S.productos||[]).map(p=>`
@@ -1306,12 +1431,12 @@ function productos(el){
           <div style="margin-top:.5rem;font-size:.82rem;color:var(--text2)">Total sin oferta: <span id="pack-total" style="font-weight:700;color:var(--accent)">0.00€</span></div>
         </div>
       </div>
-      <button class="btn btn-acc" onclick="addOfertaCombinada()">➕ Añadir pack</button>
+      <button class="btn btn-acc" onclick="addOfertaCombinada()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir pack</button>
     </div>
     </div>
     </div>
 <div class="card" style="padding:.75rem">
-      <div class="card-title">🏷️ Categorías</div>
+      <div class="card-title"><i data-lucide="tag" style="width:13px;height:13px;vertical-align:-2px"></i> Categorías</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
         <thead><tr><th>Categoría</th><th>Productos</th><th>Precio medio</th><th>Más vendido</th><th>Activo</th><th>Acciones</th></tr></thead>
         <tbody>${getCats().map(c=>{
@@ -1319,7 +1444,7 @@ function productos(el){
           const activos=prods.filter(p=>p.activo).length;
           const costeM=prods.length?prods.reduce((s,p)=>s+p.precio,0)/prods.length:0;
           return `<tr>
-            <td style="font-weight:600"><span style="margin-right:.35rem">${getCatEmoji(c)}</span>${c}</td>
+            <td>${catChip(c)}</td>
             <td>${prods.length} <span style="color:var(--text3);font-size:.78rem">(${activos} activos)</span></td>
             <td style="font-weight:700;color:var(--accent)">${prods.length?costeM.toFixed(2)+'€':'-'}</td>
             <td style="font-size:.8rem;color:var(--blue)">${(()=>{
@@ -1329,7 +1454,7 @@ function productos(el){
                 if(p&&(p.categoria||'Otros')===c)cnt[i.nombre]=(cnt[i.nombre]||0)+i.qty;
               }));
               const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-              return top?`🛒 ${top[0]} (${top[1]}uds)`:'—';
+              return top?`${top[0]} (${top[1]}uds)`:'—';
             })()}</td>
             <td>
               <div class="toggle" onclick="toggleCat('${c}')">
@@ -1337,33 +1462,33 @@ function productos(el){
               </div>
             </td>
             <td style="display:flex;gap:.3rem">
-              <button class="btn btn-acc btn-sm" onclick="editCategoria('${c}')">✏</button>
-              <button class="btn btn-danger btn-sm" onclick="delCategoria('${c}')">🗑</button>
+              <button class="btn btn-acc btn-sm" onclick="editCategoria('${c}')"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="delCategoria('${c}')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
             </td>
           </tr>`;
         }).join('')}</tbody>
       </table></div></div>
     </div>
     <div class="card" style="padding:.75rem">
-      <div class="card-title">🛒 Productos</div>
+      <div class="card-title"><i data-lucide="shopping-bag" style="width:13px;height:13px;vertical-align:-2px"></i> Productos</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
         <thead><tr><th>Nombre</th><th>Cat.</th><th>Precio</th><th>Activo</th><th>Oferta</th><th>Acciones</th></tr></thead>
       <tbody>${(S.productos||[]).map(p=>`<tr>
         <td style="font-weight:600">${p.nombre}</td>
-        <td style="font-size:1rem">${getCatEmoji(p.categoria||'Otros')}</td>
+        <td>${catChip(p.categoria||'Otros',true)}</td>
         <td>${p.oferta&&p.precioOriginal?`<div style="font-size:.72rem;text-decoration:line-through;color:var(--text3)">${p.precioOriginal.toFixed(2)}€</div>`:''}<div style="font-weight:700;color:var(--accent)">${p.precio.toFixed(2)}€</div></td>
         <td><div class="toggle" onclick="toggleProd(${p.id})"><div class="tgl-track ${p.activo?'on':''}"><div class="tgl-thumb"></div></div><span style="font-size:.8rem;color:var(--text2)">${p.activo?'Activo':'Bloqueado'}</span></div></td>
         <td><div class="toggle" onclick="toggleOfertaProd(${p.id})"><div class="tgl-track ${p.oferta?'on':''}"><div class="tgl-thumb"></div></div></td>
         <td style="display:flex;gap:.35rem;flex-wrap:wrap">
-          <button class="btn btn-acc btn-sm" onclick="editProducto(${p.id})">✏</button>
-          <button class="btn btn-danger btn-sm" onclick="confirmDelete('producto',${p.id},'¿Eliminar ${p.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+          <button class="btn btn-acc btn-sm" onclick="editProducto(${p.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDelete('producto',${p.id},'¿Eliminar ${p.nombre.replace(/'/g,"\\'")}?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
         </td>
       </tr>`).join('')}</tbody>
     </table></div></div>
     </div>
     ${(S.ofertas||[]).length?`
     <div class="card" style="padding:.75rem">
-      <div class="card-title">🎁 Packs</div>
+      <div class="card-title"><i data-lucide="gift" style="width:13px;height:13px;vertical-align:-2px"></i> Packs</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
         <thead><tr><th>Pack</th><th>Productos</th><th>Precio</th><th>Normal</th><th>Activo</th><th>Acciones</th></tr></thead>
       <tbody>${(S.ofertas||[]).map(o=>{
@@ -1376,8 +1501,8 @@ function productos(el){
           <td style="text-decoration:line-through;color:var(--text3)">${pn.toFixed(2)}€</td>
           <td><div class="toggle" onclick="toggleOferta(${o.id})"><div class="tgl-track ${o.activo?'on':''}"><div class="tgl-thumb"></div></div></div></td>
           <td style="display:flex;gap:.3rem">
-            <button class="btn btn-acc btn-sm" onclick="editPack(${o.id})">✏</button>
-            <button class="btn btn-danger btn-sm" onclick="confirmDelete('oferta',${o.id},'¿Eliminar pack ${o.nombre.replace(/'/g,"\\'")}?')">🗑</button>
+            <button class="btn btn-acc btn-sm" onclick="editPack(${o.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete('oferta',${o.id},'¿Eliminar pack ${o.nombre.replace(/'/g,"\\'")}?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
           </td>
         </tr>`;
       }).join('')}</tbody>
@@ -1396,7 +1521,7 @@ function renderRankingTop(catsActivas){
   const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,5);
   if(!sorted.length)return '<div style="color:var(--text3);font-size:.82rem">Sin datos aún</div>';
   return sorted.map((p,i)=>`<div style="display:flex;justify-content:space-between;padding:.28rem 0;border-bottom:1px solid var(--border);font-size:.82rem">
-    <span>${['🥇','🥈','🥉','🏅','🎖️'][i]} ${p[0]}</span>
+    <span><span style="color:var(--accent);font-weight:700;font-size:.78rem">#${i+1}</span> ${p[0]}</span>
     <span style="color:var(--accent);font-weight:700">${p[1]} uds</span>
   </div>`).join('');
 }
@@ -1413,7 +1538,7 @@ function renderRankingBot(catsActivas){
   const sorted=Object.entries(cnt).sort((a,b)=>a[1]-b[1]).slice(0,5);
   if(!sorted.length)return '<div style="color:var(--text3);font-size:.82rem">Sin datos aún</div>';
   return sorted.map((p,i)=>`<div style="display:flex;justify-content:space-between;padding:.28rem 0;border-bottom:1px solid var(--border);font-size:.82rem">
-    <span>📉 ${p[0]}</span>
+    <span><i data-lucide="trending-down" style="width:12px;height:12px;vertical-align:-1px;margin-right:.35rem;color:var(--text3)"></i>${p[0]}</span>
     <span style="color:var(--text3);font-weight:600">${p[1]===0?'Sin ventas':p[1]+' uds'}</span>
   </div>`).join('');
 }
@@ -1436,6 +1561,12 @@ function getCats(){
   const bloqueadas=S.catsBloqueadas||[];
   const extra=S.categorias||[];
   return [...base.filter(c=>!bloqueadas.includes(c)),...extra.filter(c=>!base.includes(c))];
+}
+function catChip(c,small=false){
+  const e=getCatEmoji(c);
+  const fs=small?'.68rem':'.75rem';
+  const px=small?'.15rem .45rem':'.2rem .6rem';
+  return `<span style="display:inline-flex;align-items:center;gap:.3rem;background:var(--bg3);border:1px solid var(--border2);border-radius:99px;padding:${px};font-size:${fs};color:var(--text2);font-weight:500;line-height:1.4">${e} ${c}</span>`;
 }
 function getCatEmoji(c){
   const base={Bebidas:'🥤',Comida:'🍔',Golosinas:'🍬',Helados:'🍦',Otros:'📦',Pack:'🎁'};
@@ -1464,7 +1595,7 @@ function editCategoria(n){
   const emojiActual=getCatEmoji(n);
   openEditModal('Editar categoría',`
     <div class="fld"><label>Nombre</label><input id="ec-n" value="${n}"></div>
-    <div class="fld"><label>Emoji</label><input id="ec-e" value="${emojiActual}" maxlength="2"></div>
+    <div class="fld"><label>Icono (emoji)</label><input id="ec-e" value="${emojiActual}" maxlength="2"></div>
   `,()=>{
     const nuevoNom=document.getElementById('ec-n').value.trim();
     const nuevoEmoji=document.getElementById('ec-e').value.trim()||'📦';
@@ -1630,18 +1761,30 @@ function toggleOferta(id){const o=(S.ofertas||[]).find(o=>o.id===id);if(o){o.act
 function toggleProd(id){const p=(S.productos||[]).find(p=>p.id===id);if(p){p.activo=!p.activo;save();renderEncPanel('productos');}}
 
 // ─── STOCK ───
+let stockCatFiltro={kiosko:null,almacen:null};
 function stock(el){
   const renderTable=(tipo)=>{
     const store=tipo==='kiosko'?S.stockKiosko:S.stockAlmacen;
-    return `<div class="tbl-wrap"><div class="tbl-scroll"><table>
-      <thead><tr><th>Producto</th><th>Cantidad</th><th>Paquete</th><th>Mínimo</th><th>Nivel</th><th>Acciones</th></tr></thead>
-      <tbody>${(S.productos||[]).map(p=>{
+    const cats=getCats();
+    const filtro=stockCatFiltro[tipo];
+    const prods=(S.productos||[]).filter(p=>!filtro||(p.categoria||'Otros')===filtro);
+    const chipBtn=(c)=>{
+      const active=filtro===c;
+      const e=getCatEmoji(c);
+      return `<button onclick="filtrarStockCat('${tipo}','${c}')" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg3)'};border:1px solid ${active?'var(--accent)':'var(--border2)'};color:${active?'var(--accent)':'var(--text2)'};font-size:.72rem;padding:.2rem .55rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e} ${c}</button>`;
+    };
+    const todosBtn=`<button onclick="filtrarStockCat('${tipo}',null)" style="display:inline-flex;align-items:center;gap:.3rem;background:${!filtro?'var(--accent2)':'var(--bg3)'};border:1px solid ${!filtro?'var(--accent)':'var(--border2)'};color:${!filtro?'var(--accent)':'var(--text2)'};font-size:.72rem;padding:.2rem .55rem;border-radius:99px;cursor:pointer;font-weight:${!filtro?'700':'400'}">Todos</button>`;
+    return `
+      <div class="tbl-wrap"><div class="tbl-scroll"><table>
+      <thead><tr><th>Producto</th><th>Cat.</th><th>Cantidad</th><th>Paquete</th><th>Mínimo</th><th>Nivel</th><th>Acciones</th></tr></thead>
+      <tbody>${prods.length?prods.map(p=>{
         if(!store[p.id])store[p.id]={cantidad:0,minimo:tipo==='kiosko'?5:10,tamPaquete:1};
         const s=store[p.id];if(!s.tamPaquete)s.tamPaquete=1;
         const max=Math.max(s.minimo*3,30);const pct=Math.min(100,Math.round(s.cantidad/max*100));
         const cls=s.cantidad<=0?'danger':s.cantidad<=s.minimo?'warn':'';
         return `<tr>
           <td style="font-weight:600">${p.nombre}</td>
+          <td>${catChip(p.categoria||'Otros',true)}</td>
           <td style="font-weight:700">${s.cantidad}</td>
           <td style="color:var(--text2);font-size:.82rem">${s.tamPaquete} ud/paq</td>
           <td>${s.minimo}</td>
@@ -1649,38 +1792,43 @@ function stock(el){
           <td style="display:flex;gap:.3rem;flex-wrap:nowrap;align-items:center">
             <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},-1)">−1</button>
             <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},1)">+1</button>
-            <button class="btn btn-acc btn-sm" onclick="setStockModal('${tipo}',${p.id})">✏</button>
-            ${tipo==='almacen'?`<button class="btn btn-blue btn-sm" onclick="moverAlKiosko(${p.id})">→ Kiosko</button>`:''}
+            <button class="btn btn-acc btn-sm" onclick="setStockModal('${tipo}',${p.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+            ${tipo==='almacen'?`<button class="btn btn-blue btn-sm" onclick="moverAlKiosko(${p.id})"><i data-lucide="arrow-right" style="width:13px;height:13px;vertical-align:-2px"></i> Kiosko</button>`:''}
           </td>
         </tr>`;
-      }).join('')}</tbody>
+      }).join(''):`<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:1rem">Sin productos en esta categoría</td></tr>`}</tbody>
     </table></div></div>`;
   };
   el.innerHTML=`
     <div class="stock-top">
       <div class="card" style="background:var(--blue2);border-color:rgba(74,158,255,.2)">
-        <div class="card-title" style="color:var(--blue)">📦 Mover al kiosko</div>
+        <div class="card-title" style="color:var(--blue)"><i data-lucide="arrow-right-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Mover al kiosko</div>
         <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem">Traslada paquetes del almacén al kiosko.</div>
         <div class="form-row">
           <div class="fld"><label>Producto</label><select id="mv-prod">${(S.productos||[]).map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('')}</select></div>
           <div class="fld"><label>Nº paquetes</label><input type="number" id="mv-paq" min="1" value="1"></div>
         </div>
-        <button class="btn btn-acc" onclick="moverStockBulk()">📦 Mover al kiosko</button>
+        <button class="btn btn-acc" onclick="moverStockBulk()"><i data-lucide="move-right" style="width:13px;height:13px;vertical-align:-2px"></i> Mover al kiosko</button>
       </div>
       <div class="card" style="background:var(--green2);border-color:rgba(61,214,140,.2)">
-        <div class="card-title" style="color:var(--green)">🚚 Recepción de pedido</div>
+        <div class="card-title" style="color:var(--green)"><i data-lucide="truck" style="width:13px;height:13px;vertical-align:-2px"></i> Recepción de pedido</div>
         <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem">Añade mercancía nueva al almacén.</div>
         <div class="form-row">
           <div class="fld"><label>Producto</label><select id="rec-prod">${(S.productos||[]).map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('')}</select></div>
           <div class="fld"><label>Nº paquetes recibidos</label><input type="number" id="rec-paq" min="1" value="1"></div>
         </div>
-        <button class="btn btn-green" onclick="recibirPedido()">🚚 Añadir al almacén</button>
+        <button class="btn btn-green" onclick="recibirPedido()"><i data-lucide="truck" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir al almacén</button>
       </div>
     </div>
-    <div class="card" style="padding:.6rem 1rem"><div class="card-title" style="margin:0">📦 Stock en kiosko</div></div>
+    <div class="card" style="padding:.6rem 1rem"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem"><div class="card-title" style="margin:0"><i data-lucide="shopping-cart" style="width:13px;height:13px;vertical-align:-2px"></i> Stock en kiosko</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">${[null,...getCats()].map(c=>{const active=stockCatFiltro.kiosko===c;const e=c?getCatEmoji(c):'';return `<button onclick="filtrarStockCat('kiosko',${c?`'${c}'`:'null'})" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg4)'};border:1px solid ${active?'var(--accent)':'var(--border)'};color:${active?'var(--accent)':'var(--text3)'};font-size:.72rem;padding:.18rem .5rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e}${e?' ':''}${c||'Todos'}</button>`;}).join('')}</div></div></div>
     ${renderTable('kiosko')}
-    <div class="card" style="padding:.6rem 1rem"><div class="card-title" style="margin:0">🏪 Stock en almacén</div></div>
+    <div class="card" style="padding:.6rem 1rem;margin-top:.25rem"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem"><div class="card-title" style="margin:0"><i data-lucide="warehouse" style="width:13px;height:13px;vertical-align:-2px"></i> Stock en almacén</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">${[null,...getCats()].map(c=>{const active=stockCatFiltro.almacen===c;const e=c?getCatEmoji(c):'';return `<button onclick="filtrarStockCat('almacen',${c?`'${c}'`:'null'})" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg4)'};border:1px solid ${active?'var(--accent)':'var(--border)'};color:${active?'var(--accent)':'var(--text3)'};font-size:.72rem;padding:.18rem .5rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e}${e?' ':''}${c||'Todos'}</button>`;}).join('')}</div></div></div>
     ${renderTable('almacen')}`;
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
+function filtrarStockCat(tipo,cat){
+  stockCatFiltro[tipo]=cat;
+  renderEncPanel('stock');
 }
 function adjStock(tipo,prodId,delta){
   const store=tipo==='kiosko'?S.stockKiosko:S.stockAlmacen;
@@ -1754,7 +1902,7 @@ function verResumenMonitor(nombre){
       <div style="display:flex;justify-content:space-between;padding:.42rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Productos vendidos</span><span style="font-weight:700;color:var(--blue)">${nP}</span></div>
       <div style="display:flex;justify-content:space-between;padding:.42rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Total recaudado</span><span style="font-weight:700;color:var(--accent)">${tot.toFixed(2)}€</span></div>
       ${tAcN?`<div style="display:flex;justify-content:space-between;padding:.42rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Mayor compra</span><span style="font-weight:700;color:var(--accent)">${tAcN.nombre} · ${tAc[1].toFixed(2)}€</span></div>`:''}
-      ${top.length?`<div style="padding:.42rem 0"><div style="color:var(--text2);font-size:.82rem;margin-bottom:.28rem">Más vendidos</div>${top.map((p,i)=>`<div style="display:flex;justify-content:space-between;font-size:.85rem;padding:.12rem 0"><span>${['🥇','🥈','🥉'][i]} ${p[0]}</span><span style="color:var(--accent)">${p[1]} uds</span></div>`).join('')}</div>`:'<div style="color:var(--text3);font-size:.85rem">Sin ventas hoy</div>'}
+      ${top.length?`<div style="padding:.42rem 0"><div style="color:var(--text2);font-size:.82rem;margin-bottom:.28rem">Más vendidos</div>${top.map((p,i)=>`<div style="display:flex;justify-content:space-between;font-size:.85rem;padding:.12rem 0"><span>${`<span style='color:var(--accent);font-weight:700;font-size:.78rem'>#${i+1}</span>`} ${p[0]}</span><span style="color:var(--accent)">${p[1]} uds</span></div>`).join('')}</div>`:'<div style="color:var(--text3);font-size:.85rem">Sin ventas hoy</div>'}
     </div>`,()=>{closeModal('edit-modal');});
   document.getElementById('em-btn').textContent='Cerrar';
   document.getElementById('modal-cancel-btn').style.display='none';
@@ -1780,14 +1928,14 @@ function monitores(el){
       <div class="stat"><div class="stat-lbl">Top total</div><div class="stat-val c-purple" style="font-size:.85rem">${starTotal&&starTotal[1].tot>0?starTotal[0]:'—'}</div></div>
     </div>
     <div class="card">
-      <div class="card-title">➕ Añadir ${tS}</div>
+      <div class="card-title"><i data-lucide="plus-circle" style="width:13px;height:13px;vertical-align:-2px"></i> ${tS}</div>
       <div style="display:flex;gap:.5rem;align-items:flex-end">
         <div class="fld" style="flex:1;margin:0"><label>Nombre del ${tS}</label><input id="mon-nuevo-nom" placeholder="Ej: Ana García"></div>
-        <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0" onclick="addMonitorDesdeTab()">➕ Añadir</button>
+        <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0" onclick="addMonitorDesdeTab()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir</button>
       </div>
     </div>
     <div class="card" style="padding:.75rem">
-      <div class="card-title">👤 ${tP}</div>
+      <div class="card-title"><i data-lucide="user-check" style="width:13px;height:13px;vertical-align:-2px"></i> ${tP}</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table>
         <thead><tr><th>${tS}</th><th>Ventas hoy</th><th>Total hoy</th><th>Ventas total</th><th>Total acumulado</th><th>Acciones</th></tr></thead>
         <tbody>${(S.monitores||[]).map(m=>`<tr>
@@ -1797,9 +1945,9 @@ function monitores(el){
           <td><span class="badge badge-blue">${totM[m]?.n||0}</span></td>
           <td style="color:var(--text2)">${(totM[m]?.tot||0).toFixed(2)}€</td>
           <td style="display:flex;gap:.3rem;flex-wrap:nowrap">
-            <button class="btn btn-ghost btn-sm" onclick="verResumenMonitor('${m.replace(/'/g,"\\'")}')">📊</button>
-            <button class="btn btn-acc btn-sm" onclick="editMonitor('${m.replace(/'/g,"\\'")}')">✏</button>
-            <button class="btn btn-danger btn-sm" onclick="confirmDelete('monitor',null,'¿Eliminar a ${m.replace(/'/g,"\\'")}?',()=>delMonitor('${m.replace(/'/g,"\\'")}'))">🗑</button>
+            <button class="btn btn-ghost btn-sm" onclick="verResumenMonitor('${m.replace(/'/g,"\\'")}')"><i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+            <button class="btn btn-acc btn-sm" onclick="editMonitor('${m.replace(/'/g,"\\'")}')"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDelete('monitor',null,'¿Eliminar a ${m.replace(/'/g,"\\'")}?',()=>delMonitor('${m.replace(/'/g,"\\'")}'))"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
           </td>
         </tr>`).join('')}</tbody>
       </table></div></div>
@@ -1838,7 +1986,7 @@ function estadistica(el){
   const combos={};
   (S.ventas||[]).forEach(v=>{if((v.items||[]).length>=2){const key=[...(v.items||[])].map(i=>i.nombre).sort().join(' + ');combos[key]=(combos[key]||0)+1;}});
   const topCombos=Object.entries(combos).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const medallas=['🥇','🥈','🥉','🏅','🎖️'];
+  const medallas=['#1','#2','#3','#4','#5'];
 
   el.innerHTML=`
     <div class="stat-grid">
@@ -1853,14 +2001,14 @@ function estadistica(el){
     </div>
 
     <div class="card">
-      <div class="card-title">💰 Resumen económico</div>
+      <div class="card-title"><i data-lucide="coins" style="width:13px;height:13px;vertical-align:-2px"></i> Resumen económico</div>
       <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span style="color:var(--text2)">Dinero custodiado</span><span style="font-weight:700;color:var(--blue)">${totalCus.toFixed(2)}€</span></div>
       <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span style="color:var(--text2)">Total recaudado</span><span style="font-weight:700;color:var(--accent)">${totalRec.toFixed(2)}€</span></div>
       <div style="display:flex;justify-content:space-between;padding:.4rem 0;font-size:.88rem"><span style="color:var(--text2)">Pendiente devolver</span><span style="font-weight:700;color:var(--green)">${(totalCus-totalRec).toFixed(2)}€</span></div>
     </div>
 
     ${dias.length?`<div class="card">
-      <div class="card-title">📅 Recaudación por día</div>
+      <div class="card-title"><i data-lucide="calendar" style="width:13px;height:13px;vertical-align:-2px"></i> Recaudación por día</div>
       <div style="display:flex;align-items:flex-end;gap:.4rem;height:110px;padding:.5rem .25rem 0;overflow-x:auto">
         ${dias.map(([dia,val])=>`<div style="display:flex;flex-direction:column;align-items:center;gap:.25rem;flex:1;min-width:46px">
           <div style="font-size:.68rem;color:var(--accent);font-weight:700">${val.toFixed(0)}€</div>
@@ -1871,7 +2019,7 @@ function estadistica(el){
     </div>`:''}
 
     <div class="card" style="padding:.75rem">
-      <div class="card-title">📋 Resumen por día</div>
+      <div class="card-title"><i data-lucide="table-2" style="width:13px;height:13px;vertical-align:-2px"></i> Resumen por día</div>
       <div class="tbl-wrap"><div class="tbl-scroll"><table style="table-layout:fixed">
         <thead><tr><th style="width:25%">Día</th><th style="width:25%">Ventas</th><th style="width:25%">Recaudado</th><th style="width:25%">${getTerm(false)} top</th></tr></thead>
         <tbody>${dias.map(([dia,val])=>{
@@ -1890,18 +2038,18 @@ function estadistica(el){
     </div>
 
     <div class="card">
-      <div class="card-title">👦 ${getCliente(true)} destacados</div>
-      ${acMaxHoy?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span>🔥 Más gasta hoy</span><span style="font-weight:700;color:var(--accent)">${acMaxHoy.n} · ${acMaxHoy.g.toFixed(2)}€</span></div>`:''}
-      ${acMax?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span>🏆 Más gasta total</span><span style="font-weight:700;color:var(--accent)">${acMax.n} · ${acMax.g.toFixed(2)}€</span></div>`:''}
-      ${acMin&&acMin.n!==acMax?.n?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;font-size:.88rem"><span>🪙 Menos gasta total</span><span style="font-weight:700;color:var(--text2)">${acMin.n} · ${acMin.g.toFixed(2)}€</span></div>`:''}
+      <div class="card-title"><i data-lucide="user-round" style="width:13px;height:13px;vertical-align:-2px"></i> ${getCliente(true)} destacados</div>
+      ${acMaxHoy?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span><i data-lucide="flame" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Más gasta hoy</span><span style="font-weight:700;color:var(--accent)">${acMaxHoy.n} · ${acMaxHoy.g.toFixed(2)}€</span></div>`:''}
+      ${acMax?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span><i data-lucide="trending-up" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Más gasta total</span><span style="font-weight:700;color:var(--accent)">${acMax.n} · ${acMax.g.toFixed(2)}€</span></div>`:''}
+      ${acMin&&acMin.n!==acMax?.n?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;font-size:.88rem"><span><i data-lucide="trending-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Menos gasta total</span><span style="font-weight:700;color:var(--text2)">${acMin.n} · ${acMin.g.toFixed(2)}€</span></div>`:''}
       ${!acMax?'<div style="color:var(--text3);font-size:.85rem">Sin datos aún</div>':''}
     </div>
 
     <div class="card">
-      <div class="card-title">👥 Grupos destacados</div>
+      <div class="card-title"><i data-lucide="users" style="width:13px;height:13px;vertical-align:-2px"></i> Grupos destacados</div>
       ${gruposSorted.length?`
-        <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span>🏆 Más gasta</span><span style="font-weight:700;color:var(--green)">${gruposSorted[0].n} · ${gruposSorted[0].t.toFixed(2)}€</span></div>
-        ${gruposSorted.length>1?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span>🪙 Menos gasta</span><span style="font-weight:700;color:var(--text2)">${gruposSorted[gruposSorted.length-1].n} · ${gruposSorted[gruposSorted.length-1].t.toFixed(2)}€</span></div>`:''}
+        <div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span><i data-lucide="trending-up" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Más gasta</span><span style="font-weight:700;color:var(--green)">${gruposSorted[0].n} · ${gruposSorted[0].t.toFixed(2)}€</span></div>
+        ${gruposSorted.length>1?`<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.88rem"><span><i data-lucide="trending-down" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Menos gasta</span><span style="font-weight:700;color:var(--text2)">${gruposSorted[gruposSorted.length-1].n} · ${gruposSorted[gruposSorted.length-1].t.toFixed(2)}€</span></div>`:''}
         ${gruposSorted.map(g=>`<div style="margin:.35rem 0">
           <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.2rem"><span>${g.n}</span><span style="color:var(--accent);font-weight:700">${g.t.toFixed(2)}€</span></div>
           <div class="prog-bg"><div class="prog" style="width:${Math.round(g.t/gruposSorted[0].t*100)}%"></div></div>
@@ -1912,7 +2060,7 @@ function estadistica(el){
     ${Object.keys(cntCat).length?Object.entries(cntCat).map(([cat,prods])=>{
       const sorted=Object.entries(prods).sort((a,b)=>b[1]-a[1]);
       return `<div class="card">
-        <div class="card-title">${getCatEmoji(cat)} ${cat}</div>
+        <div class="card-title">${catChip(cat)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:.4rem">
           ${sorted.map((p,i)=>`<div style="background:${i===0?'var(--accent2)':i===1?'var(--blue2)':i===2?'var(--green2)':'var(--bg3)'};border:1px solid ${i===0?'var(--accent3)':i===1?'rgba(74,158,255,.25)':i===2?'rgba(61,214,140,.25)':'var(--border2)'};border-radius:99px;padding:.3rem .75rem;font-size:.83rem;display:flex;align-items:center;gap:.4rem">
             <span style="font-weight:600;color:${i===0?'var(--accent)':i===1?'var(--blue)':i===2?'var(--green)':'var(--text)'}">${p[0]}</span>
@@ -1923,7 +2071,7 @@ function estadistica(el){
     }).join(''):''}
 
     ${topCombos.length?`<div class="card">
-      <div class="card-title">🔗 Combos más pedidos</div>
+      <div class="card-title"><i data-lucide="link-2" style="width:13px;height:13px;vertical-align:-2px"></i> Combos más pedidos</div>
       ${topCombos.map((c,i)=>`<div style="display:flex;justify-content:space-between;padding:.38rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
         <span>${medallas[i]} ${c[0]}</span>
         <span style="font-weight:700;color:var(--blue)">${c[1]} veces</span>
@@ -1931,7 +2079,7 @@ function estadistica(el){
     </div>`:''}
 
     <div class="card">
-      <div class="card-title">🏃 Visitas al kiosko por acampado</div>
+      <div class="card-title"><i data-lucide="footprints" style="width:13px;height:13px;vertical-align:-2px"></i> Visitas al kiosko por acampado</div>
       ${(()=>{
         const visitas={};
         (S.ventas||[]).forEach(v=>{visitas[v.acampadoId]=(visitas[v.acampadoId]||0)+1;});
@@ -1948,14 +2096,14 @@ function estadistica(el){
           <div><div class="slabel" style="margin-bottom:.25rem">Nunca han comprado (${nunca.length})</div>
             ${nunca.length?`<div style="display:flex;flex-wrap:wrap;gap:.3rem">
               ${nunca.map(a=>`<div style="background:var(--red2);border:1px solid rgba(255,87,87,.3);color:var(--red);padding:.2rem .6rem;border-radius:99px;font-size:.78rem">${a.n}</div>`).join('')}
-            </div>`:'<div style="color:var(--green);font-size:.85rem">✅ Todos han comprado alguna vez</div>'}
+            </div>`:'<div style="color:var(--green);font-size:.85rem"><i data-lucide="check-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Todos han comprado alguna vez</div>'}
           </div>`;
       })()}
     </div>
 
     <div class="card" id="card-hist-ventas">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-        <div class="card-title" style="margin:0">🕐 Historial de ventas</div>
+        <div class="card-title" style="margin:0"><i data-lucide="clock" style="width:13px;height:13px;vertical-align:-2px"></i> Historial de ventas</div>
         <button class="btn btn-ghost btn-sm" id="btn-toggle-hv" onclick="toggleHistorial('hv',20,50,'btn-toggle-hv','lista-hv')">Ver más</button>
       </div>
       <div id="lista-hv"></div>
@@ -1994,11 +2142,11 @@ function renderHistorialVentas(limite){
       +'<td>'+(a?a.nombre:'?')+'</td>'
       +'<td style="font-size:.78rem;color:var(--text2)">'+items+'</td>'
       +'<td style="font-weight:700;color:var(--accent)">'+v.total.toFixed(2)+'€</td>'
-      +'<td><button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')">✕ Anular</button></td>'
+      +'<td><button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Anular</button></td>'
       +'</tr>';
   });
   return '<div class="tbl-wrap"><div class="tbl-scroll"><table>'
-    +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Items</th><th>Total</th><th></th></tr></thead>'
+    +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Items</th><th>Total</th><th>Acciones</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
 
@@ -2015,11 +2163,11 @@ function renderHistorialAnulaciones(limite){
       +'<td>'+(a?a.nombre:'?')+'</td>'
       +'<td style="font-weight:700;color:var(--red)">'+v.total.toFixed(2)+'€</td>'
       +'<td style="font-size:.78rem;color:var(--text2)">'+(v.anuladaMotivo||'-')+'</td>'
-      +'<td><button class="btn btn-green btn-sm" onclick="recuperarVenta('+v.id+')">&#8617; Recuperar</button></td>'
+      +'<td><button class="btn btn-green btn-sm" onclick="recuperarVenta('+v.id+')"><i data-lucide="rotate-ccw" style="width:13px;height:13px;vertical-align:-2px"></i> Recuperar</button></td>'
       +'</tr>';
   });
   return '<div class="tbl-wrap"><div class="tbl-scroll"><table>'
-    +'<thead><tr><th>Fecha venta</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Total</th><th>Motivo</th><th></th></tr></thead>'
+    +'<thead><tr><th>Fecha venta</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Total</th><th>Motivo</th><th>Acciones</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
 
@@ -2027,7 +2175,7 @@ function toggleHistorial(tipo,limMin,limMax,btnId,listaId){
   const btn=document.getElementById(btnId);
   const lista=document.getElementById(listaId);
   if(!btn||!lista)return;
-  const expanded=btn.textContent.includes('menos');
+  const expanded=btn.innerHTML.includes('menos');
   if(expanded){
     if(tipo==='hv')lista.innerHTML=renderHistorialVentas(limMin);
     else if(tipo==='ha')lista.innerHTML=renderHistorialAnulaciones(limMin);
@@ -2040,7 +2188,7 @@ function toggleHistorial(tipo,limMin,limMax,btnId,listaId){
       const anulHoy=(S.ventas||[]).filter(v=>v.anulada&&v.anuladaFecha&&v.dia===hoy);
       lista.innerHTML=renderListaAnulResumen(anulHoy.slice(-limMin).reverse());
     }
-    btn.textContent='Ver más';
+    btn.innerHTML='Ver más';
     lista.style.maxHeight='';lista.style.overflowY='';
   } else {
     if(tipo==='hv'){lista.innerHTML=renderHistorialVentas(0);lista.style.maxHeight='400px';lista.style.overflowY='auto';}
@@ -2056,7 +2204,7 @@ function toggleHistorial(tipo,limMin,limMax,btnId,listaId){
       lista.innerHTML=renderListaAnulResumen(anulHoy.slice(-limMax).reverse());
       lista.style.maxHeight='400px';lista.style.overflowY='auto';
     }
-    btn.textContent='Ver menos';
+    btn.innerHTML='Ver menos';
   }
 }
 
@@ -2070,7 +2218,7 @@ function renderListaVentasResumen(lista){
       +'<div style="color:var(--text3);font-size:.75rem">'+v.monitor+' &middot; '+v.fecha+'</div></div>'
       +'<div style="display:flex;align-items:center;gap:.5rem">'
       +'<span style="font-weight:700;color:var(--accent)">'+v.total.toFixed(2)+'€</span>'
-      +'<button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')">✕</button>'
+      +'<button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i></button>'
       +'</div></div>';
   });
   return html;
@@ -2153,7 +2301,7 @@ function config(el){
   const cP=b.clientePlur||'Acampados';
   el.innerHTML=`
     <div class="card">
-      <div class="card-title" style="color:var(--accent)">✏️ Adapta la app a tu gusto</div>
+      <div class="card-title" style="color:var(--accent)"><i data-lucide="sliders-horizontal" style="width:14px;height:14px;vertical-align:-2px"></i> Adapta la app a tu gusto</div>
       <div style="font-size:.83rem;color:var(--text2);margin-bottom:.75rem">Cambia el nombre, descripción y cómo llamar a tus trabajadores y clientes.</div>
       <div class="form-row">
         <div class="fld"><label>Nombre del negocio</label><input id="br-nombre" value="${b.nombre||''}" placeholder="Ej: Campamento Sol"></div>
@@ -2164,22 +2312,23 @@ function config(el){
         <div class="fld"><label>Cliente — plural</label><input id="br-cli-plur" value="${cP}" placeholder="Ej: Acampados"></div>
       </div>
       <div style="display:flex;justify-content:flex-end;gap:.4rem;flex-wrap:wrap;margin-top:.25rem">
-        <button class="btn btn-ghost" onclick="renderEncPanel('config')">✕ Cancelar</button>
-        <button class="btn btn-acc" onclick="saveBranding()">💾 Guardar</button>
+        <button class="btn btn-ghost" onclick="renderEncPanel('config')"><i data-lucide="x" style="width:13px;height:13px;vertical-align:-2px"></i> Cancelar</button>
+        <button class="btn btn-acc" onclick="saveBranding()"><i data-lucide="save" style="width:13px;height:13px;vertical-align:-2px"></i> Guardar</button>
       </div>
     </div>
     <div class="cfg-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:stretch">
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title">🔐 Cambiar PIN</div>
+        <div class="card-title"><i data-lucide="lock" style="width:13px;height:13px;vertical-align:-2px"></i> Cambiar PIN</div>
         <div style="font-size:.83rem;color:var(--text2)">Cambia el PIN de acceso al panel de encargado.</div>
         <div class="fld"><label>PIN actual</label><input type="password" id="pin-act" placeholder="PIN actual"></div>
         <div class="fld"><label>PIN nuevo (mín. 4 dígitos)</label><input type="password" id="pin-nuevo" placeholder="PIN nuevo"></div>
+        <div class="fld"><label>Confirmar PIN nuevo</label><input type="password" id="pin-confirmar" placeholder="Repite el PIN nuevo"></div>
         <div style="margin-top:auto">
-          <button class="btn btn-acc" onclick="cambiarPin()">🔐 Cambiar PIN</button>
+          <button class="btn btn-acc" onclick="cambiarPin()"><i data-lucide="lock" style="width:13px;height:13px;vertical-align:-2px"></i> Cambiar PIN</button>
         </div>
       </div>
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title">📊 Exportar a Excel</div>
+        <div class="card-title"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Exportar a Excel</div>
         <div style="font-size:.83rem;color:var(--text2)">Exporta todos los datos del campamento o de un día concreto.</div>
         <div class="fld"><label>Período</label>
           <select id="exp-periodo" style="width:100%">
@@ -2188,11 +2337,11 @@ function config(el){
           </select>
         </div>
         <div style="margin-top:auto">
-          <button class="btn btn-acc" onclick="exportarExcel()">📊 Exportar Excel</button>
+          <button class="btn btn-acc" onclick="exportarExcel()"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Exportar Excel</button>
         </div>
       </div>
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title">🎨 Tema</div>
+        <div class="card-title"><i data-lucide="palette" style="width:13px;height:13px;vertical-align:-2px"></i> Tema</div>
         <div style="font-size:.83rem;color:var(--text2)">Elige el aspecto visual de la app.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;flex:1;align-items:center">
           <button class="tema-btn ${(b.tema||'oscuro')==='oscuro'?'sel':''}" data-tema="oscuro" onclick="selectTema(this)" style="padding:.75rem;border-radius:var(--r);border:2px solid ${(b.tema||'oscuro')==='oscuro'?'var(--accent)':'var(--border2)'};background:${(b.tema||'oscuro')==='oscuro'?'var(--accent2)':'var(--bg3)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem">
@@ -2205,22 +2354,27 @@ function config(el){
           </button>
         </div>
         <div style="margin-top:auto">
-          <button class="btn btn-acc" onclick="saveTema()">💾 Guardar tema</button>
+          <button class="btn btn-acc" onclick="saveTema()"><i data-lucide="check" style="width:13px;height:13px;vertical-align:-2px"></i> Guardar tema</button>
         </div>
       </div>
     </div>
-    <div class="cfg-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:stretch">
+    <div class="cfg-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;align-items:stretch">
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title">📖 Guía de configuración</div>
+        <div class="card-title"><i data-lucide="book-open" style="width:13px;height:13px;vertical-align:-2px"></i> Guía de configuración</div>
         <div style="font-size:.83rem;color:var(--text2);flex:1">Vuelve a ver el asistente de configuración inicial paso a paso.</div>
-        <div><button class="btn btn-ghost" onclick="S.config.obEncDone=false;save();obEncStep=0;renderObStep('enc');document.getElementById('ob-enc').classList.add('open')">📖 Ver guía inicial</button></div>
+        <div><button class="btn btn-ghost" onclick="S.config.obEncDone=false;save();obEncStep=0;renderObStep('enc');document.getElementById('ob-enc').classList.add('open')"><i data-lucide="book-open" style="width:13px;height:13px;vertical-align:-2px"></i> Ver guía inicial</button></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+        <div class="card-title"><i data-lucide="message-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Contactar con Kippo</div>
+        <div style="font-size:.83rem;color:var(--text2);flex:1">Reporta un problema o envíanos una sugerencia.</div>
+        <div><button class="btn btn-ghost" onclick="abrirContacto()"><i data-lucide="message-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Contactar con Kippo</button></div>
       </div>
       <div class="card" style="border-color:rgba(255,87,87,.3);display:flex;flex-direction:column;gap:.75rem">
         <div class="card-title" style="color:var(--red)">⚠ Zona de peligro</div>
         <div style="font-size:.83rem;color:var(--text2);flex:1">Acciones irreversibles. Úsalas con cuidado.</div>
         <div style="display:flex;flex-wrap:wrap;gap:.5rem">
-          <button class="btn btn-danger" onclick="confirmDelete('ventas',null,'¿Borrar TODAS las ventas?')">🗑 Borrar ventas</button>
-          <button class="btn btn-danger" onclick="confirmDelete('todo',null,'¿REINICIAR toda la app? Se borra todo.')">⚠ Reiniciar app</button>
+          <button class="btn btn-danger" onclick="confirmDelete('ventas',null,'¿Borrar TODAS las ventas?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i> Borrar ventas</button>
+          <button class="btn btn-danger" onclick="confirmDelete('todo',null,'¿REINICIAR toda la app? Se borra todo.')"><i data-lucide="alert-triangle" style="width:13px;height:13px;vertical-align:-2px"></i> Reiniciar app</button>
         </div>
       </div>
     </div>`;}
@@ -2345,28 +2499,38 @@ function editMonitor(nom){
 function cambiarPin(){
   const act=document.getElementById('pin-act').value;
   const nuevo=document.getElementById('pin-nuevo').value;
-  if(act!==S.config.pin){toast('⚠ PIN actual incorrecto',true);return;}
+  const confirmar=document.getElementById('pin-confirmar').value;
   if(nuevo.length<4){toast('⚠ Mínimo 4 dígitos',true);return;}
-  S.config.pin=nuevo;save();toast('✅ PIN cambiado');
+  if(nuevo!==confirmar){toast('⚠ Los PINes nuevos no coinciden',true);return;}
+  isMasterPin(nuevo).then(nuevoEsMaestro=>{
+    if(nuevoEsMaestro){toast('⚠ Ese PIN no está permitido',true);return;}
+    isMasterPin(act).then(actEsMaestro=>{
+      if(!actEsMaestro&&act!==S.config.pin){toast('⚠ PIN actual incorrecto',true);return;}
+      S.config.pin=nuevo;save();toast('✅ PIN cambiado');
+      document.getElementById('pin-act').value='';
+      document.getElementById('pin-nuevo').value='';
+      document.getElementById('pin-confirmar').value='';
+    });
+  });
 }
 
 // ══════════ ONBOARDING ══════════
 const OB_ENC_STEPS=[
-  {icon:'👋',title:'¡Bienvenido a KIPPO!',desc:'Vamos a configurar tu KIPPO en unos pocos pasos. Solo te llevará unos minutos y después estará todo listo para usar.',tip:'💡 Puedes volver a este asistente desde <b>⚙️ Configuración → 📖 Guía de configuración</b> en cualquier momento.'},
-  {icon:'✏️',title:'Adapta KIPPO a tu negocio',desc:'Empieza poniendo el nombre de tu negocio y cómo quieres llamar a tus trabajadores y clientes. Ve a <b>⚙️ Configuración</b> y rellena la sección <b>Adapta la app a tu gusto</b>.',tip:'💡 Por ejemplo: nombre = Campamento Sol, trabajadores = Monitor, clientes = Acampado.'},
-  {icon:'👥',title:'Crea tus grupos',desc:'Los grupos organizan a tus clientes. Ve a <b>👥 Grupos</b> y crea todos los que necesites desde la caja de arriba.',tip:'💡 Ejemplo: Grupo Osos, Cabaña Pinos, Mesa 5... Cada grupo puede tener una nota interna solo visible para ti.'},
-  {icon:'👤',title:'Añade tus trabajadores',desc:'Los trabajadores gestionan las ventas. Ve a <b>👤 Monitores</b> y añádelos desde la caja de arriba.',tip:'💡 Cada venta queda registrada con el nombre del trabajador que la realizó. Puedes ver su resumen del día en cualquier momento.'},
-  {icon:'👦',title:'Añade tus clientes',desc:'Ve a <b>👦 Acampados</b>, rellena nombre, grupo y dinero inicial, y pulsa Añadir. Repite para cada cliente.',tip:'💡 El dinero inicial es lo que ese cliente puede gastar. Puedes editarlo en cualquier momento desde la lista.'},
-  {icon:'🛒',title:'Crea tus productos',desc:'Ve a <b>🛒 Productos</b> y añade todo lo que vendas con su nombre, categoría y precio. También puedes crear packs combinados con precio especial.',tip:'💡 Los packs aparecen primero en la pantalla de venta para que tus trabajadores los vean de un vistazo.'},
-  {icon:'📦',title:'Configura el stock',desc:'Ve a <b>📦 Stock</b> y ajusta cuántas unidades tienes disponibles en el kiosko y en el almacén para cada producto.',tip:'💡 Recibirás alertas automáticas cuando el stock esté por debajo del mínimo configurado.'},
-  {icon:'✅',title:'¡Todo listo!',desc:'Tu KIPPO está configurado. Comparte la URL de la app con tus trabajadores para que accedan desde su móvil y empieza a vender.',tip:'🔐 Tu PIN actual es <b>1234</b>. Cámbialo desde <b>⚙️ Configuración → 🔐 Cambiar PIN</b> antes de empezar.'},
+  {icon:'<i data-lucide="sparkles" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'¡Bienvenido a KIPPO!',desc:'Vamos a configurar tu KIPPO en unos pocos pasos. Solo te llevará unos minutos y después estará todo listo para usar.',tip:'💡 Puedes volver a este asistente desde <b><i data-lucide="settings" style="width:12px;height:12px;vertical-align:-1px"></i> Configuración → <i data-lucide="book-open" style="width:12px;height:12px;vertical-align:-1px"></i> Guía de configuración</b> en cualquier momento.'},
+  {icon:'<i data-lucide="sliders-horizontal" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Adapta KIPPO a tu negocio',desc:'Empieza poniendo el nombre de tu negocio y cómo quieres llamar a tus trabajadores y clientes. Ve a <b><i data-lucide="settings" style="width:12px;height:12px;vertical-align:-1px"></i> Configuración</b> y rellena la sección <b>Adapta la app a tu gusto</b>.',tip:'💡 Por ejemplo: nombre = Campamento Sol, trabajadores = Monitor, clientes = Acampado.'},
+  {icon:'<i data-lucide="users" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Crea tus grupos',desc:'Los grupos organizan a tus clientes. Ve a <b><i data-lucide="users" style="width:12px;height:12px;vertical-align:-1px"></i> Grupos</b> y crea todos los que necesites desde la caja de arriba.',tip:'💡 Ejemplo: Grupo Osos, Cabaña Pinos, Mesa 5... Cada grupo puede tener una nota interna solo visible para ti.'},
+  {icon:'<i data-lucide="user-check" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Añade tus trabajadores',desc:'Los trabajadores gestionan las ventas. Ve a <b><i data-lucide="user-check" style="width:12px;height:12px;vertical-align:-1px"></i> Monitores</b> y añádelos desde la caja de arriba.',tip:'💡 Cada venta queda registrada con el nombre del trabajador que la realizó. Puedes ver su resumen del día en cualquier momento.'},
+  {icon:'<i data-lucide="user-round" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Añade tus clientes',desc:'Ve a <b><i data-lucide="user-round" style="width:12px;height:12px;vertical-align:-1px"></i> Acampados</b>, rellena nombre, grupo y dinero inicial, y pulsa Añadir. Repite para cada cliente.',tip:'💡 El dinero inicial es lo que ese cliente puede gastar. Puedes editarlo en cualquier momento desde la lista.'},
+  {icon:'<i data-lucide="shopping-bag" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Crea tus productos',desc:'Ve a <b><i data-lucide="shopping-bag" style="width:12px;height:12px;vertical-align:-1px"></i> Productos</b> y añade todo lo que vendas con su nombre, categoría y precio. También puedes crear packs combinados con precio especial.',tip:'💡 Los packs aparecen primero en la pantalla de venta para que tus trabajadores los vean de un vistazo.'},
+  {icon:'<i data-lucide="package" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Configura el stock',desc:'Ve a <b><i data-lucide="package" style="width:12px;height:12px;vertical-align:-1px"></i> Stock</b> y ajusta cuántas unidades tienes disponibles en el kiosko y en el almacén para cada producto.',tip:'💡 Recibirás alertas automáticas cuando el stock esté por debajo del mínimo configurado.'},
+  {icon:'<i data-lucide="check-circle" style="width:2.2rem;height:2.2rem;color:var(--green)"></i>',title:'¡Todo listo!',desc:'Tu KIPPO está configurado. Comparte la URL de la app con tus trabajadores para que accedan desde su móvil y empieza a vender.',tip:'💡 Tu PIN actual es <b>1234</b>. Cámbialo desde <b><i data-lucide="settings" style="width:12px;height:12px;vertical-align:-1px"></i> Configuración → <i data-lucide="lock" style="width:12px;height:12px;vertical-align:-1px"></i> Cambiar PIN</b> antes de empezar.'},
 ];
 const OB_MON_STEPS=[
-  {icon:'👋',title:'¡Hola!',desc:'Esta guía rápida te explica cómo funciona la pantalla de venta. Solo te llevará un momento.',tip:'💡 Solo verás esto la primera vez. Después entrarás directamente.'},
-  {icon:'👦',title:'Selecciona un cliente',desc:'Elige tu grupo y luego toca el nombre del cliente al que quieres venderle. Verás su saldo disponible en la parte superior.',tip:'⚠️ Si el saldo aparece en naranja significa que le queda menos de 5€. Si está bloqueado no puede comprar.'},
-  {icon:'🎁',title:'Los packs van primero',desc:'Justo debajo del buscador verás los packs disponibles. Son ofertas combinadas — al seleccionarlos verás qué productos incluyen para dárselos al cliente.',tip:'💡 Los packs suelen ser más baratos que comprar cada producto por separado.'},
-  {icon:'🛒',title:'Añade productos',desc:'Toca cualquier producto para añadirlo al pedido. Puedes añadir varios a la vez. El número en verde indica cuántas unidades llevas.',tip:'💡 Si un producto aparece oscurecido significa que está agotado.'},
-  {icon:'✅',title:'Confirmar la venta',desc:'Cuando tengas todo, pulsa el botón verde <b>✅ Confirmar</b> en la parte inferior. La venta se registra automáticamente y el saldo del cliente se actualiza.',tip:'💡 Si el botón está desactivado el cliente no tiene saldo suficiente para pagar.'},
+  {icon:'<i data-lucide="hand" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'¡Hola!',desc:'Esta guía rápida te explica cómo funciona la pantalla de venta. Solo te llevará un momento.',tip:'💡 Solo verás esto la primera vez. Después entrarás directamente.'},
+  {icon:'<i data-lucide="user-round" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Selecciona un cliente',desc:'Elige tu grupo y luego toca el nombre del cliente al que quieres venderle. Verás su saldo disponible en la parte superior.',tip:'⚠️ Si el saldo aparece en naranja significa que le queda menos de 5€. Si está bloqueado no puede comprar.'},
+  {icon:'<i data-lucide="gift" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Los packs van primero',desc:'Justo debajo del buscador verás los packs disponibles. Son ofertas combinadas — al seleccionarlos verás qué productos incluyen para dárselos al cliente.',tip:'💡 Los packs suelen ser más baratos que comprar cada producto por separado.'},
+  {icon:'<i data-lucide="shopping-bag" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Añade productos',desc:'Toca cualquier producto para añadirlo al pedido. Puedes añadir varios a la vez. El número en verde indica cuántas unidades llevas.',tip:'💡 Si un producto aparece oscurecido significa que está agotado.'},
+  {icon:'<i data-lucide="check-circle" style="width:2.2rem;height:2.2rem;color:var(--green)"></i>',title:'Confirmar la venta',desc:'Cuando tengas todo, pulsa el botón verde <b>Confirmar</b> en la parte inferior. La venta se registra automáticamente y el saldo del cliente se actualiza.',tip:'💡 Si el botón está desactivado el cliente no tiene saldo suficiente para pagar.'},
 ];
 
 let obEncStep=0,obMonStep=0;
@@ -2393,8 +2557,9 @@ function renderObStep(tipo){
   document.getElementById(`ob-${tipo}-dots`).innerHTML=dots;
   const nextBtn=document.getElementById(`ob-${tipo}-next`);
   const skipBtn=document.getElementById(`ob-${tipo}-skip`);
-  if(idx===total-1){nextBtn.textContent='¡Empezar! 🚀';skipBtn.style.display='none';}
+  if(idx===total-1){nextBtn.textContent='¡Empezar!';skipBtn.style.display='none';}
   else{nextBtn.textContent='Siguiente →';skipBtn.style.display='';}
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),20);
 }
 
 function obNext(tipo){
@@ -2479,6 +2644,43 @@ function printDevolucion(){
   w.print();
 }
 
+// ══════════ CONTACTO ══════════
+function abrirContacto(){
+  document.getElementById('ct-empresa').value='';
+  document.getElementById('ct-email').value='';
+  document.getElementById('ct-tipo').value='';
+  document.getElementById('ct-desc').value='';
+  document.getElementById('ob-contacto').classList.add('open');
+}
+async function enviarContacto(){
+  const empresa=document.getElementById('ct-empresa').value.trim();
+  const email=document.getElementById('ct-email').value.trim();
+  const tipo=document.getElementById('ct-tipo').value;
+  const desc=document.getElementById('ct-desc').value.trim();
+  if(!empresa){toast('⚠ Indica el nombre de tu empresa',true);return;}
+  if(!email||!email.includes('@')){toast('⚠ Email inválido',true);return;}
+  if(!tipo){toast('⚠ Selecciona el tipo de consulta',true);return;}
+  if(!desc){toast('⚠ Escribe una descripción',true);return;}
+  const btn=document.querySelector('#ob-contacto .btn-acc');
+  btn.textContent='Enviando...';btn.disabled=true;
+  try{
+    const res=await fetch('https://formspree.io/f/xqenjdpp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({empresa,email,tipo,mensaje:desc})
+    });
+    if(res.ok){
+      document.getElementById('ob-contacto').classList.remove('open');
+      toast('✅ Mensaje enviado. Te responderemos pronto.');
+    } else {
+      toast('⚠ Error al enviar. Inténtalo de nuevo.',true);
+    }
+  } catch(e){
+    toast('⚠ Sin conexión. Inténtalo de nuevo.',true);
+  }
+  btn.innerHTML='<i data-lucide="send" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Enviar mensaje';btn.disabled=false;
+}
+
 // ══════════ UTILS ══════════
 function toast(msg,err=false){
   const t=document.getElementById('toast');
@@ -2486,7 +2688,7 @@ function toast(msg,err=false){
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
 }
 function strColor(str){
-  const p=['#4a9eff','#ec4899','#22c55e','#f59e0b','#a78bfa','#ef4444','#06b6d4','#f97316'];
+  const p=['#b8922a','#4a7fb5','#3a8f6a','#8b6db5','#b05a3a','#3a7a8f','#7a8f3a','#8f3a6a'];
   let h=0;for(let i=0;i<str.length;i++)h=str.charCodeAt(i)+((h<<5)-h);
   return p[Math.abs(h)%p.length];
 }
@@ -2494,6 +2696,11 @@ function strColor(str){
 // ══════════ INIT ══════════
 window.addEventListener('load',()=>{
   document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+  const initL=()=>{if(typeof lucide!=='undefined')lucide.createIcons();};
+  initL();
+  setTimeout(initL,100);
+  setTimeout(initL,400);
+  setTimeout(initL,900);
   setTimeout(load,600);
 });
 </script>
