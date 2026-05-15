@@ -25,6 +25,8 @@ const FIREBASE_CONFIG = {
 </script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="dns-prefetch" href="https://unpkg.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -43,6 +45,9 @@ const FIREBASE_CONFIG = {
 }
 html,body{height:100%;height:100dvh;overflow:hidden;position:fixed;width:100%}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:15px}
+/* Reservar espacio iconos Lucide antes de cargar — evita salto visual */
+i[data-lucide]{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;vertical-align:-2px}
+i[data-lucide] svg{display:block}
 
 /* SCREENS */
 .screen{display:none;height:100vh;height:100dvh;flex-direction:column;overflow:hidden}
@@ -383,20 +388,27 @@ tr:first-child td{border-top:none}
 }
 .hist-scroll::-webkit-scrollbar-track{background:transparent}
 .hist-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+#lista-vhoy,#lista-hv{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+#lista-vhoy::-webkit-scrollbar,#lista-hv::-webkit-scrollbar{width:4px}
+#lista-vhoy::-webkit-scrollbar-track,#lista-hv::-webkit-scrollbar-track{background:transparent}
+#lista-vhoy::-webkit-scrollbar-thumb,#lista-hv::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="lucide.min.js"></script>
+<style>
+/* Reservar espacio para iconos Lucide antes de que carguen — evita salto visual */
+i[data-lucide]{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;vertical-align:-2px}
+i[data-lucide] svg{display:block}
+</style>
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loading" class="screen active">
-  <div class="loader-logo brand-nombre">Kippo</div>
-  <div class="loader-dot"></div>
-  <div style="color:var(--text3);font-size:.78rem;margin-top:.25rem;letter-spacing:2px;text-transform:uppercase">Conectando</div>
+  <img src="icon/192.png" style="width:96px;height:96px;border-radius:22px;box-shadow:0 0 40px rgba(240,192,64,.25);animation:pulse 2s ease-in-out infinite">
 </div>
 
 <!-- HOME -->
@@ -640,8 +652,15 @@ const TEMAS={
     btnText:'#1a1400',btnGreenText:'#0a2a12',
   },
 };
+// Aplica tema guardado inmediatamente para evitar flash en la pantalla de carga
+try{
+  const _t=TEMAS[localStorage.getItem('kippo_tema')||'oscuro']||TEMAS.oscuro;
+  document.body.style.background=_t.bg;
+  const _l=document.getElementById('loading');
+  if(_l)_l.style.background=_t.bg;
+}catch(e){}
 
-function _applyTema(t){
+function _applyTema(t,nombre){
   const r=document.documentElement.style;
   r.setProperty('--bg',t.bg);r.setProperty('--bg2',t.bg2);
   r.setProperty('--bg3',t.bg3);r.setProperty('--bg4',t.bg4);
@@ -652,6 +671,7 @@ function _applyTema(t){
   document.querySelector('meta[name="theme-color"]').content=t.bg;
   document.body.style.color=t.text;
   document.body.style.background=t.bg;
+  try{if(nombre)localStorage.setItem('kippo_tema',nombre);}catch(e){}
 }
 
 function getTerm(plural){return plural?(S.branding?.termPlur||'Monitores'):(S.branding?.termSing||'Monitor');}
@@ -666,7 +686,7 @@ function applyBranding(){
   const clienteSing=b.clienteSing||'Acampado';
   const clientePlur=b.clientePlur||'Acampados';
   const tema=TEMAS[b.tema||'oscuro']||TEMAS.oscuro;
-  _applyTema(tema);
+  _applyTema(tema, b.tema||'oscuro');
   document.querySelector('meta[name="apple-mobile-web-app-title"]').content=nombre;
   document.title=nombre;
   document.querySelectorAll('.brand-nombre').forEach(el=>el.textContent=nombre);
@@ -689,7 +709,7 @@ function applyBranding(){
 let _previewSnapshot=null;
 function previewTema(val){
   if(!_previewSnapshot)_previewSnapshot=S.branding?.tema||'oscuro';
-  _applyTema(TEMAS[val]||TEMAS.oscuro);
+  _applyTema(TEMAS[val]||TEMAS.oscuro, val);
 }
 function selectTema(btn){
   document.querySelectorAll('.tema-btn').forEach(b=>{
@@ -1164,7 +1184,7 @@ function resumen(el){
     <div class="card" id="card-ventas-hoy">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
         <div class="card-title" style="margin:0"><i data-lucide="clock" style="width:13px;height:13px;vertical-align:-2px"></i> Ventas de hoy</div>
-        <button class="btn btn-ghost btn-sm" id="btn-toggle-vhoy" onclick="toggleHistorial('vhoy',20,50,'btn-toggle-vhoy','lista-vhoy')">Ver más</button>
+        ${vHoy.length>20?'<button class="btn btn-ghost btn-sm" id="btn-toggle-vhoy" onclick="toggleVentasHoy()">Ver más</button>':''}
       </div>
       <div id="lista-vhoy">
         ${renderListaVentasResumen(vHoy.slice(-20).reverse())}
@@ -1176,21 +1196,27 @@ function resumen(el){
 function renderAnulacionesHoy(hoy){
   const anulHoy=(S.ventas||[]).filter(v=>v.anulada&&v.dia===hoy);
   if(!anulHoy.length)return '';
-  let items='';
+  let rows='';
   anulHoy.slice(-5).reverse().forEach(v=>{
     const a=(S.acampados||[]).find(a=>a.id===v.acampadoId);
-    items+='<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">'
-      +'<div><div style="font-weight:600">'+(a?a.nombre:'?')+'</div>'
-      +'<div style="color:var(--text3);font-size:.75rem">'+v.monitor+' &middot; '+(v.anuladaMotivo||'Sin motivo')+'</div></div>'
-      +'<span style="font-weight:700;color:var(--red)">'+v.total.toFixed(2)+'€</span>'
-      +'</div>';
+    rows+='<tr>'
+      +'<td style="font-size:.78rem;color:var(--text3)">'+v.fecha+'</td>'
+      +'<td>'+v.monitor+'</td>'
+      +'<td>'+(a?a.nombre:'?')+'</td>'
+      +'<td style="font-size:.78rem;color:var(--text2)">'+(v.anuladaMotivo||'—')+'</td>'
+      +'<td style="font-weight:700;color:var(--red)">'+v.total.toFixed(2)+'€</td>'
+      +'<td><button class="btn btn-green btn-sm" onclick="recuperarVenta(\''+v.id+'\')"><i data-lucide="rotate-ccw" style="width:13px;height:13px;vertical-align:-2px"></i> Recuperar</button></td>'
+      +'</tr>';
   });
-  let toggleBtn=anulHoy.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ahoy" onclick="toggleHistorial(\'ahoy\',5,20,\'btn-toggle-ahoy\',\'lista-ahoy\')">Ver más</button>':'';
+  const tabla='<div class="tbl-wrap"><div class="tbl-scroll"><table style="width:100%;table-layout:auto">'
+    +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Motivo</th><th>Total</th><th>Acciones</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div></div>';
+  const toggleBtn=anulHoy.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ahoy" onclick="toggleHistorial(\'ahoy\',5,20,\'btn-toggle-ahoy\',\'lista-ahoy\')">Ver más</button>':'';
   return '<div class="card" id="card-anul-hoy">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">'
-    +'<div class="card-title" style="margin:0;color:var(--red)">&#10060; Anulaciones de hoy</div>'
+    +'<div class="card-title" style="margin:0;color:var(--red)"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Anulaciones de hoy</div>'
     +toggleBtn+'</div>'
-    +'<div id="lista-ahoy">'+items+'</div>'
+    +'<div id="lista-ahoy">'+tabla+'</div>'
     +'</div>';
 }
 
@@ -2104,7 +2130,7 @@ function estadistica(el){
     <div class="card" id="card-hist-ventas">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
         <div class="card-title" style="margin:0"><i data-lucide="clock" style="width:13px;height:13px;vertical-align:-2px"></i> Historial de ventas</div>
-        <button class="btn btn-ghost btn-sm" id="btn-toggle-hv" onclick="toggleHistorial('hv',20,50,'btn-toggle-hv','lista-hv')">Ver más</button>
+        ${(S.ventas||[]).filter(v=>!v.anulada).length>20?'<button class="btn btn-ghost btn-sm" id="btn-toggle-hv" onclick="toggleHistorialVentas()">Ver más</button>':''}
       </div>
       <div id="lista-hv"></div>
     </div>
@@ -2145,7 +2171,7 @@ function renderHistorialVentas(limite){
       +'<td><button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Anular</button></td>'
       +'</tr>';
   });
-  return '<div class="tbl-wrap"><div class="tbl-scroll"><table>'
+  return '<div class="tbl-wrap"><div class="tbl-scroll"><table style="width:100%;table-layout:auto">'
     +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Items</th><th>Total</th><th>Acciones</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
@@ -2161,16 +2187,52 @@ function renderHistorialAnulaciones(limite){
       +'<td style="font-size:.78rem;color:var(--text3)">'+v.fecha+'</td>'
       +'<td>'+v.monitor+'</td>'
       +'<td>'+(a?a.nombre:'?')+'</td>'
+      +'<td style="font-size:.78rem;color:var(--text2)">'+(v.anuladaMotivo||'—')+'</td>'
       +'<td style="font-weight:700;color:var(--red)">'+v.total.toFixed(2)+'€</td>'
-      +'<td style="font-size:.78rem;color:var(--text2)">'+(v.anuladaMotivo||'-')+'</td>'
-      +'<td><button class="btn btn-green btn-sm" onclick="recuperarVenta('+v.id+')"><i data-lucide="rotate-ccw" style="width:13px;height:13px;vertical-align:-2px"></i> Recuperar</button></td>'
+      +'<td><button class="btn btn-green btn-sm" onclick="recuperarVenta(\''+v.id+'\')"><i data-lucide="rotate-ccw" style="width:13px;height:13px;vertical-align:-2px"></i> Recuperar</button></td>'
       +'</tr>';
   });
-  return '<div class="tbl-wrap"><div class="tbl-scroll"><table>'
-    +'<thead><tr><th>Fecha venta</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Total</th><th>Motivo</th><th>Acciones</th></tr></thead>'
+  return '<div class="tbl-wrap"><div class="tbl-scroll"><table style="width:100%;table-layout:auto">'
+    +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Motivo</th><th>Total</th><th>Acciones</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
 
+function toggleVentasHoy(){
+  const btn=document.getElementById('btn-toggle-vhoy');
+  const lista=document.getElementById('lista-vhoy');
+  if(!btn||!lista)return;
+  const expanded=btn.innerHTML.includes('menos');
+  const hoy=new Date().toLocaleDateString('es-ES');
+  const vHoy=(S.ventas||[]).filter(v=>v.dia===hoy&&!v.anulada);
+  if(expanded){
+    lista.innerHTML=renderListaVentasResumen(vHoy.slice(-20).reverse());
+    lista.style.maxHeight='';lista.style.overflowY='';
+    btn.innerHTML='Ver más';
+  } else {
+    lista.innerHTML=renderListaVentasResumen(vHoy.slice().reverse());
+    lista.style.maxHeight='420px';lista.style.overflowY='auto';
+    lista.style.paddingRight='.25rem';
+    btn.innerHTML='Ver menos';
+  }
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
+function toggleHistorialVentas(){
+  const btn=document.getElementById('btn-toggle-hv');
+  const lista=document.getElementById('lista-hv');
+  if(!btn||!lista)return;
+  const expanded=btn.innerHTML.includes('menos');
+  if(expanded){
+    lista.innerHTML=renderHistorialVentas(20);
+    lista.style.maxHeight='';lista.style.overflowY='';
+    btn.innerHTML='Ver más';
+  } else {
+    lista.innerHTML=renderHistorialVentas(0);
+    lista.style.maxHeight='480px';lista.style.overflowY='auto';
+    lista.style.paddingRight='.25rem';
+    btn.innerHTML='Ver menos';
+  }
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
 function toggleHistorial(tipo,limMin,limMax,btnId,listaId){
   const btn=document.getElementById(btnId);
   const lista=document.getElementById(listaId);
@@ -2210,32 +2272,41 @@ function toggleHistorial(tipo,limMin,limMax,btnId,listaId){
 
 function renderListaVentasResumen(lista){
   if(!lista.length)return '<div style="color:var(--text3);font-size:.85rem;padding:.5rem 0">Sin ventas</div>';
-  let html='';
+  let rows='';
   lista.forEach(v=>{
     const a=(S.acampados||[]).find(a=>a.id===v.acampadoId);
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">'
-      +'<div><div style="font-weight:600">'+(a?a.nombre:'?')+'</div>'
-      +'<div style="color:var(--text3);font-size:.75rem">'+v.monitor+' &middot; '+v.fecha+'</div></div>'
-      +'<div style="display:flex;align-items:center;gap:.5rem">'
-      +'<span style="font-weight:700;color:var(--accent)">'+v.total.toFixed(2)+'€</span>'
-      +'<button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i></button>'
-      +'</div></div>';
+    const items=(v.items||[]).map(i=>i.nombre+'x'+i.qty).join(', ');
+    rows+='<tr>'
+      +'<td style="font-size:.78rem;color:var(--text3)">'+v.fecha+'</td>'
+      +'<td>'+v.monitor+'</td>'
+      +'<td>'+(a?a.nombre:'?')+'</td>'
+      +'<td style="font-size:.78rem;color:var(--text2)">'+items+'</td>'
+      +'<td style="font-weight:700;color:var(--accent)">'+v.total.toFixed(2)+'€</td>'
+      +'<td><button class="btn btn-danger btn-sm" onclick="anularVenta('+v.id+')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Anular</button></td>'
+      +'</tr>';
   });
-  return html;
+  return '<div class="tbl-wrap"><div class="tbl-scroll"><table style="width:100%;table-layout:auto">'
+    +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Items</th><th>Total</th><th>Acciones</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div></div>';
 }
 
 function renderListaAnulResumen(lista){
   if(!lista.length)return '<div style="color:var(--text3);font-size:.85rem;padding:.5rem 0">Sin anulaciones</div>';
-  let html='';
+  let rows='';
   lista.forEach(v=>{
     const a=(S.acampados||[]).find(a=>a.id===v.acampadoId);
-    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem">'
-      +'<div><div style="font-weight:600">'+(a?a.nombre:'?')+'</div>'
-      +'<div style="color:var(--text3);font-size:.75rem">'+v.monitor+' &middot; '+(v.anuladaMotivo||'Sin motivo')+'</div></div>'
-      +'<span style="font-weight:700;color:var(--red)">'+v.total.toFixed(2)+'€</span>'
-      +'</div>';
+    rows+='<tr>'
+      +'<td style="font-size:.78rem;color:var(--text3)">'+v.fecha+'</td>'
+      +'<td>'+v.monitor+'</td>'
+      +'<td>'+(a?a.nombre:'?')+'</td>'
+      +'<td style="font-size:.78rem;color:var(--text2)">'+(v.anuladaMotivo||'Sin motivo')+'</td>'
+      +'<td style="font-weight:700;color:var(--red)">'+v.total.toFixed(2)+'€</td>'
+      +'<td><button class="btn btn-green btn-sm" onclick="recuperarVenta(\''+v.id+'\')"><i data-lucide="rotate-ccw" style="width:13px;height:13px;vertical-align:-2px"></i> Recuperar</button></td>'
+      +'</tr>';
   });
-  return html;
+  return '<div class="tbl-wrap"><div class="tbl-scroll"><table style="width:100%;table-layout:auto">'
+    +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Motivo</th><th>Total</th><th>Acciones</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table></div></div>';
 }
 
 function exportarExcel(){
@@ -2392,6 +2463,7 @@ function saveTema(){
   const tema=document.querySelector('.tema-btn.sel')?.dataset.tema||S.branding?.tema||'oscuro';
   S.branding={...S.branding,tema};
   _previewSnapshot=null;
+  try{localStorage.setItem('kippo_tema',tema);}catch(e){}
   save();applyBranding();toast('✅ Tema guardado');
 }
 
