@@ -267,10 +267,14 @@ tr:first-child td{border-top:none}
 .prod-card{-webkit-tap-highlight-color:rgba(240,192,64,.2);touch-action:manipulation}
 .prod-card:active{transform:scale(.93);background:var(--bg3)}
 
-/* HIDE SCROLL INDICATOR */
-::-webkit-scrollbar-button{display:none}
-.scroll{scrollbar-width:none}
-.scroll::-webkit-scrollbar{display:none}
+/* Scrollbar y scroll indicator adaptados al tema */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+/* Safari iOS scroll indicator */
+::-webkit-scrollbar-thumb:window-inactive{background:var(--border)}
+/* Firefox */
+*{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
 
 /* BOTTOM PADDING for floating bar */
 .venta-scroll-pad{height:80px;flex-shrink:0}
@@ -484,7 +488,7 @@ i[data-lucide] svg{display:block}
 <!-- MON: GRUPOS -->
 <div id="mon-grupos-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-login-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
+    <button class="btn-back" onclick="goMonitorLogin()"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-monitor">Grupos</div>
     <button class="btn-back" onclick="cerrarTurno()" style="background:var(--red2);border-color:rgba(255,87,87,.3);color:var(--red)">Cerrar turno</button>
   </div>
@@ -494,7 +498,7 @@ i[data-lucide] svg{display:block}
 <!-- MON: ACAMPADOS -->
 <div id="mon-acs-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-grupos-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
+    <button class="btn-back" onclick="showScreen('mon-grupos-screen');renderGrupos()"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-grupo">Grupo</div>
     <div class="topbar-badge">Monitor</div>
   </div>
@@ -881,6 +885,7 @@ function pinOk(){
 
 // ══════════ MONITOR LOGIN ══════════
 function goMonitorLogin(){
+  monitorActual=null;
   showScreen('mon-login-screen');
   document.getElementById('mon-grid').innerHTML=(S.monitores||[]).map(m=>`
     <div class="mon-card" onclick="selectMon('${m.replace(/'/g,"\\'")}',this)">
@@ -1089,9 +1094,8 @@ function enviarVenta(){
     pids.forEach(pid=>{if(!S.stockKiosko[pid])S.stockKiosko[pid]={cantidad:0,minimo:5,tamPaquete:1};S.stockKiosko[pid].cantidad=Math.max(0,S.stockKiosko[pid].cantidad-item.qty);});
   });
   carrito=[];save();toast('✅ Venta registrada');
-  // Scroll al top de la lista de acampados al volver
-  setTimeout(()=>{const el=document.querySelector('#mon-acs-screen .scroll');if(el)el.scrollTop=0;},50);
-  renderGrupos();showScreen('mon-grupos-screen');
+  showScreen('mon-grupos-screen');
+  renderGrupos();
 }
 
 // ══════════ CERRAR TURNO ══════════
@@ -1848,13 +1852,13 @@ function stock(el){
       const s=store[p.id];if(!s.tamPaquete)s.tamPaquete=1;
       const max=Math.max(s.minimo*3,30);const pct=Math.min(100,Math.round(s.cantidad/max*100));
       const cls=s.cantidad<=0?'danger':s.cantidad<=s.minimo?'warn':'';
-      return `<tr>
+      return `<tr data-stock-row="${tipo}-${p.id}">
         <td style="font-weight:600">${p.nombre}</td>
         <td>${catChip(p.categoria||'Otros',true)}</td>
-        <td style="font-weight:700">${s.cantidad}</td>
+        <td style="font-weight:700" data-cant>${s.cantidad}</td>
         <td style="color:var(--text2);font-size:.82rem">${s.tamPaquete} ud/paq</td>
         <td>${s.minimo}</td>
-        <td><div class="prog-bg"><div class="prog ${cls}" style="width:${pct}%"></div></div>${s.cantidad<=s.minimo?`<span style="font-size:.7rem;color:${s.cantidad<=0?'var(--red)':'var(--orange)'}">${s.cantidad<=0?'Agotado':'Stock bajo'}</span>`:''}</td>
+        <td><div class="prog-bg"><div class="prog ${cls}" data-prog style="width:${pct}%"></div></div><span data-alert>${s.cantidad<=s.minimo?`<span style="font-size:.7rem;color:${s.cantidad<=0?'var(--red)':'var(--orange)'}">${s.cantidad<=0?'Agotado':'Stock bajo'}</span>`:''}</span></td>
         <td><div style="display:flex;gap:.3rem;flex-wrap:nowrap;align-items:center">
           <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},-1)">−1</button>
           <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},1)">+1</button>
@@ -1908,10 +1912,29 @@ function filtrarStockCat(tipo,cat){
   renderEncPanel('stock');
 }
 function adjStock(tipo,prodId,delta){
+  const enc=document.getElementById('enc-content');
+  const scrollY=enc?enc.scrollTop:0;
   const store=tipo==='kiosko'?S.stockKiosko:S.stockAlmacen;
   if(!store[prodId])store[prodId]={cantidad:0,minimo:tipo==='kiosko'?5:10,tamPaquete:1};
-  store[prodId].cantidad=Math.max(0,store[prodId].cantidad+delta);
-  save();renderEncPanel('stock');
+  const s=store[prodId];
+  s.cantidad=Math.max(0,s.cantidad+delta);
+  save();
+  const row=document.querySelector(`[data-stock-row="${tipo}-${prodId}"]`);
+  if(!row){renderEncPanel('stock');return;}
+  const max=Math.max(s.minimo*3,30);
+  const pct=Math.min(100,Math.round(s.cantidad/max*100));
+  const cls=s.cantidad<=0?'danger':s.cantidad<=s.minimo?'warn':'';
+  const cantEl=row.querySelector('[data-cant]');
+  const progEl=row.querySelector('[data-prog]');
+  const alertEl=row.querySelector('[data-alert]');
+  if(cantEl)cantEl.textContent=s.cantidad;
+  if(progEl){progEl.className='prog '+cls;progEl.style.width=pct+'%';}
+  if(alertEl){
+    if(s.cantidad<=0)alertEl.innerHTML='<span style="font-size:.7rem;color:var(--red)">Agotado</span>';
+    else if(s.cantidad<=s.minimo)alertEl.innerHTML='<span style="font-size:.7rem;color:var(--orange)">Stock bajo</span>';
+    else alertEl.innerHTML='';
+  }
+  if(enc)requestAnimationFrame(()=>enc.scrollTop=scrollY);
 }
 function moverAlKiosko(prodId){
   const sa=S.stockAlmacen[prodId]||{cantidad:0,minimo:10,tamPaquete:1};
