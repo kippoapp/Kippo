@@ -777,6 +777,10 @@ async function load(){
   }catch(e){const saved=localStorage.getItem(SK);if(saved)try{S=JSON.parse(saved);}catch(e2){}}
   showScreen('home');
   applyBranding();
+  // Resetear estado de monitor para evitar selección residual en iOS
+  monitorActual=null;
+  const grid=document.getElementById('mon-grid');
+  if(grid)grid.innerHTML='';
   // Forzar iconos en home tras primera carga
   if(typeof lucide!=='undefined'){
     lucide.createIcons();
@@ -853,6 +857,8 @@ function goMonitorLogin(){
       <div class="mon-av">${m[0].toUpperCase()}</div>
       <div class="mon-name">${m}</div>
     </div>`).join('');
+  // Forzar limpieza de selección residual
+  document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
 }
 function selectMon(nombre,el){
   document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
