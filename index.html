@@ -10,7 +10,16 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon/Klogotipo_192.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icon/Kfavicon.png">
-<meta name="theme-color" content="#07111f">
+<meta name="theme-color" content="#07111f" id="meta-theme-color">
+<script>
+// Aplicar theme-color inmediatamente para que la barra de iOS sea correcta desde el primer frame
+try{
+  var _tema=localStorage.getItem('kippo_tema')||'oscuro';
+  var _bg=_tema==='claro'?'#f0f2f5':'#07111f';
+  document.getElementById('meta-theme-color').content=_bg;
+  document.documentElement.style.setProperty('--bg',_bg);
+}catch(e){}
+</script>
 <title>Kippo</title>
 <script>
 const FIREBASE_CONFIG = {
@@ -791,14 +800,37 @@ async function load(){
 // ══════════ NAV ══════════
 let currentScreen='loading';
 function showScreen(id){
-  // Remove floating bar when leaving venta
   const oldBar=document.getElementById('floating-bar');
   if(oldBar)oldBar.remove();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen=id;
-  // Limpiar foco residual — evita contorno en primer elemento de pantalla nueva en móvil
+  // Limpiar foco residual
   if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  // Vaciar grids dinámicos para evitar que iOS restaure estado anterior con sel marcado
+  if(id==='mon-login-screen'){
+    const g=document.getElementById('mon-grid');
+    if(g)g.innerHTML='';
+    const bar=document.getElementById('mon-entrar-bar');
+    if(bar)bar.style.display='none';
+    monitorActual=null;
+    const sc=document.querySelector('#mon-login-screen .scroll');
+    if(sc)sc.scrollTop=0;
+  }
+  if(id==='mon-grupos-screen'){
+    const gl=document.getElementById('mon-grupos-list');
+    if(gl){gl.innerHTML='';gl.scrollTop=0;}
+  }
+  if(id==='mon-acs-screen'){
+    const al=document.getElementById('mon-acs-list');
+    if(al)al.scrollTop=0;
+    const sc=document.querySelector('#mon-acs-screen .scroll');
+    if(sc)sc.scrollTop=0;
+  }
+  if(id==='mon-venta-screen'){
+    const sc=document.getElementById('mon-venta-content');
+    if(sc)sc.scrollTop=0;
+  }
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
@@ -849,16 +881,13 @@ function pinOk(){
 
 // ══════════ MONITOR LOGIN ══════════
 function goMonitorLogin(){
-  monitorActual=null;showScreen('mon-login-screen');
-  const bar=document.getElementById('mon-entrar-bar');
-  if(bar)bar.style.display='none';
+  showScreen('mon-login-screen');
   document.getElementById('mon-grid').innerHTML=(S.monitores||[]).map(m=>`
     <div class="mon-card" onclick="selectMon('${m.replace(/'/g,"\\'")}',this)">
       <div class="mon-av">${m[0].toUpperCase()}</div>
       <div class="mon-name">${m}</div>
     </div>`).join('');
-  // Forzar limpieza de selección residual
-  document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
   document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
@@ -870,8 +899,9 @@ function selectMon(nombre,el){
 }
 function entrarMonitor(){
   if(!monitorActual)return;
-  document.getElementById('tb-monitor').textContent=monitorActual+' 👋';
-  renderGrupos();showScreen('mon-grupos-screen');
+  document.getElementById('tb-monitor').textContent=monitorActual;
+  showScreen('mon-grupos-screen');
+  renderGrupos();
   setTimeout(tryShowOnboardingMon,400);
 }
 
@@ -1518,10 +1548,10 @@ function productos(el){
         <td>${p.oferta&&p.precioOriginal?`<div style="font-size:.72rem;text-decoration:line-through;color:var(--text3)">${p.precioOriginal.toFixed(2)}€</div>`:''}<div style="font-weight:700;color:var(--accent)">${p.precio.toFixed(2)}€</div></td>
         <td><div class="toggle" onclick="toggleProd(${p.id})"><div class="tgl-track ${p.activo?'on':''}"><div class="tgl-thumb"></div></div><span style="font-size:.8rem;color:var(--text2)">${p.activo?'Activo':'Bloqueado'}</span></div></td>
         <td><div class="toggle" onclick="toggleOfertaProd(${p.id})"><div class="tgl-track ${p.oferta?'on':''}"><div class="tgl-thumb"></div></div></td>
-        <td style="display:flex;gap:.35rem;flex-wrap:wrap">
+        <td><div style="display:flex;gap:.35rem;flex-wrap:nowrap;align-items:center">
           <button class="btn btn-acc btn-sm" onclick="editProducto(${p.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
           <button class="btn btn-danger btn-sm" onclick="confirmDelete('producto',${p.id},'¿Eliminar ${p.nombre.replace(/'/g,"\\'")}?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i></button>
-        </td>
+        </div></td>
       </tr>`).join('')}</tbody>
     </table></div></div>
     </div>
@@ -1813,30 +1843,40 @@ function stock(el){
       return `<button onclick="filtrarStockCat('${tipo}','${c}')" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg3)'};border:1px solid ${active?'var(--accent)':'var(--border2)'};color:${active?'var(--accent)':'var(--text2)'};font-size:.72rem;padding:.2rem .55rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e} ${c}</button>`;
     };
     const todosBtn=`<button onclick="filtrarStockCat('${tipo}',null)" style="display:inline-flex;align-items:center;gap:.3rem;background:${!filtro?'var(--accent2)':'var(--bg3)'};border:1px solid ${!filtro?'var(--accent)':'var(--border2)'};color:${!filtro?'var(--accent)':'var(--text2)'};font-size:.72rem;padding:.2rem .55rem;border-radius:99px;cursor:pointer;font-weight:${!filtro?'700':'400'}">Todos</button>`;
-    return `
-      <div class="tbl-wrap"><div class="tbl-scroll"><table>
-      <thead><tr><th>Producto</th><th>Cat.</th><th>Cantidad</th><th>Paquete</th><th>Mínimo</th><th>Nivel</th><th>Acciones</th></tr></thead>
-      <tbody>${prods.length?prods.map(p=>{
-        if(!store[p.id])store[p.id]={cantidad:0,minimo:tipo==='kiosko'?5:10,tamPaquete:1};
-        const s=store[p.id];if(!s.tamPaquete)s.tamPaquete=1;
-        const max=Math.max(s.minimo*3,30);const pct=Math.min(100,Math.round(s.cantidad/max*100));
-        const cls=s.cantidad<=0?'danger':s.cantidad<=s.minimo?'warn':'';
-        return `<tr>
-          <td style="font-weight:600">${p.nombre}</td>
-          <td>${catChip(p.categoria||'Otros',true)}</td>
-          <td style="font-weight:700">${s.cantidad}</td>
-          <td style="color:var(--text2);font-size:.82rem">${s.tamPaquete} ud/paq</td>
-          <td>${s.minimo}</td>
-          <td><div class="prog-bg"><div class="prog ${cls}" style="width:${pct}%"></div></div>${s.cantidad<=s.minimo?`<span style="font-size:.7rem;color:${s.cantidad<=0?'var(--red)':'var(--orange)'}">${s.cantidad<=0?'Agotado':'Stock bajo'}</span>`:''}</td>
-          <td style="display:flex;gap:.3rem;flex-wrap:nowrap;align-items:center">
-            <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},-1)">−1</button>
-            <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},1)">+1</button>
-            <button class="btn btn-acc btn-sm" onclick="setStockModal('${tipo}',${p.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
-            ${tipo==='almacen'?`<button class="btn btn-blue btn-sm" onclick="moverAlKiosko(${p.id})"><i data-lucide="arrow-right" style="width:13px;height:13px;vertical-align:-2px"></i> Kiosko</button>`:''}
-          </td>
-        </tr>`;
-      }).join(''):`<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:1rem">Sin productos en esta categoría</td></tr>`}</tbody>
-    </table></div></div>`;
+    const rows=prods.length?prods.map(p=>{
+      if(!store[p.id])store[p.id]={cantidad:0,minimo:tipo==='kiosko'?5:10,tamPaquete:1};
+      const s=store[p.id];if(!s.tamPaquete)s.tamPaquete=1;
+      const max=Math.max(s.minimo*3,30);const pct=Math.min(100,Math.round(s.cantidad/max*100));
+      const cls=s.cantidad<=0?'danger':s.cantidad<=s.minimo?'warn':'';
+      return `<tr>
+        <td style="font-weight:600">${p.nombre}</td>
+        <td>${catChip(p.categoria||'Otros',true)}</td>
+        <td style="font-weight:700">${s.cantidad}</td>
+        <td style="color:var(--text2);font-size:.82rem">${s.tamPaquete} ud/paq</td>
+        <td>${s.minimo}</td>
+        <td><div class="prog-bg"><div class="prog ${cls}" style="width:${pct}%"></div></div>${s.cantidad<=s.minimo?`<span style="font-size:.7rem;color:${s.cantidad<=0?'var(--red)':'var(--orange)'}">${s.cantidad<=0?'Agotado':'Stock bajo'}</span>`:''}</td>
+        <td><div style="display:flex;gap:.3rem;flex-wrap:nowrap;align-items:center">
+          <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},-1)">−1</button>
+          <button class="btn btn-ghost btn-sm" onclick="adjStock('${tipo}',${p.id},1)">+1</button>
+          <button class="btn btn-acc btn-sm" onclick="setStockModal('${tipo}',${p.id})"><i data-lucide="pencil" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+          ${tipo==='almacen'?`<button class="btn btn-blue btn-sm" onclick="moverAlKiosko(${p.id})"><i data-lucide="arrow-right" style="width:13px;height:13px;vertical-align:-2px"></i> Kiosko</button>`:''}
+        </div></td>
+      </tr>`;
+    }).join(''):`<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:1rem">Sin productos en esta categoría</td></tr>`;
+    const titulo=tipo==='kiosko'
+      ?`<i data-lucide="shopping-cart" style="width:13px;height:13px;vertical-align:-2px"></i> Stock en kiosko`
+      :`<i data-lucide="warehouse" style="width:13px;height:13px;vertical-align:-2px"></i> Stock en almacén`;
+    const chips=[null,...cats].map(c=>{const active=stockCatFiltro[tipo]===c;const e=c?getCatEmoji(c):'';return `<button onclick="filtrarStockCat('${tipo}',${c?`'${c}'`:'null'})" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg4)'};border:1px solid ${active?'var(--accent)':'var(--border)'};color:${active?'var(--accent)':'var(--text3)'};font-size:.72rem;padding:.18rem .5rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e}${e?' ':''}${c||'Todos'}</button>`;}).join('');
+    return `<div class="card" style="padding:.75rem 1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem">
+        <div class="card-title" style="margin:0">${titulo}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.3rem">${chips}</div>
+      </div>
+      <div class="tbl-wrap" style="margin:0"><div class="tbl-scroll"><table>
+        <thead><tr><th>Producto</th><th>Cat.</th><th>Cantidad</th><th>Paquete</th><th>Mínimo</th><th>Nivel</th><th>Acciones</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div></div>
+    </div>`;
   };
   el.innerHTML=`
     <div class="stock-top">
@@ -1859,9 +1899,7 @@ function stock(el){
         <button class="btn btn-green" onclick="recibirPedido()"><i data-lucide="truck" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir al almacén</button>
       </div>
     </div>
-    <div class="card" style="padding:.6rem 1rem"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem"><div class="card-title" style="margin:0"><i data-lucide="shopping-cart" style="width:13px;height:13px;vertical-align:-2px"></i> Stock en kiosko</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">${[null,...getCats()].map(c=>{const active=stockCatFiltro.kiosko===c;const e=c?getCatEmoji(c):'';return `<button onclick="filtrarStockCat('kiosko',${c?`'${c}'`:'null'})" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg4)'};border:1px solid ${active?'var(--accent)':'var(--border)'};color:${active?'var(--accent)':'var(--text3)'};font-size:.72rem;padding:.18rem .5rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e}${e?' ':''}${c||'Todos'}</button>`;}).join('')}</div></div></div>
     ${renderTable('kiosko')}
-    <div class="card" style="padding:.6rem 1rem;margin-top:.25rem"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem"><div class="card-title" style="margin:0"><i data-lucide="warehouse" style="width:13px;height:13px;vertical-align:-2px"></i> Stock en almacén</div><div style="display:flex;flex-wrap:wrap;gap:.3rem">${[null,...getCats()].map(c=>{const active=stockCatFiltro.almacen===c;const e=c?getCatEmoji(c):'';return `<button onclick="filtrarStockCat('almacen',${c?`'${c}'`:'null'})" style="display:inline-flex;align-items:center;gap:.3rem;background:${active?'var(--accent2)':'var(--bg4)'};border:1px solid ${active?'var(--accent)':'var(--border)'};color:${active?'var(--accent)':'var(--text3)'};font-size:.72rem;padding:.18rem .5rem;border-radius:99px;cursor:pointer;font-weight:${active?'700':'400'}">${e}${e?' ':''}${c||'Todos'}</button>`;}).join('')}</div></div></div>
     ${renderTable('almacen')}`;
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
