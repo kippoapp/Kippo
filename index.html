@@ -793,6 +793,8 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen=id;
+  // Limpiar foco residual — evita contorno en primer elemento de pantalla nueva en móvil
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
