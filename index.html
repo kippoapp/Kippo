@@ -17,6 +17,7 @@ try{
   var _tema=localStorage.getItem('kippo_tema')||'oscuro';
   var _bg=_tema==='claro'?'#f0f2f5':'#07111f';
   document.getElementById('meta-theme-color').content=_bg;
+  document.documentElement.style.background=_bg;
   document.documentElement.style.setProperty('--bg',_bg);
 }catch(e){}
 </script>
@@ -288,8 +289,8 @@ tr:first-child td{border-top:none}
 @media(max-width:600px){.stock-top{grid-template-columns:1fr}.prod-top{grid-template-columns:1fr}}
 
 /* TOAST */
-#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.875rem;font-weight:500;padding:.65rem 1.25rem;border-radius:99px;z-index:9999;white-space:nowrap;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04)}
-#toast.show{transform:translateX(-50%) translateY(0)}
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.875rem;font-weight:500;padding:.65rem 1.25rem;border-radius:99px;z-index:9999;white-space:nowrap;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s,visibility .3s;box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);opacity:0;visibility:hidden}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(8px)}
@@ -466,6 +467,27 @@ i[data-lucide] svg{display:block}
     <div class="pin-err" id="pin-err"></div>
     <div id="pin-default-hint" style="font-size:.78rem;color:var(--text3);text-align:center;margin-top:.25rem;line-height:1.5"></div>
     <button class="btn-back" onclick="showScreen('home')" style="margin-top:.25rem"><i data-lucide="arrow-left" style="width:13px;height:13px;vertical-align:-2px"></i> Volver</button>
+    <button onclick="abrirOlvidePIN()" style="background:none;border:none;color:var(--text3);font-size:.75rem;cursor:pointer;margin-top:.25rem;text-decoration:underline;font-family:var(--font-body)">¿Olvidaste tu PIN?</button>
+  </div>
+</div>
+
+<!-- MODAL OLVIDÉ PIN -->
+<div class="ob-overlay" id="ob-olvide-pin">
+  <div class="ob-card" style="max-width:400px">
+    <div class="ob-body" style="gap:.85rem">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <i data-lucide="lock" style="width:20px;height:20px;vertical-align:-2px;color:var(--accent)"></i>
+        <div class="ob-title" style="font-size:1rem;margin:0">¿Olvidaste tu PIN?</div>
+      </div>
+      <div class="ob-desc" style="font-size:.82rem;margin:0">Escríbenos con el email que usaste al contratar Kippo y te ayudamos a recuperar el acceso lo antes posible.</div>
+      <div class="fld"><label>Nombre de la empresa</label><input id="op-empresa" type="text" placeholder="Ej: Campamento Sol"></div>
+      <div class="fld"><label>Email de contacto</label><input id="op-email" type="email" placeholder="El email con el que contrataste Kippo"></div>
+      <div class="fld"><label>Mensaje (opcional)</label><textarea id="op-desc" placeholder="Cualquier dato adicional que nos ayude a identificarte..." style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-family:var(--font-body);font-size:.9rem;padding:.55rem .75rem;resize:vertical;min-height:70px;width:100%"></textarea></div>
+    </div>
+    <div class="ob-footer" style="justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('ob-olvide-pin').classList.remove('open')">Cancelar</button>
+      <button class="btn btn-acc" onclick="enviarOlvidePIN()"><i data-lucide="send" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Enviar solicitud</button>
+    </div>
   </div>
 </div>
 
@@ -596,12 +618,9 @@ i[data-lucide] svg{display:block}
 <div class="ob-overlay" id="ob-contacto">
   <div class="ob-card" style="max-width:420px">
     <div class="ob-body" style="gap:.85rem">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:.6rem">
-          <i data-lucide="message-circle" style="width:20px;height:20px;vertical-align:-2px"></i>
-          <div class="ob-title" style="font-size:1rem;margin:0">Contactar con Kippo</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ob-contacto').classList.remove('open')"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px"></i></button>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <i data-lucide="message-circle" style="width:20px;height:20px;vertical-align:-2px"></i>
+        <div class="ob-title" style="font-size:1rem;margin:0">Contactar con Kippo</div>
       </div>
       <div class="ob-desc" style="font-size:.82rem;margin:0">¿Tienes un problema o una sugerencia? Te respondemos lo antes posible.</div>
       <div class="fld"><label>Nombre de la empresa</label><input id="ct-empresa" type="text" placeholder="Ej: Campamento Sol"></div>
@@ -803,15 +822,15 @@ async function load(){
 
 // ══════════ NAV ══════════
 let currentScreen='loading';
+let _navTime=0;
 function showScreen(id){
+  _navTime=Date.now();
   const oldBar=document.getElementById('floating-bar');
   if(oldBar)oldBar.remove();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen=id;
-  // Limpiar foco residual
   if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
-  // Vaciar grids dinámicos para evitar que iOS restaure estado anterior con sel marcado
   if(id==='mon-login-screen'){
     const g=document.getElementById('mon-grid');
     if(g)g.innerHTML='';
@@ -835,6 +854,11 @@ function showScreen(id){
     const sc=document.getElementById('mon-venta-content');
     if(sc)sc.scrollTop=0;
   }
+  if(id==='enc-screen'){
+    const ec=document.getElementById('enc-content');
+    if(ec)ec.scrollTop=0;
+  }
+  if(id!=='enc-screen') stockCatFiltro={kiosko:null,almacen:null};
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
@@ -895,6 +919,7 @@ function goMonitorLogin(){
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
+  if(Date.now()-_navTime<400)return;
   document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');monitorActual=nombre;
   const bar=document.getElementById('mon-entrar-bar');
@@ -924,6 +949,7 @@ function renderGrupos(){
   }).join('');
 }
 function selGrupo(id){
+  if(Date.now()-_navTime<400)return;
   grupoActual=(S.grupos||[]).find(g=>g.id===id);
   document.getElementById('tb-grupo').textContent=grupoActual.nombre;
   document.getElementById('search-ac').value='';
@@ -949,6 +975,7 @@ function renderAcampados(){
   }).join('');
 }
 function selAcampado(id){
+  if(Date.now()-_navTime<400)return;
   acampadoActual=(S.acampados||[]).find(a=>a.id===id);
   if(!acampadoActual)return;
   carrito=[];document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
@@ -1069,6 +1096,7 @@ function renderVenta(){
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function addProd(id){
+  if(Date.now()-_navTime<400)return;
   const p=(S.productos||[]).find(p=>p.id===id);if(!p)return;
   const sk=S.stockKiosko[id]||{cantidad:0};
   const ex=carrito.find(i=>i.prodId===id&&!i.esOferta);
@@ -1141,12 +1169,11 @@ async function isMasterPin(pin){
 
 // ══════════ ENCARGADO ══════════
 function encTab(tab,el){
-  // Revertir preview si hay cambios sin guardar
   if(_previewSnapshot){revertirPreview();}
   document.querySelectorAll('.enc-tab').forEach(t=>t.classList.remove('active'));
   if(el)el.classList.add('active');
+  if(tab!=='stock')stockCatFiltro={kiosko:null,almacen:null};
   renderEncPanel(tab);
-  // Scroll al top al cambiar de tab
   const encContent=document.getElementById('enc-content');
   if(encContent)encContent.scrollTop=0;
 }
@@ -1258,7 +1285,7 @@ function renderAnulacionesHoy(hoy){
   const tabla='<div class="tbl-wrap"><div class="tbl-scroll"><table style="width:100%;table-layout:auto">'
     +'<thead><tr><th>Fecha</th><th>'+getTerm(false)+'</th><th>'+getCliente(false)+'</th><th>Motivo</th><th>Total</th><th>Acciones</th></tr></thead>'
     +'<tbody>'+rows+'</tbody></table></div></div>';
-  const toggleBtn=anulHoy.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ahoy" onclick="toggleHistorial(\'ahoy\',5,20,\'btn-toggle-ahoy\',\'lista-ahoy\')">Ver más</button>':'';
+  const toggleBtn=anulHoy.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ahoy" onclick="toggleAnulacionesHoy()">Ver más</button>':'';
   return '<div class="card" id="card-anul-hoy">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">'
     +'<div class="card-title" style="margin:0;color:var(--red)"><i data-lucide="x-circle" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Anulaciones de hoy</div>'
@@ -1364,6 +1391,10 @@ function acampados(el){
         <div class="fld" style="flex:1;min-width:100px;margin:0"><label>Dinero inicial (€)</label><input type="number" id="nac-din" step="0.01" min="0" placeholder="0.00"></div>
         <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0;align-self:flex-end" onclick="addAcampado()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir</button>
       </div>
+      <div style="display:flex;gap:.5rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="descargarPlantillaAcampados()"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Descargar plantilla Excel</button>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer"><i data-lucide="upload" style="width:13px;height:13px;vertical-align:-2px"></i> Importar desde Excel<input type="file" accept=".xlsx,.xls" style="display:none" onchange="importarAcampados(this)"></label>
+      </div>
     </div>
     <div class="card" style="padding:.75rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.5rem">
@@ -1400,6 +1431,57 @@ function acampados(el){
         </div>`;
       }).join('')}
     </div>`;
+}
+function descargarPlantillaAcampados(){
+  const grupos=(S.grupos||[]).map(g=>g.nombre).join(', ');
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['Nombre','Grupo'],
+    ['Ejemplo: Juan García', (S.grupos||[])[0]?.nombre||'Nombre del grupo'],
+    ['Ejemplo: Ana López', (S.grupos||[])[1]?.nombre||(S.grupos||[])[0]?.nombre||'Nombre del grupo'],
+  ]);
+  ws['!cols']=[{wch:30},{wch:25}];
+  // Add a note row with available groups
+  XLSX.utils.sheet_add_aoa(ws,[['',''],['Grupos disponibles: '+grupos,'']],{origin:-1});
+  XLSX.utils.book_append_sheet(wb,ws,'Acampados');
+  XLSX.writeFile(wb,'plantilla_acampados.xlsx');
+}
+function importarAcampados(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      // Skip header row
+      const data=rows.slice(1).filter(r=>r[0]&&r[1]&&!String(r[0]).startsWith('Ejemplo'));
+      if(!data.length){toast('⚠ No se encontraron datos válidos',true);return;}
+      if(!S.acampados)S.acampados=[];
+      let añadidos=0;let errores=[];
+      data.forEach(row=>{
+        const nombre=String(row[0]).trim();
+        const grupoNombre=String(row[1]).trim();
+        const grupo=(S.grupos||[]).find(g=>g.nombre.toLowerCase()===grupoNombre.toLowerCase());
+        if(!grupo){errores.push(grupoNombre);return;}
+        // Skip if already exists
+        if(S.acampados.find(a=>a.nombre.toLowerCase()===nombre.toLowerCase()&&a.grupoId===grupo.id))return;
+        S.acampados.push({id:Date.now()+Math.random(),nombre,grupoId:grupo.id,dineroInicial:0,bloqueado:false});
+        añadidos++;
+      });
+      save();
+      if(errores.length){
+        toast(`✅ ${añadidos} importados. Grupos no encontrados: ${[...new Set(errores)].join(', ')}`,true);
+      } else {
+        toast(`✅ ${añadidos} acampados importados correctamente`);
+      }
+      renderEncPanel('acampados');
+    }catch(err){
+      toast('⚠ Error al leer el archivo Excel',true);
+    }
+  };
+  reader.readAsBinaryString(file);
+  input.value='';
 }
 function addAcampado(){
   const nom=document.getElementById('nac-nom').value.trim();
@@ -2222,7 +2304,7 @@ function estadistica(el){
 function _renderBloqueAnuladas(){
   var anuladas=(S.ventas||[]).filter(function(v){return v.anulada;});
   if(!anuladas.length)return '';
-  var btn=anuladas.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ha" onclick="toggleHistorial(&apos;ha&apos;,5,20,&apos;btn-toggle-ha&apos;,&apos;lista-ha&apos;)">Ver m\u00e1s<\/button>':'';
+  var btn=anuladas.length>5?'<button class="btn btn-ghost btn-sm" id="btn-toggle-ha" onclick="toggleAnulacionesEstadistica()">Ver m\u00e1s<\/button>':'';
   return '<div class="card" style="border-color:rgba(255,87,87,.2)">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">'
     +'<div class="card-title" style="margin:0;color:var(--red)">Historial de anulaciones<\/div>'
@@ -2271,6 +2353,40 @@ function renderHistorialAnulaciones(limite){
     +'<tbody>'+rows+'</tbody></table></div></div>';
 }
 
+function toggleAnulacionesHoy(){
+  const btn=document.getElementById('btn-toggle-ahoy');
+  const lista=document.getElementById('lista-ahoy');
+  if(!btn||!lista)return;
+  const expanded=btn.innerHTML.includes('menos');
+  const hoy=new Date().toLocaleDateString('es-ES');
+  const anulHoy=(S.ventas||[]).filter(v=>v.anulada&&v.dia===hoy);
+  if(expanded){
+    lista.innerHTML=renderListaAnulResumen(anulHoy.slice(-5).reverse());
+    lista.style.maxHeight='';lista.style.overflowY='';lista.style.paddingRight='';
+    btn.innerHTML='Ver más';
+  } else {
+    lista.innerHTML=renderListaAnulResumen(anulHoy.slice().reverse());
+    lista.style.maxHeight='420px';lista.style.overflowY='auto';lista.style.paddingRight='.25rem';
+    btn.innerHTML='Ver menos';
+  }
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
+function toggleAnulacionesEstadistica(){
+  const btn=document.getElementById('btn-toggle-ha');
+  const lista=document.getElementById('lista-ha');
+  if(!btn||!lista)return;
+  const expanded=btn.innerHTML.includes('menos');
+  if(expanded){
+    lista.innerHTML=renderHistorialAnulaciones(5);
+    lista.style.maxHeight='';lista.style.overflowY='';lista.style.paddingRight='';
+    btn.innerHTML='Ver más';
+  } else {
+    lista.innerHTML=renderHistorialAnulaciones(0);
+    lista.style.maxHeight='420px';lista.style.overflowY='auto';lista.style.paddingRight='.25rem';
+    btn.innerHTML='Ver menos';
+  }
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
 function toggleVentasHoy(){
   const btn=document.getElementById('btn-toggle-vhoy');
   const lista=document.getElementById('lista-vhoy');
@@ -2542,6 +2658,7 @@ function saveTema(){
 }
 
 function anularVenta(id){
+  id=parseInt(id);
   const v=(S.ventas||[]).find(v=>v.id===id);if(!v)return;
   const ac=(S.acampados||[]).find(a=>a.id===v.acampadoId);
   openEditModal('Anular venta',`
@@ -2568,7 +2685,9 @@ function anularVenta(id){
       });
     });
     save();toast('✅ Venta anulada — saldo y stock restaurados');
-    closeModal('edit-modal');renderEncPanel('monitores');
+    closeModal('edit-modal');
+    const tabActivo=document.querySelector('.enc-tab.active');
+    if(tabActivo)tabActivo.click();else renderEncPanel('resumen');
   });
   document.getElementById('em-btn').textContent='Anular venta';
   document.getElementById('em-btn').style.background='var(--red)';
@@ -2606,6 +2725,7 @@ function addMonitorDesdeTab(){
 }
 
 function recuperarVenta(id){
+  id=parseInt(id);
   const v=(S.ventas||[]).find(v=>v.id===id);if(!v||!v.anulada)return;
   const ac=(S.acampados||[]).find(a=>a.id===v.acampadoId);
   openEditModal('Recuperar venta',`
@@ -2624,7 +2744,9 @@ function recuperarVenta(id){
         S.stockKiosko[pid].cantidad=Math.max(0,S.stockKiosko[pid].cantidad-item.qty);
       });
     });
-    save();toast('✅ Venta recuperada');closeModal('edit-modal');renderEncPanel('monitores');
+    save();toast('✅ Venta recuperada');closeModal('edit-modal');
+    const tabActivo=document.querySelector('.enc-tab.active');
+    if(tabActivo)tabActivo.click();else renderEncPanel('resumen');
   });
   document.getElementById('em-btn').textContent='Recuperar venta';
   document.getElementById('em-btn').style.background='var(--green)';
@@ -2788,6 +2910,42 @@ function printDevolucion(){
     +'<tbody>'+rows+'<\/tbody><\/table><\/body><\/html>';
   w.document.write(_h);
   w.print();
+}
+
+// ══════════ OLVIDÉ PIN ══════════
+function abrirOlvidePIN(){
+  document.getElementById('op-empresa').value='';
+  document.getElementById('op-email').value='';
+  document.getElementById('op-desc').value='';
+  document.getElementById('ob-olvide-pin').classList.add('open');
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
+async function enviarOlvidePIN(){
+  const empresa=document.getElementById('op-empresa').value.trim();
+  const email=document.getElementById('op-email').value.trim();
+  const desc=document.getElementById('op-desc').value.trim();
+  if(!empresa){toast('⚠ Indica el nombre de tu empresa',true);return;}
+  if(!email||!email.includes('@')){toast('⚠ Email inválido',true);return;}
+  const btn=document.querySelector('#ob-olvide-pin .btn-acc');
+  btn.innerHTML='<i data-lucide="loader" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Enviando...';
+  btn.disabled=true;
+  try{
+    const res=await fetch('https://formspree.io/f/xqenjdpp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({empresa,email,tipo:'Recuperación de PIN',mensaje:desc||'Sin mensaje adicional'})
+    });
+    if(res.ok){
+      document.getElementById('ob-olvide-pin').classList.remove('open');
+      toast('✅ Solicitud enviada. Te responderemos pronto.');
+    } else {
+      toast('⚠ Error al enviar. Inténtalo de nuevo.',true);
+    }
+  }catch(e){
+    toast('⚠ Sin conexión. Inténtalo de nuevo.',true);
+  }
+  btn.innerHTML='<i data-lucide="send" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i> Enviar solicitud';
+  btn.disabled=false;
 }
 
 // ══════════ CONTACTO ══════════
