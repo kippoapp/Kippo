@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kippo">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon/192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon/192.png">
+<link rel="apple-touch-icon" href="icon/Klogotipo_192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icon/Kfavicon.png">
 <meta name="theme-color" content="#07111f">
 <title>Kippo</title>
 <script>
@@ -396,8 +396,8 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <style>
 /* Reservar espacio para iconos Lucide antes de que carguen — evita salto visual */
 i[data-lucide]{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;vertical-align:-2px}
@@ -408,7 +408,7 @@ i[data-lucide] svg{display:block}
 
 <!-- LOADING -->
 <div id="loading" class="screen active">
-  <img src="icon/192.png" style="width:96px;height:96px;border-radius:22px;box-shadow:0 0 40px rgba(240,192,64,.25);animation:pulse 2s ease-in-out infinite">
+  <img src="icon/Klogotipo_192.png" style="width:96px;height:96px;border-radius:22px;box-shadow:0 0 40px rgba(240,192,64,.25);animation:pulse 2s ease-in-out infinite">
 </div>
 
 <!-- HOME -->
@@ -777,6 +777,11 @@ async function load(){
   }catch(e){const saved=localStorage.getItem(SK);if(saved)try{S=JSON.parse(saved);}catch(e2){}}
   showScreen('home');
   applyBranding();
+  // Forzar iconos en home tras primera carga
+  if(typeof lucide!=='undefined'){
+    lucide.createIcons();
+    setTimeout(()=>lucide.createIcons(),150);
+  }
 }
 
 // ══════════ NAV ══════════
