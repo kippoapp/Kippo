@@ -77,7 +77,7 @@ i[data-lucide] svg{display:block}
 .home-logo{font-family:var(--font-head);font-size:clamp(1.8rem,8vw,3rem);font-weight:800;color:var(--accent);letter-spacing:clamp(3px,2vw,8px);text-align:center}
 .home-tagline{color:var(--text2);font-size:.85rem;letter-spacing:3px;text-transform:uppercase;margin-top:-.5rem}
 .home-btns{display:flex;flex-direction:column;gap:.75rem;width:100%}
-.btn-home{padding:1rem 1.5rem;border-radius:var(--r);font-family:var(--font-head);font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:transform .12s,opacity .12s;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:.75rem}
+.btn-home{touch-action:manipulation;padding:1rem 1.5rem;border-radius:var(--r);font-family:var(--font-head);font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:transform .12s,opacity .12s;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:.75rem}
 .btn-home:active{transform:scale(.97)}
 .btn-home.monitor{background:var(--accent);color:#1a1400}
 .btn-home.enc{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}
@@ -117,14 +117,14 @@ i[data-lucide] svg{display:block}
 
 /* MONITOR LOGIN */
 .mon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem}
-.mon-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);padding:1rem .75rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.mon-card{touch-action:manipulation;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);padding:1rem .75rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
 .mon-card.sel{border-color:var(--accent);background:var(--accent2)}
 .mon-card:active{transform:scale(.97)}
 .mon-av{width:44px;height:44px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:1.1rem;margin:0 auto .5rem;color:var(--accent)}
 .mon-name{font-size:.9rem;font-weight:600}
 
 /* GRUPOS */
-.grupo-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;display:flex;align-items:center;gap:.85rem;cursor:pointer;transition:background .1s}
+.grupo-item{touch-action:manipulation;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;display:flex;align-items:center;gap:.85rem;cursor:pointer;transition:background .1s}
 .grupo-item:active{background:var(--bg3)}
 .grupo-num{width:38px;height:38px;border-radius:var(--r2);background:var(--accent2);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:1rem;flex-shrink:0}
 .grupo-info{flex:1}
@@ -133,7 +133,7 @@ i[data-lucide] svg{display:block}
 .chevron{color:var(--text3)}
 
 /* ACAMPADOS */
-.ac-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:background .1s}
+.ac-item{touch-action:manipulation;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:background .1s}
 .ac-item.blocked{opacity:.5;cursor:not-allowed}
 .ac-item:not(.blocked):active{background:var(--bg3)}
 .ac-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:.95rem;flex-shrink:0;color:#fff}
@@ -855,6 +855,8 @@ function showScreen(id){
   if(id==='enc-screen'){
     const ec=document.getElementById('enc-content');
     if(ec)ec.scrollTop=0;
+    const tabs=document.querySelector('.enc-tabs');
+    if(tabs)tabs.scrollLeft=0;
   }
   if(id!=='enc-screen') stockCatFiltro={kiosko:null,almacen:null};
   if(typeof lucide!=='undefined')lucide.createIcons();
@@ -914,13 +916,7 @@ function goMonitorLogin(){
       <div class="mon-av">${m[0].toUpperCase()}</div>
       <div class="mon-name">${m}</div>
     </div>`).join('');
-  // Usar touchend para evitar ghost clicks en iOS
-  document.querySelectorAll('.mon-card').forEach(card=>{
-    card.addEventListener('touchend',function(e){
-      e.preventDefault();
-      selectMon(this.querySelector('.mon-name').textContent,this);
-    },{passive:false});
-  });
+
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
@@ -951,12 +947,7 @@ function renderGrupos(){
       <div class="chevron">›</div>
     </div>`;
   }).join('');
-  document.querySelectorAll('.grupo-item').forEach(item=>{
-    item.addEventListener('touchend',function(e){
-      e.preventDefault();
-      selGrupo(parseInt(this.dataset.gid));
-    },{passive:false});
-  });
+
 }
 function selGrupo(id){
   grupoActual=(S.grupos||[]).find(g=>g.id===id);
@@ -983,13 +974,7 @@ function renderAcampados(){
       <div>${a.bloqueado?'<div class="saldo-block">Sin kiosko</div>':cero?'<div class="saldo-block">Sin saldo</div>':warn?`<div class="saldo-warn">⚠ ${r.toFixed(2)}€</div>`:'<div style="color:var(--text3);font-size:.85rem">›</div>'}</div>
     </div>`;
   }).join('');
-  document.querySelectorAll('.ac-item:not(.blocked)').forEach(item=>{
-    item.addEventListener('touchend',function(e){
-      if(this.dataset.bloq==='1')return;
-      e.preventDefault();
-      selAcampado(parseInt(this.dataset.acid));
-    },{passive:false});
-  });
+
 }
 function selAcampado(id){
   acampadoActual=(S.acampados||[]).find(a=>a.id===id);
