@@ -828,37 +828,6 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen=id;
-  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
-  if(id==='mon-login-screen'){
-    const g=document.getElementById('mon-grid');
-    if(g)g.innerHTML='';
-    const bar=document.getElementById('mon-entrar-bar');
-    if(bar)bar.style.display='none';
-    monitorActual=null;
-    const sc=document.querySelector('#mon-login-screen .scroll');
-    if(sc)sc.scrollTop=0;
-  }
-  if(id==='mon-grupos-screen'){
-    const gl=document.getElementById('mon-grupos-list');
-    if(gl){gl.innerHTML='';gl.scrollTop=0;}
-  }
-  if(id==='mon-acs-screen'){
-    const al=document.getElementById('mon-acs-list');
-    if(al)al.scrollTop=0;
-    const sc=document.querySelector('#mon-acs-screen .scroll');
-    if(sc)sc.scrollTop=0;
-  }
-  if(id==='mon-venta-screen'){
-    const sc=document.getElementById('mon-venta-content');
-    if(sc)sc.scrollTop=0;
-  }
-  if(id==='enc-screen'){
-    const ec=document.getElementById('enc-content');
-    if(ec)ec.scrollTop=0;
-    const tabs=document.querySelector('.enc-tabs');
-    if(tabs)tabs.scrollLeft=0;
-  }
-  if(id!=='enc-screen') stockCatFiltro={kiosko:null,almacen:null};
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
@@ -910,13 +879,14 @@ function pinOk(){
 // ══════════ MONITOR LOGIN ══════════
 function goMonitorLogin(){
   monitorActual=null;
-  showScreen('mon-login-screen');
+  const bar=document.getElementById('mon-entrar-bar');
+  if(bar)bar.style.display='none';
   document.getElementById('mon-grid').innerHTML=(S.monitores||[]).map(m=>`
     <div class="mon-card" onclick="selectMon('${m.replace(/'/g,"\\'")}',this)">
       <div class="mon-av">${m[0].toUpperCase()}</div>
       <div class="mon-name">${m}</div>
     </div>`).join('');
-
+  showScreen('mon-login-screen');
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
@@ -930,8 +900,9 @@ function selectMon(nombre,el){
 function entrarMonitor(){
   if(!monitorActual)return;
   document.getElementById('tb-monitor').textContent=monitorActual;
-  showScreen('mon-grupos-screen');
+  document.getElementById('mon-grupos-list').innerHTML='';
   renderGrupos();
+  showScreen('mon-grupos-screen');
   setTimeout(tryShowOnboardingMon,400);
 }
 
@@ -953,7 +924,8 @@ function selGrupo(id){
   grupoActual=(S.grupos||[]).find(g=>g.id===id);
   document.getElementById('tb-grupo').textContent=grupoActual.nombre;
   document.getElementById('search-ac').value='';
-  renderAcampados();showScreen('mon-acs-screen');
+  renderAcampados();
+  showScreen('mon-acs-screen');
 }
 
 // ══════════ ACAMPADOS ══════════
@@ -979,12 +951,10 @@ function renderAcampados(){
 function selAcampado(id){
   acampadoActual=(S.acampados||[]).find(a=>a.id===id);
   if(!acampadoActual)return;
-  carrito=[];document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
-  // Scroll al top de la pantalla de venta
-  const ventaScroll=document.getElementById('mon-venta-content');
-  if(ventaScroll)ventaScroll.scrollTop=0;
-  renderVenta();showScreen('mon-venta-screen');
-  // Forzar scroll al top siempre al entrar en un acampado
+  carrito=[];
+  document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
+  renderVenta();
+  showScreen('mon-venta-screen');
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
@@ -1176,6 +1146,8 @@ function encTab(tab,el){
   renderEncPanel(tab);
   const encContent=document.getElementById('enc-content');
   if(encContent)encContent.scrollTop=0;
+  const tabs=document.querySelector('.enc-tabs');
+  if(tabs&&tab==='resumen')tabs.scrollLeft=0;
 }
 function renderEncPanel(tab){
   const el=document.getElementById('enc-content');
