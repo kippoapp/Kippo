@@ -389,7 +389,7 @@ tr:first-child td{border-top:none}
 .stat:hover{border-color:var(--border2)}
 
 /* FLOATING BAR */
-.floating-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
+.floating-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;padding-bottom:max(.75rem,env(safe-area-inset-bottom));display:flex;align-items:center;gap:.75rem;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
 .floating-btn{background:var(--green);color:#0a1a12;border:none;font-family:var(--font-head);font-size:.95rem;font-weight:700;padding:.75rem 1.5rem;border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .1s,box-shadow .15s}
 .floating-btn:not(:disabled):hover{box-shadow:0 0 20px rgba(61,214,140,.35)}
 .floating-btn:not(:disabled):active{opacity:.85;transform:scale(.98)}
@@ -979,7 +979,7 @@ function selAcampado(id){
   renderVenta();
   showScreen('mon-venta-screen');
   const _vc=document.getElementById('mon-venta-content');
-  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',500);}
+  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',600);}
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
@@ -1117,8 +1117,14 @@ function enviarVenta(){
     pids.forEach(pid=>{if(!S.stockKiosko[pid])S.stockKiosko[pid]={cantidad:0,minimo:5,tamPaquete:1};S.stockKiosko[pid].cantidad=Math.max(0,S.stockKiosko[pid].cantidad-item.qty);});
   });
   carrito=[];save();toast('✅ Venta registrada');
-  showScreen('mon-grupos-screen');
   renderGrupos();
+  showScreen('mon-grupos-screen');
+  const _gl2=document.getElementById('mon-grupos-list');
+  if(_gl2){
+    _gl2.scrollTop=0;
+    _gl2.style.pointerEvents='none';
+    setTimeout(()=>_gl2.style.pointerEvents='',500);
+  }
 }
 
 // ══════════ CERRAR TURNO ══════════
