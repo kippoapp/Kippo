@@ -522,7 +522,7 @@ i[data-lucide] svg{display:block}
   <div class="topbar">
     <button class="btn-back" onclick="showScreen('mon-grupos-screen');renderGrupos()"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-grupo">Grupo</div>
-    <div class="topbar-badge">Monitor</div>
+    <div class="topbar-badge brand-term">Monitor</div>
   </div>
   <div class="scroll">
     <div class="search-wrap">
@@ -538,7 +538,7 @@ i[data-lucide] svg{display:block}
   <div class="topbar">
     <button class="btn-back" onclick="showScreen('mon-acs-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-acampado">Venta</div>
-    <div class="topbar-badge">Monitor</div>
+    <div class="topbar-badge brand-term">Monitor</div>
   </div>
   <div class="scroll" id="mon-venta-content"></div>
 </div>
@@ -628,11 +628,11 @@ i[data-lucide] svg{display:block}
       <div class="fld"><label>Tipo de consulta</label>
         <select id="ct-tipo">
           <option value="" disabled selected>Selecciona una opción</option>
-          <option value="Error en la app">🔴 Error en la app</option>
-          <option value="Problema con ventas o cobros">💰 Problema con ventas o cobros</option>
+          <option value="Error en la app">Error en la app</option>
+          <option value="Problema con ventas o cobros">Problema con ventas o cobros</option>
           <option value="Problema con acampados o saldos">Problema con acampados o saldos</option>
           <option value="Problema con el stock">Problema con el stock</option>
-          <option value="Idea o sugerencia">💡 Idea o sugerencia</option>
+          <option value="Idea o sugerencia">Idea o sugerencia</option>
           <option value="Otro">Otro</option>
         </select>
       </div>
@@ -1406,10 +1406,7 @@ function acampados(el){
         <div class="fld" style="flex:1;min-width:100px;margin:0"><label>Dinero inicial (€)</label><input type="number" id="nac-din" step="0.01" min="0" placeholder="0.00"></div>
         <button class="btn btn-acc" style="white-space:nowrap;flex-shrink:0;align-self:flex-end" onclick="addAcampado()"><i data-lucide="plus" style="width:13px;height:13px;vertical-align:-2px"></i> Añadir</button>
       </div>
-      <div style="display:flex;gap:.5rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="descargarPlantillaAcampados()"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Descargar plantilla Excel</button>
-        <label class="btn btn-ghost btn-sm" style="cursor:pointer"><i data-lucide="upload" style="width:13px;height:13px;vertical-align:-2px"></i> Importar desde Excel<input type="file" accept=".xlsx,.xls" style="display:none" onchange="importarAcampados(this)"></label>
-      </div>
+
     </div>
     <div class="card" style="padding:.75rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.5rem">
@@ -2861,7 +2858,7 @@ const OB_ENC_STEPS=[
   {icon:'<i data-lucide="sliders-horizontal" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Adapta KIPPO a tu negocio',desc:'Empieza poniendo el nombre de tu negocio y cómo quieres llamar a tus trabajadores y clientes. Ve a <b><i data-lucide="settings" style="width:12px;height:12px;vertical-align:-1px"></i> Configuración</b> y rellena la sección <b>Adapta la app a tu gusto</b>.',tip:'💡 Por ejemplo: nombre = Campamento Sol, trabajadores = Monitor, clientes = Acampado.'},
   {icon:'<i data-lucide="users" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Crea tus grupos',desc:'Los grupos organizan a tus clientes. Ve a <b><i data-lucide="users" style="width:12px;height:12px;vertical-align:-1px"></i> Grupos</b> y crea todos los que necesites desde la caja de arriba.',tip:'💡 Ejemplo: Grupo Osos, Cabaña Pinos, Mesa 5... Cada grupo puede tener una nota interna solo visible para ti.'},
   {icon:'<i data-lucide="user-check" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Añade tus trabajadores',desc:'Los trabajadores gestionan las ventas. Ve a <b><i data-lucide="user-check" style="width:12px;height:12px;vertical-align:-1px"></i> Monitores</b> y añádelos desde la caja de arriba.',tip:'💡 Cada venta queda registrada con el nombre del trabajador que la realizó. Puedes ver su resumen del día en cualquier momento.'},
-  {icon:'<i data-lucide="user-round" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Añade tus clientes',desc:'Ve a <b><i data-lucide="user-round" style="width:12px;height:12px;vertical-align:-1px"></i> Acampados</b>, rellena nombre, grupo y dinero inicial, y pulsa Añadir. Repite para cada cliente.',tip:'💡 El dinero inicial es lo que ese cliente puede gastar. Puedes editarlo en cualquier momento desde la lista.'},
+  {icon:'<i data-lucide="user-round" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Añade tus clientes',desc:'Ve a <b><i data-lucide="user-round" style="width:12px;height:12px;vertical-align:-1px"></i> Acampados</b>, rellena nombre y grupo, y pulsa Añadir. El dinero inicial puedes añadirlo después cuando lleguen.',tip:'💡 El dinero inicial es lo que ese cliente puede gastar. También puedes importar acampados masivamente desde Excel en <b>Configuración → Exportar a Excel → Importar desde Excel</b>.'},
   {icon:'<i data-lucide="shopping-bag" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Crea tus productos',desc:'Ve a <b><i data-lucide="shopping-bag" style="width:12px;height:12px;vertical-align:-1px"></i> Productos</b> y añade todo lo que vendas con su nombre, categoría y precio. También puedes crear packs combinados con precio especial.',tip:'💡 Los packs aparecen primero en la pantalla de venta para que tus trabajadores los vean de un vistazo.'},
   {icon:'<i data-lucide="package" style="width:2.2rem;height:2.2rem;color:var(--accent)"></i>',title:'Configura el stock',desc:'Ve a <b><i data-lucide="package" style="width:12px;height:12px;vertical-align:-1px"></i> Stock</b> y ajusta cuántas unidades tienes disponibles en el kiosko y en el almacén para cada producto.',tip:'💡 Recibirás alertas automáticas cuando el stock esté por debajo del mínimo configurado.'},
   {icon:'<i data-lucide="check-circle" style="width:2.2rem;height:2.2rem;color:var(--green)"></i>',title:'¡Todo listo!',desc:'Tu KIPPO está configurado. Comparte la URL de la app con tus trabajadores para que accedan desde su móvil y empieza a vender.',tip:'💡 Tu PIN actual es <b>1234</b>. Cámbialo desde <b><i data-lucide="settings" style="width:12px;height:12px;vertical-align:-1px"></i> Configuración → <i data-lucide="lock" style="width:12px;height:12px;vertical-align:-1px"></i> Cambiar PIN</b> antes de empezar.'},
