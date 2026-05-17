@@ -835,18 +835,10 @@ let currentScreen='loading';
 function showScreen(id){
   const oldBar=document.getElementById('floating-bar');
   if(oldBar)oldBar.remove();
-  const overlay=document.getElementById('nav-overlay');
-  // Show overlay with K logo
-  overlay.classList.add('show');
-  setTimeout(()=>{
-    // Switch screen while overlay is visible
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    currentScreen=id;
-    if(typeof lucide!=='undefined')lucide.createIcons();
-    // Hide overlay
-    setTimeout(()=>overlay.classList.remove('show'),80);
-  },160);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen=id;
+  if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
   const map={'mon-grupos-screen':renderGrupos,'mon-acs-screen':renderAcampados,'mon-venta-screen':renderVenta,'enc-screen':()=>{const a=document.querySelector('.enc-tab.active');if(a)a.click();}};
@@ -905,6 +897,8 @@ function goMonitorLogin(){
       <div class="mon-name">${m}</div>
     </div>`).join('');
   showScreen('mon-login-screen');
+  const _g=document.getElementById('mon-grid');
+  if(_g){_g.style.pointerEvents='none';setTimeout(()=>_g.style.pointerEvents='',350);}
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
@@ -921,6 +915,8 @@ function entrarMonitor(){
   document.getElementById('mon-grupos-list').innerHTML='';
   renderGrupos();
   showScreen('mon-grupos-screen');
+  const _gl=document.getElementById('mon-grupos-list');
+  if(_gl){_gl.style.pointerEvents='none';setTimeout(()=>_gl.style.pointerEvents='',350);}
   setTimeout(tryShowOnboardingMon,400);
 }
 
@@ -944,6 +940,8 @@ function selGrupo(id){
   document.getElementById('search-ac').value='';
   renderAcampados();
   showScreen('mon-acs-screen');
+  const _al=document.getElementById('mon-acs-list');
+  if(_al){_al.style.pointerEvents='none';setTimeout(()=>_al.style.pointerEvents='',350);}
 }
 
 // ══════════ ACAMPADOS ══════════
@@ -973,6 +971,8 @@ function selAcampado(id){
   document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
   renderVenta();
   showScreen('mon-venta-screen');
+  const _vc=document.getElementById('mon-venta-content');
+  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',350);}
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
