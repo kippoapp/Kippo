@@ -59,9 +59,17 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);font-si
 i[data-lucide]{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;vertical-align:-2px}
 i[data-lucide] svg{display:block}
 
-/* SCREENS */
-.screen{display:none;height:100vh;height:100dvh;flex-direction:column;overflow:hidden}
+/* SCREEN TRANSITIONS */
+.screen{display:none;height:100vh;height:100dvh;flex-direction:column;overflow:hidden;opacity:1;transition:opacity .18s ease}
 .screen.active{display:flex}
+.screen.fade-out{opacity:0}
+.screen.fade-in{animation:fadeIn .18s ease forwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* TRANSITION OVERLAY */
+#nav-overlay{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s ease}
+#nav-overlay.show{opacity:1;pointer-events:all}
+#nav-overlay img{width:72px;height:72px;border-radius:16px;animation:pulse 1s ease-in-out infinite}
 
 /* LOADING */
 #loading{background:var(--bg);align-items:center;justify-content:center;gap:1rem;flex-direction:column}
@@ -419,6 +427,8 @@ i[data-lucide] svg{display:block}
 </style>
 </head>
 <body>
+
+<div id="nav-overlay"><img src="icon/Klogotipo_192.png" alt="Kippo"></div>
 
 <!-- LOADING -->
 <div id="loading" class="screen active">
@@ -825,10 +835,18 @@ let currentScreen='loading';
 function showScreen(id){
   const oldBar=document.getElementById('floating-bar');
   if(oldBar)oldBar.remove();
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  currentScreen=id;
-  if(typeof lucide!=='undefined')lucide.createIcons();
+  const overlay=document.getElementById('nav-overlay');
+  // Show overlay with K logo
+  overlay.classList.add('show');
+  setTimeout(()=>{
+    // Switch screen while overlay is visible
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    currentScreen=id;
+    if(typeof lucide!=='undefined')lucide.createIcons();
+    // Hide overlay
+    setTimeout(()=>overlay.classList.remove('show'),80);
+  },160);
 }
 function refreshView(){
   const map={'mon-grupos-screen':renderGrupos,'mon-acs-screen':renderAcampados,'mon-venta-screen':renderVenta,'enc-screen':()=>{const a=document.querySelector('.enc-tab.active');if(a)a.click();}};
