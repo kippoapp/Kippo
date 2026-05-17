@@ -261,7 +261,7 @@ tr:first-child td{border-top:none}
 .search-icon{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.9rem;pointer-events:none}
 
 /* FLOATING BAR */
-.floating-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.4)}
+
 .floating-total{flex:1;display:flex;flex-direction:column}
 .floating-label{font-size:.7rem;color:var(--text3);letter-spacing:.5px;text-transform:uppercase}
 .floating-amount{font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:var(--accent)}
@@ -286,7 +286,7 @@ tr:first-child td{border-top:none}
 *{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
 
 /* BOTTOM PADDING for floating bar */
-.venta-scroll-pad{height:80px;flex-shrink:0}
+.venta-scroll-pad{height:calc(80px + env(safe-area-inset-bottom));flex-shrink:0}
 
 /* STOCK GRID */
 .stock-top{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:start}
@@ -389,7 +389,7 @@ tr:first-child td{border-top:none}
 .stat:hover{border-color:var(--border2)}
 
 /* FLOATING BAR */
-.floating-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;padding-bottom:max(.75rem,env(safe-area-inset-bottom));display:flex;align-items:center;gap:.75rem;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
+.floating-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border2);padding:.75rem 1rem;padding-bottom:max(1.25rem,calc(env(safe-area-inset-bottom) + .75rem));display:flex;align-items:center;gap:.75rem;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
 .floating-btn{background:var(--green);color:#0a1a12;border:none;font-family:var(--font-head);font-size:.95rem;font-weight:700;padding:.75rem 1.5rem;border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .1s,box-shadow .15s}
 .floating-btn:not(:disabled):hover{box-shadow:0 0 20px rgba(61,214,140,.35)}
 .floating-btn:not(:disabled):active{opacity:.85;transform:scale(.98)}
@@ -978,8 +978,8 @@ function selAcampado(id){
   document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
   renderVenta();
   showScreen('mon-venta-screen');
-  const _vc=document.getElementById('mon-venta-content');
-  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',600);}
+  const _vc=document.getElementById('mon-venta-screen');
+  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',700);}
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
@@ -1190,6 +1190,12 @@ function renderEncPanel(tab){
   if(renders[tab])renders[tab](sec);
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),50);
 }
+function renderEncKeepScroll(tab){
+  const ec=document.getElementById('enc-content');
+  const scroll=ec?ec.scrollTop:0;
+  renderEncPanel(tab);
+  if(ec)requestAnimationFrame(()=>ec.scrollTop=scroll);
+}
 
 // ─── RESUMEN ───
 function resumen(el){
@@ -1360,7 +1366,7 @@ function addGrupoDesdeTab(){
   if(!S.grupos)S.grupos=[];
   const id=S.grupos.length?Math.max(...S.grupos.map(g=>g.id))+1:1;
   S.grupos.push({id,nombre:nom,nota:''});
-  save();toast('✅ Grupo añadido');renderEncPanel('grupos');
+  save();toast('✅ Grupo añadido');renderEncKeepScroll('grupos');
 }
 
 function editNotaGrupo(id){
@@ -1370,7 +1376,7 @@ function editNotaGrupo(id){
     <div class="fld"><label>Nota interna</label><input id="nota-grp" value="${g.nota||''}" placeholder="Ej: Grupo problemático, revisar saldos..."></div>
   `,()=>{
     g.nota=document.getElementById('nota-grp').value.trim();
-    save();toast('✅ Nota guardada');closeModal('edit-modal');renderEncPanel('grupos');
+    save();toast('✅ Nota guardada');closeModal('edit-modal');renderEncKeepScroll('grupos');
   });
 }
 
@@ -1508,7 +1514,7 @@ function importarPlantillaKippo(input){
       save();
       const msg=`✅ Importado: ${gAdded} grupos, ${mAdded} monitores, ${aAdded} acampados`+(errores.length?`. Grupos no encontrados: ${[...new Set(errores)].join(', ')}`:'.') ;
       toast(msg,errores.length>0);
-      renderEncPanel('acampados');
+      renderEncKeepScroll('acampados');
     }catch(err){
       toast('⚠ Error al leer el archivo Excel',true);
     }
@@ -1538,7 +1544,7 @@ function addAcampado(){
   if(!nom){toast('⚠ Introduce el nombre',true);return;}
   if(!S.acampados)S.acampados=[];
   S.acampados.push({id:Date.now(),nombre:nom,grupoId:grp,dineroInicial:din,bloqueado:false});
-  save();toast('✅ Acampado añadido');renderEncPanel('acampados');
+  save();toast('✅ Acampado añadido');renderEncKeepScroll('acampados');
 }
 function editAcampado(id){
   const a=(S.acampados||[]).find(a=>a.id===id);if(!a)return;
@@ -1551,7 +1557,7 @@ function editAcampado(id){
     if(!nom){toast('⚠ Nombre vacío',true);return;}
     a.nombre=nom;a.grupoId=parseInt(document.getElementById('ea-grp').value);
     a.dineroInicial=parseFloat(document.getElementById('ea-din').value)||0;
-    save();toast('✅ Guardado');closeModal('edit-modal');renderEncPanel('acampados');
+    save();toast('✅ Guardado');closeModal('edit-modal');renderEncKeepScroll('acampados');
   });
 }
 function editNota(id){
@@ -1562,10 +1568,10 @@ function editNota(id){
     </div>
   `,()=>{
     a.nota=document.getElementById('nota-txt').value.trim();
-    save();toast('✅ Nota guardada');closeModal('edit-modal');renderEncPanel('acampados');
+    save();toast('✅ Nota guardada');closeModal('edit-modal');renderEncKeepScroll('acampados');
   });
 }
-function toggleBloqueo(id){const a=(S.acampados||[]).find(a=>a.id===id);if(a){a.bloqueado=!a.bloqueado;save();toast(a.bloqueado?'⛔ Bloqueado':'✅ Desbloqueado');renderEncPanel('acampados');}}
+function toggleBloqueo(id){const a=(S.acampados||[]).find(a=>a.id===id);if(a){a.bloqueado=!a.bloqueado;save();toast(a.bloqueado?'⛔ Bloqueado':'✅ Desbloqueado');renderEncKeepScroll('acampados');}}
 
 // ─── PRODUCTOS ───
 function productos(el){
@@ -1786,13 +1792,13 @@ function addCategoria(){
   if(S.categorias.includes(n)){toast('⚠ Esa categoría ya existe',true);return;}
   S.categorias.push(n);
   S.catEmojis[n]=e;
-  save();toast('✅ Categoría creada');renderEncPanel('productos');
+  save();toast('✅ Categoría creada');renderEncKeepScroll('productos');
 }
 function toggleCat(cat){
   const prods=(S.productos||[]).filter(p=>(p.categoria||'Otros')===cat);
   const hayActivos=prods.some(p=>p.activo);
   prods.forEach(p=>p.activo=!hayActivos);
-  save();toast(hayActivos?'⛔ Categoría desactivada':'✅ Categoría activada');renderEncPanel('productos');
+  save();toast(hayActivos?'⛔ Categoría desactivada':'✅ Categoría activada');renderEncKeepScroll('productos');
 }
 function editCategoria(n){
   const emojiActual=getCatEmoji(n);
@@ -1812,7 +1818,7 @@ function editCategoria(n){
     S.catEmojis[nuevoNom]=nuevoEmoji;
     // Actualizar productos con esta categoría
     (S.productos||[]).forEach(p=>{if((p.categoria||'Otros')===n)p.categoria=nuevoNom;});
-    save();toast('✅ Categoría actualizada');closeModal('edit-modal');renderEncPanel('productos');
+    save();toast('✅ Categoría actualizada');closeModal('edit-modal');renderEncKeepScroll('productos');
   });
 }
 function delCategoria(n){
@@ -1823,7 +1829,7 @@ function delCategoria(n){
   } else {
     S.categorias=(S.categorias||[]).filter(c=>c!==n);
   }
-  save();toast('Categoría eliminada');renderEncPanel('productos');
+  save();toast('Categoría eliminada');renderEncKeepScroll('productos');
 }
 function addProducto(){
   const nom=document.getElementById('np-n').value.trim();
@@ -1841,7 +1847,7 @@ function addProducto(){
   // Limpiar formulario
   document.getElementById('np-n').value='';
   document.getElementById('np-p').value='';
-  save();toast('✅ Producto añadido');renderEncPanel('productos');
+  save();toast('✅ Producto añadido');renderEncKeepScroll('productos');
 }
 let packSeleccionados={};
 function togglePackProd(id,precio){
@@ -1883,7 +1889,7 @@ function addOfertaCombinada(){
   if(pre<=0){toast('⚠ Precio inválido',true);return;}
   if(!S.ofertas)S.ofertas=[];
   S.ofertas.push({id:Date.now(),nombre:nom,prodIds:ids,precio:pre,activo:true});
-  packSeleccionados={};save();toast('✅ Pack creado');renderEncPanel('productos');
+  packSeleccionados={};save();toast('✅ Pack creado');renderEncKeepScroll('productos');
 }
 function editProducto(id){
   const p=(S.productos||[]).find(p=>p.id===id);if(!p)return;
@@ -1918,7 +1924,7 @@ function editProducto(id){
     p.nombre=nom;p.precio=nuevoPrecio;
     p.categoria=document.getElementById('ep-cat').value;
     p.ofertaDesc=document.getElementById('ep-desc').value.trim();
-    save();toast('✅ Guardado');closeModal('edit-modal');renderEncPanel('productos');
+    save();toast('✅ Guardado');closeModal('edit-modal');renderEncKeepScroll('productos');
   });
 }
 function toggleOfertaProd(id){
@@ -1934,7 +1940,7 @@ function toggleOfertaProd(id){
       if(!p.historialPrecios)p.historialPrecios=[];
     p.historialPrecios.push({de:p.precio,a:val,fecha:new Date().toLocaleDateString('es-ES'),motivo:'Oferta activada'});
     p.precioOriginal=p.precio;p.precio=val;p.oferta=true;
-      save();closeModal('edit-modal');renderEncPanel('productos');
+      save();closeModal('edit-modal');renderEncKeepScroll('productos');
     });
   } else {
     if(p.precioOriginal){
@@ -1943,7 +1949,7 @@ function toggleOfertaProd(id){
       p.precio=p.precioOriginal;
     }
     p.precioOriginal=null;p.oferta=false;
-    save();renderEncPanel('productos');
+    save();renderEncKeepScroll('productos');
   }
 }
 function editPack(id){
@@ -1957,11 +1963,11 @@ function editPack(id){
     if(!nom){toast('⚠ Nombre vacío',true);return;}
     if(isNaN(pre)||pre<=0){toast('⚠ Precio inválido',true);return;}
     o.nombre=nom;o.precio=pre;
-    save();toast('✅ Pack actualizado');closeModal('edit-modal');renderEncPanel('productos');
+    save();toast('✅ Pack actualizado');closeModal('edit-modal');renderEncKeepScroll('productos');
   });
 }
-function toggleOferta(id){const o=(S.ofertas||[]).find(o=>o.id===id);if(o){o.activo=!o.activo;save();renderEncPanel('productos');}}
-function toggleProd(id){const p=(S.productos||[]).find(p=>p.id===id);if(p){p.activo=!p.activo;save();renderEncPanel('productos');}}
+function toggleOferta(id){const o=(S.ofertas||[]).find(o=>o.id===id);if(o){o.activo=!o.activo;save();renderEncKeepScroll('productos');}}
+function toggleProd(id){const p=(S.productos||[]).find(p=>p.id===id);if(p){p.activo=!p.activo;save();renderEncKeepScroll('productos');}}
 
 // ─── STOCK ───
 let stockCatFiltro={kiosko:null,almacen:null};
@@ -2073,7 +2079,7 @@ function moverAlKiosko(prodId){
   sa.cantidad-=tam;
   if(!S.stockKiosko[prodId])S.stockKiosko[prodId]={cantidad:0,minimo:5,tamPaquete:1};
   S.stockKiosko[prodId].cantidad+=tam;
-  save();toast(`✅ ${tam} uds movidas al kiosko`);renderEncPanel('stock');
+  save();toast(`✅ ${tam} uds movidas al kiosko`);renderEncKeepScroll('stock');
 }
 function moverStockBulk(){
   const prodId=parseInt(document.getElementById('mv-prod').value);
@@ -2084,7 +2090,7 @@ function moverStockBulk(){
   sa.cantidad-=total;
   if(!S.stockKiosko[prodId])S.stockKiosko[prodId]={cantidad:0,minimo:5,tamPaquete:1};
   S.stockKiosko[prodId].cantidad+=total;
-  save();toast(`✅ ${npaq} paquete(s) (${total} uds) movidos al kiosko`);renderEncPanel('stock');
+  save();toast(`✅ ${npaq} paquete(s) (${total} uds) movidos al kiosko`);renderEncKeepScroll('stock');
 }
 function recibirPedido(){
   const prodId=parseInt(document.getElementById('rec-prod').value);
@@ -2092,7 +2098,7 @@ function recibirPedido(){
   const sa=S.stockAlmacen[prodId]||{cantidad:0,minimo:10,tamPaquete:1};
   const tam=sa.tamPaquete||1;const total=tam*npaq;
   sa.cantidad+=total;S.stockAlmacen[prodId]=sa;
-  save();toast(`✅ ${npaq} paquete(s) (${total} uds) añadidos al almacén`);renderEncPanel('stock');
+  save();toast(`✅ ${npaq} paquete(s) (${total} uds) añadidos al almacén`);renderEncKeepScroll('stock');
 }
 function setStockModal(tipo,prodId){
   const store=tipo==='kiosko'?S.stockKiosko:S.stockAlmacen;
@@ -2113,7 +2119,7 @@ function setStockModal(tipo,prodId){
     const otro=store===S.stockKiosko?S.stockAlmacen:S.stockKiosko;
     if(!otro[prodId])otro[prodId]={cantidad:0,minimo:5,tamPaquete:1};
     otro[prodId].tamPaquete=Math.max(1,paq);
-    save();toast('✅ Stock actualizado');closeModal('edit-modal');renderEncPanel('stock');
+    save();toast('✅ Stock actualizado');closeModal('edit-modal');renderEncKeepScroll('stock');
   });
 }
 function verResumenMonitor(nombre){
@@ -2777,7 +2783,7 @@ function addMonitorDesdeTab(){
   if((S.monitores||[]).includes(nom)){toast('⚠ Ya existe ese nombre',true);return;}
   if(!S.monitores)S.monitores=[];
   S.monitores.push(nom);
-  save();toast('✅ '+getTerm(false)+' añadido');renderEncPanel('monitores');
+  save();toast('✅ '+getTerm(false)+' añadido');renderEncKeepScroll('monitores');
 }
 
 function recuperarVenta(id){
@@ -2811,7 +2817,7 @@ function recuperarVenta(id){
   document.getElementById('em-btn').style.color='#0a1a12';
 }
 
-function delMonitor(nom){S.monitores=S.monitores.filter(m=>m!==nom);save();toast(getTerm(false)+' eliminado');renderEncPanel('monitores');}
+function delMonitor(nom){S.monitores=S.monitores.filter(m=>m!==nom);save();toast(getTerm(false)+' eliminado');renderEncKeepScroll('monitores');}
 function editMonitor(nom){
   openEditModal('Editar '+getTerm(false),`<div class="fld"><label>Nombre</label><input id="em-mon-nom" value="${nom}"></div>`,()=>{
     const nuevo=document.getElementById('em-mon-nom').value.trim();
@@ -2819,7 +2825,7 @@ function editMonitor(nom){
     if(nuevo!==nom&&(S.monitores||[]).includes(nuevo)){toast('⚠ Ya existe un '+getTerm(false)+' con ese nombre',true);return;}
     S.monitores=S.monitores.map(m=>m===nom?nuevo:m);
     (S.ventas||[]).forEach(v=>{if(v.monitor===nom)v.monitor=nuevo;});
-    save();toast('✅ '+getTerm(false)+' actualizado');closeModal('edit-modal');renderEncPanel('monitores');
+    save();toast('✅ '+getTerm(false)+' actualizado');closeModal('edit-modal');renderEncKeepScroll('monitores');
   });
 }
 function cambiarPin(){
