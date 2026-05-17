@@ -551,14 +551,14 @@ i[data-lucide] svg{display:block}
     <div class="topbar-badge enc"><i data-lucide="star" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px"></i>Encargado</div>
   </div>
   <div class="enc-tabs">
-    <button class="enc-tab active" onclick="encTab('resumen',this)"><i data-lucide="layout-dashboard" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Resumen</button>
-    <button class="enc-tab" onclick="encTab('grupos',this)"><i data-lucide="users" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Grupos</button>
-    <button class="enc-tab" onclick="encTab('acampados',this)"><i data-lucide="user-round" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i><span class="brand-cliente-pl">Acampados</span></button>
-    <button class="enc-tab" onclick="encTab('monitores',this)"><i data-lucide="user-check" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i><span class="brand-term-pl">Monitores</span></button>
-    <button class="enc-tab" onclick="encTab('productos',this)"><i data-lucide="shopping-bag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Productos</button>
-    <button class="enc-tab" onclick="encTab('stock',this)"><i data-lucide="package" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Stock</button>
-    <button class="enc-tab" onclick="encTab('estadistica',this)"><i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Estadística</button>
-    <button class="enc-tab" onclick="encTab('config',this)"><i data-lucide="settings" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Config</button>
+    <button class="enc-tab active" data-tab="resumen" onclick="encTab('resumen',this)"><i data-lucide="layout-dashboard" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Resumen</button>
+    <button class="enc-tab" data-tab="grupos" onclick="encTab('grupos',this)"><i data-lucide="users" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Grupos</button>
+    <button class="enc-tab" data-tab="acampados" onclick="encTab('acampados',this)"><i data-lucide="user-round" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i><span class="brand-cliente-pl">Acampados</span></button>
+    <button class="enc-tab" data-tab="monitores" onclick="encTab('monitores',this)"><i data-lucide="user-check" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i><span class="brand-term-pl">Monitores</span></button>
+    <button class="enc-tab" data-tab="productos" onclick="encTab('productos',this)"><i data-lucide="shopping-bag" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Productos</button>
+    <button class="enc-tab" data-tab="stock" onclick="encTab('stock',this)"><i data-lucide="package" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Stock</button>
+    <button class="enc-tab" data-tab="estadistica" onclick="encTab('estadistica',this)"><i data-lucide="bar-chart-2" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Estadística</button>
+    <button class="enc-tab" data-tab="config" onclick="encTab('config',this)"><i data-lucide="settings" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px"></i>Config</button>
   </div>
   <div class="scroll" id="enc-content"></div>
 </div>
@@ -822,9 +822,7 @@ async function load(){
 
 // ══════════ NAV ══════════
 let currentScreen='loading';
-let _navTime=0;
 function showScreen(id){
-  _navTime=Date.now();
   const oldBar=document.getElementById('floating-bar');
   if(oldBar)oldBar.remove();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -916,10 +914,16 @@ function goMonitorLogin(){
       <div class="mon-av">${m[0].toUpperCase()}</div>
       <div class="mon-name">${m}</div>
     </div>`).join('');
+  // Usar touchend para evitar ghost clicks en iOS
+  document.querySelectorAll('.mon-card').forEach(card=>{
+    card.addEventListener('touchend',function(e){
+      e.preventDefault();
+      selectMon(this.querySelector('.mon-name').textContent,this);
+    },{passive:false});
+  });
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
-  if(Date.now()-_navTime<400)return;
   document.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');monitorActual=nombre;
   const bar=document.getElementById('mon-entrar-bar');
@@ -941,15 +945,20 @@ function renderGrupos(){
   if(!(S.grupos||[]).length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Sin grupos configurados.</div>';return;}
   el.innerHTML=(S.grupos||[]).map(g=>{
     const n=(S.acampados||[]).filter(a=>a.grupoId===g.id).length;
-    return `<div class="grupo-item" onclick="selGrupo(${g.id})">
+    return `<div class="grupo-item" data-gid="${g.id}" onclick="selGrupo(${g.id})">
       <div class="grupo-num">${g.id}</div>
       <div class="grupo-info"><div class="grupo-name">${g.nombre}</div><div class="grupo-count">${n} acampados</div></div>
       <div class="chevron">›</div>
     </div>`;
   }).join('');
+  document.querySelectorAll('.grupo-item').forEach(item=>{
+    item.addEventListener('touchend',function(e){
+      e.preventDefault();
+      selGrupo(parseInt(this.dataset.gid));
+    },{passive:false});
+  });
 }
 function selGrupo(id){
-  if(Date.now()-_navTime<400)return;
   grupoActual=(S.grupos||[]).find(g=>g.id===id);
   document.getElementById('tb-grupo').textContent=grupoActual.nombre;
   document.getElementById('search-ac').value='';
@@ -957,7 +966,7 @@ function selGrupo(id){
 }
 
 // ══════════ ACAMPADOS ══════════
-function getGastado(acId){return(S.ventas||[]).filter(v=>v.acampadoId===acId).reduce((s,v)=>s+v.total,0);}
+function getGastado(acId){return(S.ventas||[]).filter(v=>v.acampadoId===acId&&!v.anulada).reduce((s,v)=>s+v.total,0);}
 function renderAcampados(){
   const q=(document.getElementById('search-ac').value||'').toLowerCase();
   const lista=(S.acampados||[]).filter(a=>a.grupoId===grupoActual.id&&a.nombre.toLowerCase().includes(q));
@@ -967,15 +976,22 @@ function renderAcampados(){
     const g=getGastado(a.id);const r=(a.dineroInicial||0)-g;
     const warn=r<5&&r>0&&!a.bloqueado;
     const cero=r<=0&&!a.bloqueado;
-    return `<div class="ac-item ${a.bloqueado||cero?'blocked':''}" onclick="${a.bloqueado||cero?'':('selAcampado('+a.id+')')}">
+    const bloq=a.bloqueado||cero;
+    return `<div class="ac-item ${bloq?'blocked':''}" data-acid="${a.id}" data-bloq="${bloq?1:0}" onclick="${bloq?'':('selAcampado('+a.id+')')}">
       <div class="ac-av" style="background:${strColor(a.nombre)}">${a.nombre[0].toUpperCase()}</div>
       <div class="ac-name">${a.nombre}</div>
       <div>${a.bloqueado?'<div class="saldo-block">Sin kiosko</div>':cero?'<div class="saldo-block">Sin saldo</div>':warn?`<div class="saldo-warn">⚠ ${r.toFixed(2)}€</div>`:'<div style="color:var(--text3);font-size:.85rem">›</div>'}</div>
     </div>`;
   }).join('');
+  document.querySelectorAll('.ac-item:not(.blocked)').forEach(item=>{
+    item.addEventListener('touchend',function(e){
+      if(this.dataset.bloq==='1')return;
+      e.preventDefault();
+      selAcampado(parseInt(this.dataset.acid));
+    },{passive:false});
+  });
 }
 function selAcampado(id){
-  if(Date.now()-_navTime<400)return;
   acampadoActual=(S.acampados||[]).find(a=>a.id===id);
   if(!acampadoActual)return;
   carrito=[];document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
@@ -1096,7 +1112,6 @@ function renderVenta(){
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function addProd(id){
-  if(Date.now()-_navTime<400)return;
   const p=(S.productos||[]).find(p=>p.id===id);if(!p)return;
   const sk=S.stockKiosko[id]||{cantidad:0};
   const ex=carrito.find(i=>i.prodId===id&&!i.esOferta);
@@ -1399,19 +1414,23 @@ function acampados(el){
     <div class="card" style="padding:.75rem">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.5rem">
         <div class="card-title" style="margin:0">Lista completa</div>
-        <button class="btn btn-ghost btn-sm" onclick="printDevolucion()">🖨 Imprimir devolución</button>
+        <button class="btn btn-ghost btn-sm" onclick="printDevolucion()"><i data-lucide="printer" style="width:13px;height:13px;vertical-align:-2px"></i> Imprimir devolución</button>
+      </div>
+      <div class="search-wrap" style="margin-bottom:.75rem">
+        <span class="search-icon"><i data-lucide="search" style="width:14px;height:14px;vertical-align:-2px"></i></span>
+        <input class="search-input" type="search" id="search-enc-ac" placeholder="Buscar acampado..." oninput="filtrarAcampadosEnc(this.value)">
       </div>
       ${(S.grupos||[]).map(g=>{
         const acs=(S.acampados||[]).filter(a=>a.grupoId===g.id);
         if(!acs.length)return '';
-        return `<div style="margin-bottom:1rem">
+        return `<div class="grupo-enc-block" style="margin-bottom:1rem">
           <div style="font-family:var(--font-head);font-size:.85rem;font-weight:700;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;padding:.4rem 0;border-bottom:1px solid var(--border);margin-bottom:.35rem">${g.nombre}</div>
           <div class="tbl-wrap"><div class="tbl-scroll"><table>
             <thead><tr><th>Nombre</th><th>Inicial</th><th>Gastado</th><th>Favorito</th><th>Restante</th><th>Nota</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>${acs.map(a=>{
               const g2=getGastado(a.id);const r=(a.dineroInicial||0)-g2;
               const fav=(()=>{const c={};(S.ventas||[]).filter(v=>v.acampadoId===a.id).forEach(v=>(v.items||[]).forEach(i=>{c[i.nombre]=(c[i.nombre]||0)+i.qty;}));const t=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return t?t[0]+' ('+t[1]+'uds)':'—';})();
-              return `<tr>
+              return `<tr data-ac-nombre="${a.nombre.toLowerCase()}">
                 <td style="font-weight:600">${a.nombre}</td>
                 <td>${(a.dineroInicial||0).toFixed(2)}€</td>
                 <td>${g2.toFixed(2)}€</td>
@@ -1432,49 +1451,78 @@ function acampados(el){
       }).join('')}
     </div>`;
 }
-function descargarPlantillaAcampados(){
-  const grupos=(S.grupos||[]).map(g=>g.nombre).join(', ');
+function descargarPlantillaKippo(){
   const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet([
-    ['Nombre','Grupo'],
-    ['Ejemplo: Juan García', (S.grupos||[])[0]?.nombre||'Nombre del grupo'],
-    ['Ejemplo: Ana López', (S.grupos||[])[1]?.nombre||(S.grupos||[])[0]?.nombre||'Nombre del grupo'],
-  ]);
-  ws['!cols']=[{wch:30},{wch:25}];
-  // Add a note row with available groups
-  XLSX.utils.sheet_add_aoa(ws,[['',''],['Grupos disponibles: '+grupos,'']],{origin:-1});
-  XLSX.utils.book_append_sheet(wb,ws,'Acampados');
-  XLSX.writeFile(wb,'plantilla_acampados.xlsx');
+  // Hoja 1: Grupos
+  const wsG=XLSX.utils.aoa_to_sheet([['Nombre del Grupo'],['Ej: Grupo Osos']]);
+  wsG['!cols']=[{wch:35}];
+  XLSX.utils.book_append_sheet(wb,wsG,'1. Grupos');
+  // Hoja 2: Monitores
+  const wsM=XLSX.utils.aoa_to_sheet([['Nombre del Monitor'],['Ej: Pelayo Secades']]);
+  wsM['!cols']=[{wch:35}];
+  XLSX.utils.book_append_sheet(wb,wsM,'2. Monitores');
+  // Hoja 3: Acampados
+  const wsA=XLSX.utils.aoa_to_sheet([['Nombre del Acampado','Grupo'],['Ej: Juan García','Ej: Grupo Osos']]);
+  wsA['!cols']=[{wch:35},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,wsA,'3. Acampados');
+  XLSX.writeFile(wb,'plantilla_kippo.xlsx');
 }
-function importarAcampados(input){
+function descargarPlantillaAcampados(){descargarPlantillaKippo();}
+function importarAcampados(input){importarPlantillaKippo(input);}
+function importarPlantillaKippo(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     try{
       const wb=XLSX.read(e.target.result,{type:'binary'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
-      // Skip header row
-      const data=rows.slice(1).filter(r=>r[0]&&r[1]&&!String(r[0]).startsWith('Ejemplo'));
-      if(!data.length){toast('⚠ No se encontraron datos válidos',true);return;}
-      if(!S.acampados)S.acampados=[];
-      let añadidos=0;let errores=[];
-      data.forEach(row=>{
-        const nombre=String(row[0]).trim();
-        const grupoNombre=String(row[1]).trim();
-        const grupo=(S.grupos||[]).find(g=>g.nombre.toLowerCase()===grupoNombre.toLowerCase());
-        if(!grupo){errores.push(grupoNombre);return;}
-        // Skip if already exists
-        if(S.acampados.find(a=>a.nombre.toLowerCase()===nombre.toLowerCase()&&a.grupoId===grupo.id))return;
-        S.acampados.push({id:Date.now()+Math.random(),nombre,grupoId:grupo.id,dineroInicial:0,bloqueado:false});
-        añadidos++;
-      });
-      save();
-      if(errores.length){
-        toast(`✅ ${añadidos} importados. Grupos no encontrados: ${[...new Set(errores)].join(', ')}`,true);
-      } else {
-        toast(`✅ ${añadidos} acampados importados correctamente`);
+      let gAdded=0,mAdded=0,aAdded=0,errores=[];
+      // ── Hoja Grupos ──
+      const wsG=wb.Sheets['1. Grupos']||wb.Sheets[wb.SheetNames[0]];
+      if(wsG){
+        const rows=XLSX.utils.sheet_to_json(wsG,{header:1}).slice(1)
+          .filter(r=>r[0]&&!String(r[0]).startsWith('Ej'));
+        if(!S.grupos)S.grupos=[];
+        rows.forEach(r=>{
+          const nombre=String(r[0]).trim();
+          if(!nombre)return;
+          if(S.grupos.find(g=>g.nombre.toLowerCase()===nombre.toLowerCase()))return;
+          const id=Date.now()+Math.random();
+          S.grupos.push({id,nombre,nota:''});
+          gAdded++;
+        });
       }
+      // ── Hoja Monitores ──
+      const wsM=wb.Sheets['2. Monitores']||wb.Sheets[wb.SheetNames[1]];
+      if(wsM){
+        const rows=XLSX.utils.sheet_to_json(wsM,{header:1}).slice(1)
+          .filter(r=>r[0]&&!String(r[0]).startsWith('Ej'));
+        if(!S.monitores)S.monitores=[];
+        rows.forEach(r=>{
+          const nombre=String(r[0]).trim();
+          if(!nombre||S.monitores.includes(nombre))return;
+          S.monitores.push(nombre);
+          mAdded++;
+        });
+      }
+      // ── Hoja Acampados ──
+      const wsA=wb.Sheets['3. Acampados']||wb.Sheets[wb.SheetNames[2]];
+      if(wsA){
+        const rows=XLSX.utils.sheet_to_json(wsA,{header:1}).slice(1)
+          .filter(r=>r[0]&&r[1]&&!String(r[0]).startsWith('Ej'));
+        if(!S.acampados)S.acampados=[];
+        rows.forEach(r=>{
+          const nombre=String(r[0]).trim();
+          const grupoNombre=String(r[1]).trim();
+          const grupo=(S.grupos||[]).find(g=>g.nombre.toLowerCase()===grupoNombre.toLowerCase());
+          if(!grupo){errores.push(grupoNombre);return;}
+          if(S.acampados.find(a=>a.nombre.toLowerCase()===nombre.toLowerCase()&&a.grupoId===grupo.id))return;
+          S.acampados.push({id:Date.now()+Math.random(),nombre,grupoId:grupo.id,dineroInicial:0,bloqueado:false});
+          aAdded++;
+        });
+      }
+      save();
+      const msg=`✅ Importado: ${gAdded} grupos, ${mAdded} monitores, ${aAdded} acampados`+(errores.length?`. Grupos no encontrados: ${[...new Set(errores)].join(', ')}`:'.') ;
+      toast(msg,errores.length>0);
       renderEncPanel('acampados');
     }catch(err){
       toast('⚠ Error al leer el archivo Excel',true);
@@ -1482,6 +1530,21 @@ function importarAcampados(input){
   };
   reader.readAsBinaryString(file);
   input.value='';
+}
+function filtrarAcampadosEnc(q){
+  const query=q.toLowerCase().trim();
+  const grupos=document.querySelectorAll('#enc-content .grupo-enc-block');
+  grupos.forEach(gb=>{
+    const filas=gb.querySelectorAll('tr[data-ac-nombre]');
+    let visible=0;
+    filas.forEach(tr=>{
+      const nombre=tr.dataset.acNombre||'';
+      const match=!query||nombre.includes(query);
+      tr.style.display=match?'':'none';
+      if(match)visible++;
+    });
+    gb.style.display=visible===0&&query?'none':'';
+  });
 }
 function addAcampado(){
   const nom=document.getElementById('nac-nom').value.trim();
@@ -2589,16 +2652,22 @@ function config(el){
         </div>
       </div>
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Exportar a Excel</div>
-        <div style="font-size:.83rem;color:var(--text2)">Exporta todos los datos del campamento o de un día concreto.</div>
+        <div class="card-title"><i data-lucide="file-spreadsheet" style="width:13px;height:13px;vertical-align:-2px"></i> Exportar a Excel</div>
+        <div style="font-size:.83rem;color:var(--text2)">Exporta los datos del campamento por período.</div>
         <div class="fld"><label>Período</label>
           <select id="exp-periodo" style="width:100%">
             <option value="todo">Todo el campamento</option>
             ${[...new Set((S.ventas||[]).map(v=>v.dia))].sort((a,b)=>{const p=d=>{const[dd,mm,yyyy]=d.split('/');return new Date(yyyy,mm-1,dd);};return p(a)-p(b);}).map(d=>`<option value="${d}">${d}</option>`).join('')}
           </select>
         </div>
-        <div style="margin-top:auto">
-          <button class="btn btn-acc" onclick="exportarExcel()"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Exportar Excel</button>
+        <button class="btn btn-acc" style="align-self:flex-start" onclick="exportarExcel()"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Exportar Excel</button>
+        <div style="border-top:1px solid var(--border);padding-top:.75rem;display:flex;flex-direction:column;gap:.5rem">
+          <div class="card-title" style="margin:0"><i data-lucide="upload" style="width:13px;height:13px;vertical-align:-2px"></i> Importar desde Excel</div>
+          <div style="font-size:.83rem;color:var(--text2)">Descarga la plantilla, rellénala e impórtala.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+            <a href="Kplantilla_Excel.xlsx" download="Kplantilla_Kippo.xlsx" class="btn btn-ghost" style="justify-content:center;text-decoration:none"><i data-lucide="download" style="width:13px;height:13px;vertical-align:-2px"></i> Plantilla</a>
+            <label class="btn btn-ghost" style="cursor:pointer;justify-content:center;display:flex;align-items:center;gap:.35rem"><i data-lucide="upload" style="width:13px;height:13px;vertical-align:-2px"></i> Importar<input type="file" accept=".xlsx,.xls" style="display:none" onchange="importarPlantillaKippo(this)"></label>
+          </div>
         </div>
       </div>
       <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
@@ -2631,7 +2700,7 @@ function config(el){
         <div><button class="btn btn-ghost" onclick="abrirContacto()"><i data-lucide="message-circle" style="width:13px;height:13px;vertical-align:-2px"></i> Contactar con Kippo</button></div>
       </div>
       <div class="card" style="border-color:rgba(255,87,87,.3);display:flex;flex-direction:column;gap:.75rem">
-        <div class="card-title" style="color:var(--red)">⚠ Zona de peligro</div>
+        <div class="card-title" style="color:var(--red)"><i data-lucide="alert-triangle" style="width:13px;height:13px;vertical-align:-2px"></i> Zona de peligro</div>
         <div style="font-size:.83rem;color:var(--text2);flex:1">Acciones irreversibles. Úsalas con cuidado.</div>
         <div style="display:flex;flex-wrap:wrap;gap:.5rem">
           <button class="btn btn-danger" onclick="confirmDelete('ventas',null,'¿Borrar TODAS las ventas?')"><i data-lucide="trash-2" style="width:13px;height:13px;vertical-align:-2px"></i> Borrar ventas</button>
@@ -2686,8 +2755,10 @@ function anularVenta(id){
     });
     save();toast('✅ Venta anulada — saldo y stock restaurados');
     closeModal('edit-modal');
-    const tabActivo=document.querySelector('.enc-tab.active');
-    if(tabActivo)tabActivo.click();else renderEncPanel('resumen');
+    const _tab=document.querySelector('.enc-tab.active')?.dataset?.tab||'resumen';
+    const _scroll=document.getElementById('enc-content')?.scrollTop||0;
+    renderEncPanel(_tab);
+    requestAnimationFrame(()=>{const ec=document.getElementById('enc-content');if(ec)ec.scrollTop=_scroll;});
   });
   document.getElementById('em-btn').textContent='Anular venta';
   document.getElementById('em-btn').style.background='var(--red)';
@@ -2745,8 +2816,10 @@ function recuperarVenta(id){
       });
     });
     save();toast('✅ Venta recuperada');closeModal('edit-modal');
-    const tabActivo=document.querySelector('.enc-tab.active');
-    if(tabActivo)tabActivo.click();else renderEncPanel('resumen');
+    const _tab2=document.querySelector('.enc-tab.active')?.dataset?.tab||'resumen';
+    const _scroll2=document.getElementById('enc-content')?.scrollTop||0;
+    renderEncPanel(_tab2);
+    requestAnimationFrame(()=>{const ec=document.getElementById('enc-content');if(ec)ec.scrollTop=_scroll2;});
   });
   document.getElementById('em-btn').textContent='Recuperar venta';
   document.getElementById('em-btn').style.background='var(--green)';
