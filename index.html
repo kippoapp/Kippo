@@ -846,6 +846,16 @@ function showScreen(id){
   }
   if(id!=='enc-screen')stockCatFiltro={kiosko:null,almacen:null};
   if(typeof lucide!=='undefined')lucide.createIcons();
+  // Fade in the new screen content
+  const screen=document.getElementById(id);
+  if(screen&&id!=='loading'){
+    screen.style.opacity='0';
+    requestAnimationFrame(()=>{
+      screen.style.transition='opacity .15s ease';
+      screen.style.opacity='1';
+      setTimeout(()=>screen.style.transition='',160);
+    });
+  }
 }
 function refreshView(){
   const map={'mon-grupos-screen':renderGrupos,'mon-acs-screen':renderAcampados,'mon-venta-screen':renderVenta,'enc-screen':()=>{const a=document.querySelector('.enc-tab.active');if(a)a.click();}};
@@ -2056,7 +2066,7 @@ function adjStock(tipo,prodId,delta){
   s.cantidad=Math.max(0,s.cantidad+delta);
   save();
   const row=document.querySelector(`[data-stock-row="${tipo}-${prodId}"]`);
-  if(!row){renderEncPanel('stock');return;}
+  if(!row){renderEncKeepScroll('stock');return;}
   const max=Math.max(s.minimo*3,30);
   const pct=Math.min(100,Math.round(s.cantidad/max*100));
   const cls=s.cantidad<=0?'danger':s.cantidad<=s.minimo?'warn':'';
@@ -2761,21 +2771,21 @@ function addGrupo(){
   if(!nom){toast('⚠ Nombre vacío',true);return;}
   if(!S.grupos)S.grupos=[];
   const id=S.grupos.length?Math.max(...S.grupos.map(g=>g.id))+1:1;
-  S.grupos.push({id,nombre:nom});save();toast('✅ Grupo añadido');renderEncPanel('config');
+  S.grupos.push({id,nombre:nom});save();toast('✅ Grupo añadido');renderEncKeepScroll('config');
 }
 function editGrupo(id){
   const g=(S.grupos||[]).find(g=>g.id===id);if(!g)return;
   openEditModal('Editar grupo',`<div class="fld"><label>Nombre</label><input id="eg-nom" value="${g.nombre}"></div>`,()=>{
     const nom=document.getElementById('eg-nom').value.trim();
     if(!nom){toast('⚠ Nombre vacío',true);return;}
-    g.nombre=nom;save();toast('✅ Guardado');closeModal('edit-modal');renderEncPanel('config');
+    g.nombre=nom;save();toast('✅ Guardado');closeModal('edit-modal');renderEncKeepScroll('config');
   });
 }
 function addMonitor(){
   const nom=document.getElementById('cfg-m-nom').value.trim();
   if(!nom||(S.monitores||[]).includes(nom)){toast('⚠ Nombre vacío o duplicado',true);return;}
   if(!S.monitores)S.monitores=[];
-  S.monitores.push(nom);save();toast('✅ Monitor añadido');renderEncPanel('config');
+  S.monitores.push(nom);save();toast('✅ Monitor añadido');renderEncKeepScroll('config');
 }
 function addMonitorDesdeTab(){
   const nom=document.getElementById('mon-nuevo-nom')?.value.trim();
@@ -2936,11 +2946,11 @@ function confirmDelete(tipo,id,msg,customCb){
   const btn=document.getElementById('cm-btn');
   btn.onclick=()=>{
     if(customCb)customCb();
-    else if(tipo==='acampado'){S.acampados=S.acampados.filter(a=>a.id!==id);S.ventas=(S.ventas||[]).filter(v=>v.acampadoId!==id);save();toast('Eliminado');renderEncPanel('acampados');}
-    else if(tipo==='producto'){S.productos=S.productos.filter(p=>p.id!==id);save();toast('Eliminado');renderEncPanel('productos');}
-    else if(tipo==='oferta'){S.ofertas=S.ofertas.filter(o=>o.id!==id);save();toast('Pack eliminado');renderEncPanel('productos');}
-    else if(tipo==='grupo'){S.grupos=S.grupos.filter(g=>g.id!==id);save();toast('Eliminado');renderEncPanel('config');}
-    else if(tipo==='ventas'){S.ventas=[];save();toast('Ventas borradas');renderEncPanel('config');}
+    else if(tipo==='acampado'){S.acampados=S.acampados.filter(a=>a.id!==id);S.ventas=(S.ventas||[]).filter(v=>v.acampadoId!==id);save();toast('Eliminado');renderEncKeepScroll('acampados');}
+    else if(tipo==='producto'){S.productos=S.productos.filter(p=>p.id!==id);save();toast('Eliminado');renderEncKeepScroll('productos');}
+    else if(tipo==='oferta'){S.ofertas=S.ofertas.filter(o=>o.id!==id);save();toast('Pack eliminado');renderEncKeepScroll('productos');}
+    else if(tipo==='grupo'){S.grupos=S.grupos.filter(g=>g.id!==id);save();toast('Eliminado');renderEncKeepScroll('config');}
+    else if(tipo==='ventas'){S.ventas=[];save();toast('Ventas borradas');renderEncKeepScroll('config');}
     else if(tipo==='todo'){S={config:{pin:'1234'},branding:{nombre:'Kippo',tagline:'Sistema de kiosko',tema:'oscuro',termSing:'Monitor',termPlur:'Monitores',clienteSing:'Acampado',clientePlur:'Acampados'},monitores:[],grupos:[],acampados:[],productos:[],ofertas:[],ventas:[],stockKiosko:{},stockAlmacen:{}};save();applyBranding();toast('App reiniciada');showScreen('home');}
     closeModal('confirm-modal');
   };
