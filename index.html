@@ -835,26 +835,29 @@ let currentScreen='loading';
 function showScreen(id){
   const oldBar=document.getElementById('floating-bar');
   if(oldBar)oldBar.remove();
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  currentScreen=id;
-  if(id==='enc-screen'){
-    const ec=document.getElementById('enc-content');
-    if(ec)ec.scrollTop=0;
-    const tabs=document.querySelector('.enc-tabs');
-    if(tabs)tabs.scrollLeft=0;
-  }
-  if(id!=='enc-screen')stockCatFiltro={kiosko:null,almacen:null};
-  if(typeof lucide!=='undefined')lucide.createIcons();
-  // Fade in the new screen content
-  const screen=document.getElementById(id);
-  if(screen&&id!=='loading'){
-    screen.style.opacity='0';
-    requestAnimationFrame(()=>{
-      screen.style.transition='opacity .15s ease';
-      screen.style.opacity='1';
-      setTimeout(()=>screen.style.transition='',160);
-    });
+  const overlay=document.getElementById('nav-overlay');
+  const isMonNav=['mon-login-screen','mon-grupos-screen','mon-acs-screen','mon-venta-screen'].includes(id);
+  if(overlay&&isMonNav){
+    overlay.classList.add('show');
+    setTimeout(()=>{
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      currentScreen=id;
+      if(typeof lucide!=='undefined')lucide.createIcons();
+      setTimeout(()=>overlay.classList.remove('show'),80);
+    },200);
+  } else {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    currentScreen=id;
+    if(id==='enc-screen'){
+      const ec=document.getElementById('enc-content');
+      if(ec)ec.scrollTop=0;
+      const tabs=document.querySelector('.enc-tabs');
+      if(tabs)tabs.scrollLeft=0;
+    }
+    if(id!=='enc-screen')stockCatFiltro={kiosko:null,almacen:null};
+    if(typeof lucide!=='undefined')lucide.createIcons();
   }
 }
 function refreshView(){
@@ -941,10 +944,10 @@ function entrarMonitor(){
 function renderGrupos(){
   const el=document.getElementById('mon-grupos-list');
   if(!(S.grupos||[]).length){el.innerHTML='<div style="color:var(--text3);text-align:center;padding:2rem">Sin grupos configurados.</div>';return;}
-  el.innerHTML=(S.grupos||[]).map(g=>{
+  el.innerHTML=(S.grupos||[]).map((g,i)=>{
     const n=(S.acampados||[]).filter(a=>a.grupoId===g.id).length;
     return `<div class="grupo-item" data-gid="${g.id}" onclick="selGrupo(${g.id})">
-      <div class="grupo-num">${g.id}</div>
+      <div class="grupo-num">${i+1}</div>
       <div class="grupo-info"><div class="grupo-name">${g.nombre}</div><div class="grupo-count">${n} acampados</div></div>
       <div class="chevron">›</div>
     </div>`;
@@ -1203,8 +1206,20 @@ function renderEncPanel(tab){
 function renderEncKeepScroll(tab){
   const ec=document.getElementById('enc-content');
   const scroll=ec?ec.scrollTop:0;
-  renderEncPanel(tab);
-  if(ec)requestAnimationFrame(()=>ec.scrollTop=scroll);
+  if(ec){
+    ec.style.opacity='0';
+    ec.style.transition='opacity .08s';
+  }
+  setTimeout(()=>{
+    renderEncPanel(tab);
+    if(ec){
+      requestAnimationFrame(()=>{
+        ec.scrollTop=scroll;
+        ec.style.opacity='1';
+        setTimeout(()=>ec.style.transition='',100);
+      });
+    }
+  },80);
 }
 
 // ─── RESUMEN ───
