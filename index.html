@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="mobile-web-app-capable" content="yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kippo">
@@ -69,7 +72,7 @@ i[data-lucide] svg{display:block}
 /* TRANSITION OVERLAY */
 #nav-overlay{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .15s ease}
 #nav-overlay.show{opacity:1;pointer-events:all}
-#nav-overlay img{width:72px;height:72px;border-radius:16px;animation:pulse 1s ease-in-out infinite}
+#nav-overlay img{width:72px;height:72px;border-radius:16px;opacity:.8}
 
 /* LOADING */
 #loading{background:var(--bg);align-items:center;justify-content:center;gap:1rem;flex-direction:column}
@@ -917,8 +920,6 @@ function goMonitorLogin(){
       <div class="mon-name">${m}</div>
     </div>`).join('');
   showScreen('mon-login-screen');
-  const _g=document.getElementById('mon-grid');
-  if(_g){_g.style.pointerEvents='none';setTimeout(()=>_g.style.pointerEvents='',350);}
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 function selectMon(nombre,el){
@@ -935,8 +936,6 @@ function entrarMonitor(){
   document.getElementById('mon-grupos-list').innerHTML='';
   renderGrupos();
   showScreen('mon-grupos-screen');
-  const _gl=document.getElementById('mon-grupos-list');
-  if(_gl){_gl.style.pointerEvents='none';setTimeout(()=>_gl.style.pointerEvents='',350);}
   setTimeout(tryShowOnboardingMon,400);
 }
 
@@ -960,8 +959,6 @@ function selGrupo(id){
   document.getElementById('search-ac').value='';
   renderAcampados();
   showScreen('mon-acs-screen');
-  const _al=document.getElementById('mon-acs-list');
-  if(_al){_al.style.pointerEvents='none';setTimeout(()=>_al.style.pointerEvents='',350);}
 }
 
 // ══════════ ACAMPADOS ══════════
@@ -991,8 +988,6 @@ function selAcampado(id){
   document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
   renderVenta();
   showScreen('mon-venta-screen');
-  const _vc=document.getElementById('mon-venta-screen');
-  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',700);}
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
@@ -1133,11 +1128,7 @@ function enviarVenta(){
   renderGrupos();
   showScreen('mon-grupos-screen');
   const _gl2=document.getElementById('mon-grupos-list');
-  if(_gl2){
-    _gl2.scrollTop=0;
-    _gl2.style.pointerEvents='none';
-    setTimeout(()=>_gl2.style.pointerEvents='',500);
-  }
+  if(_gl2)_gl2.scrollTop=0;
 }
 
 // ══════════ CERRAR TURNO ══════════
