@@ -838,6 +838,13 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen=id;
+  if(id==='enc-screen'){
+    const ec=document.getElementById('enc-content');
+    if(ec)ec.scrollTop=0;
+    const tabs=document.querySelector('.enc-tabs');
+    if(tabs)tabs.scrollLeft=0;
+  }
+  if(id!=='enc-screen')stockCatFiltro={kiosko:null,almacen:null};
   if(typeof lucide!=='undefined')lucide.createIcons();
 }
 function refreshView(){
@@ -972,7 +979,7 @@ function selAcampado(id){
   renderVenta();
   showScreen('mon-venta-screen');
   const _vc=document.getElementById('mon-venta-content');
-  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',350);}
+  if(_vc){_vc.style.pointerEvents='none';setTimeout(()=>_vc.style.pointerEvents='',500);}
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
