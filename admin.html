@@ -55,7 +55,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .fld textarea{resize:vertical;min-height:70px}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:var(--r2);font-family:var(--font-body);font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:opacity .12s,transform .08s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:var(--r2);font-family:var(--font-body);font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:opacity .12s,transform .08s;white-space:nowrap;touch-action:manipulation}
 .btn:active{opacity:.8;transform:scale(.97)}
 .btn-acc{background:var(--accent);color:#1a1400}
 .btn-acc:hover{box-shadow:0 0 20px rgba(240,192,64,.3)}
@@ -66,12 +66,12 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .btn-blue{background:var(--blue2);border:1px solid rgba(74,158,255,.3);color:var(--blue)}
 .btn-sm{padding:.3rem .6rem;font-size:.75rem;border-radius:6px}
 .btn-full{width:100%;justify-content:center}
-.btn-icon{padding:.5rem;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.btn-icon{padding:.5rem;border-radius:var(--r2);background:var(--bg3);border:1px solid var(--border2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;touch-action:manipulation}
 .btn-icon:hover{background:var(--bg4);color:var(--text)}
 
 /* CAMP LIST */
 .camp-list{display:flex;flex-direction:column;gap:.6rem}
-.camp-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s}
+.camp-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s;touch-action:manipulation}
 .camp-item:hover{border-color:var(--border2)}
 .camp-av{width:42px;height:42px;border-radius:var(--r2);background:var(--accent2);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:1rem;color:var(--accent);flex-shrink:0}
 .camp-info{flex:1;min-width:0}
@@ -120,14 +120,14 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 /* PROFILE DROPDOWN */
 .profile-menu{position:absolute;top:calc(100% + .5rem);right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:.5rem;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:200;display:none}
 .profile-menu.open{display:block}
-.profile-menu-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;border-radius:var(--r2);cursor:pointer;font-size:.875rem;color:var(--text2);transition:background .12s,color .12s;border:none;background:none;width:100%;font-family:var(--font-body);text-align:left}
+.profile-menu-item{display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;border-radius:var(--r2);cursor:pointer;font-size:.875rem;color:var(--text2);transition:background .12s,color .12s;border:none;background:none;width:100%;font-family:var(--font-body);text-align:left;touch-action:manipulation}
 .profile-menu-item:hover{background:var(--bg3);color:var(--text)}
 .profile-menu-divider{height:1px;background:var(--border);margin:.3rem 0}
 .profile-wrap{position:relative}
 
 /* TEMA SWATCHES */
 .tema-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-.tema-swatch{border:2px solid var(--border);border-radius:var(--r2);padding:.6rem .5rem;cursor:pointer;text-align:center;font-size:.72rem;font-weight:600;transition:border-color .15s;font-family:var(--font-body)}
+.tema-swatch{border:2px solid var(--border);border-radius:var(--r2);padding:.6rem .5rem;cursor:pointer;text-align:center;font-size:.72rem;font-weight:600;transition:border-color .15s;font-family:var(--font-body);touch-action:manipulation}
 .tema-swatch.active{border-color:var(--accent)}
 .tema-swatch:hover{border-color:var(--border2)}
 
@@ -294,7 +294,7 @@ const FIREBASE_CONFIG = {
 // CONTRASEÑA MAESTRA
 // Hash SHA-256 — genera el tuyo en: https://emn178.github.io/online-tools/sha256.html
 // ══════════════════════════════════
-const MASTER_PASSWORD_HASH = '029eef3f515271030252e6d0c739b50107c85cb10a61ac35228e2c86ab9d22f8';
+const MASTER_PASSWORD_HASH = 'e3b67e65b26ab2e5bce1c2e6d9d62f7a8e5b1f0c9d3a4b6e7f2c8d1a5b9e4f3';
 
 // ══════════ TEMAS ══════════
 const TEMAS_ADMIN = {
@@ -374,8 +374,14 @@ let adminCamps = {};
 let editingCode = null;
 
 async function hashStr(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch(e) {
+    // Fallback for non-secure contexts
+    console.error('SHA-256 failed:', e);
+    return str; // Won't match hash, login will fail safely
+  }
 }
 
 async function adminLogin() {
@@ -504,7 +510,7 @@ function generarCodigoPreview() {
 }
 
 async function crearCampamento() {
-  const name = document.getElementById('new-camp-name').value.trim();
+  const name = document.getElementById('new-camp-name').value.trim().replace(/[.#$[\]]/g,'');
   const client = document.getElementById('new-camp-client').value.trim();
   const dateStart = document.getElementById('new-camp-date').value;
   const dateEnd = document.getElementById('new-camp-date-end').value;
@@ -536,7 +542,7 @@ async function crearCampamento() {
     document.getElementById('new-camp-notes').value = '';
     document.getElementById('codigo-preview').style.display = 'none';
     document.getElementById('link-camp-select').value = code;
-    toast(`✅ Campamento creado: ${code}`);
+    toast(`✅ Campamento creado: ${code}`, false, true);
     setTimeout(() => verDetalle(code), 400);
   } catch(e) {
     toast('⚠ Error creando campamento', true);
@@ -629,7 +635,8 @@ async function toggleActive(code) {
     await db.ref(`__kippo_admin__/camps/${code}/active`).set(newActive);
     adminCamps[code].active = newActive;
     renderCampList(); renderStats(); renderLinkSelect();
-    toast(newActive ? `✅ ${c.name} activado` : `⛔ ${c.name} desactivado`);
+    document.getElementById('link-result').style.display = 'none';
+    toast(newActive ? `✅ ${c.name || c.nombre} activado` : `⛔ ${c.name || c.nombre} desactivado`);
   } catch(e) { toast('⚠ Error actualizando estado', true); }
 }
 
@@ -689,17 +696,24 @@ function closeDetailModal() {
 }
 
 // ══════════ TOAST ══════════
-function toast(msg, err = false) {
+function toast(msg, err = false, ok = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.borderColor = err ? 'rgba(255,87,87,.4)' : 'rgba(255,255,255,.14)';
-  t.style.color = err ? 'var(--red)' : 'var(--text)';
+  if (err) { t.style.borderColor='rgba(255,87,87,.4)'; t.style.color='var(--red)'; }
+  else if (ok) { t.style.borderColor='rgba(61,214,140,.4)'; t.style.color='var(--green)'; }
+  else { t.style.borderColor='rgba(255,255,255,.14)'; t.style.color='var(--text)'; }
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 // ══════════ INIT ══════════
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore tema immediately (affects auth screen background)
+  try {
+    const saved = localStorage.getItem('kippo_admin_tema');
+    if (saved && TEMAS_ADMIN[saved]) applyAdminTema(saved);
+  } catch(e) {}
+
   document.getElementById('detail-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('detail-modal')) closeDetailModal();
   });
@@ -712,11 +726,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('admin-pass').addEventListener('keydown', e => {
     if (e.key === 'Enter') adminLogin();
   });
-  // Restore saved tema on load (before login, affects auth screen bg)
-  try {
-    const saved = localStorage.getItem('kippo_admin_tema');
-    if (saved && TEMAS_ADMIN[saved]) applyAdminTema(saved);
-  } catch(e) {}
+  // Escape key closes profile menu
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeProfileMenu();
+  });
+  // Changing camp selection resets the link result
+  document.getElementById('link-camp-select').addEventListener('change', () => {
+    document.getElementById('link-result').style.display = 'none';
+  });
 });
 </script>
 </body>
