@@ -448,7 +448,7 @@ i[data-lucide] svg{display:block}
     <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(196,127,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(196,127,0,.06) 1px,transparent 1px);background-size:36px 36px;pointer-events:none"></div>
     <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(196,127,0,.08) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none"></div>
     <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.75rem;width:100%;max-width:360px">
-      <img src="icon/Klogocompleto_negro.png" alt="Kippo" style="height:48px;object-fit:contain;display:block">
+      <img src="icon/Klogocompleto_negro.png" alt="Kippo" style="height:72px;object-fit:contain;display:block">
       <div style="text-align:center">
         <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:#1a1f2e;margin-bottom:.4rem">Accede a tu kiosko</div>
         <div style="font-size:.85rem;color:#4a5568;line-height:1.6">Introduce el código que te proporcionó el administrador de Kippo.</div>
@@ -3371,6 +3371,9 @@ function cambiarCodigo(){
   KIPPO_CAMP_CODE=null;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('activation-screen').classList.add('active');
+  // Hide cambiar campamento button — not needed on activation screen
+  const btnCamp=document.getElementById('btn-cambiar-camp');
+  if(btnCamp)btnCamp.style.display='none';
   if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),50);
 }
 
