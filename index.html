@@ -448,7 +448,7 @@ i[data-lucide] svg{display:block}
     <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(196,127,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(196,127,0,.06) 1px,transparent 1px);background-size:36px 36px;pointer-events:none"></div>
     <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(196,127,0,.08) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none"></div>
     <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.75rem;width:100%;max-width:360px">
-      <img src="icon/Klogocompleto_negro.png" alt="Kippo" style="height:72px;object-fit:contain;display:block">
+      <img src="icon/Klogocompleto_negro.png" alt="Kippo" style="height:120px;max-width:280px;object-fit:contain;display:block">
       <div style="text-align:center">
         <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:#1a1f2e;margin-bottom:.4rem">Accede a tu kiosko</div>
         <div style="font-size:.85rem;color:#4a5568;line-height:1.6">Introduce el código que te proporcionó el administrador de Kippo.</div>
@@ -1051,8 +1051,9 @@ function pinKeyboard(e){if(!document.getElementById('pin-screen').classList.cont
 function pinKey(d){if(pinVal.length<20){pinVal+=d;updatePinDots();}}
 function pinDel(){pinVal=pinVal.slice(0,-1);updatePinDots();}
 function updatePinDots(){
-  // Always show exactly 4 dots — gives no hints about PIN length
-  document.getElementById('pin-dots').innerHTML=Array.from({length:4},(_,i)=>`<div class="pin-dot ${i<pinVal.length?'filled':''}"></div>`).join('');
+  // Show 4 dots minimum, grow as user types beyond 4
+  const count=Math.max(4,pinVal.length);
+  document.getElementById('pin-dots').innerHTML=Array.from({length:count},(_,i)=>`<div class="pin-dot ${i<pinVal.length?'filled':''}"></div>`).join('');
 }
 function pinOk(){
   if(pinBloqueado){document.getElementById('pin-err').textContent='Bloqueado. Espera 2 minutos.';return;}
