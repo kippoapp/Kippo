@@ -26,6 +26,7 @@ try{
 </script>
 <title>Kippo</title>
 <script>
+// Firebase config — filled by Kippo Admin when generating client link
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAoxabxDT6YG_ofQDHVHn3IYk-cr5Ie4FI",
   authDomain: "saldana-kiosko.firebaseapp.com",
@@ -35,6 +36,8 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "568728326177",
   appId: "1:568728326177:web:bebbe421febb4fdbf71360"
 };
+// KIPPO_CAMP_CODE is set via URL param ?c=CODE and stored in localStorage
+// It defines the Firebase path used: db.ref(KIPPO_CAMP_CODE)
 </script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -62,6 +65,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);font-si
 i[data-lucide]{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;vertical-align:-2px}
 i[data-lucide] svg{display:block}
 
+.slabel{font-size:.72rem;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:.25rem 0;margin-top:.25rem}
 /* SCREEN TRANSITIONS */
 .screen{display:none;height:100vh;height:100dvh;flex-direction:column;overflow:hidden;opacity:1;transition:opacity .18s ease}
 .screen.active{display:flex}
@@ -438,6 +442,42 @@ i[data-lucide] svg{display:block}
   <img src="icon/Klogotipo_192.png" style="width:96px;height:96px;border-radius:22px;box-shadow:0 0 40px rgba(240,192,64,.25);animation:pulse 2s ease-in-out infinite">
 </div>
 
+<!-- ACTIVATION SCREEN (no camp code) -->
+<div id="activation-screen" class="screen">
+  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem;background:var(--bg);position:relative;overflow:hidden">
+    <div class="home-grid"></div>
+    <div class="home-glow"></div>
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%;max-width:360px">
+      <div style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;color:var(--accent);letter-spacing:6px">KIPPO</div>
+      <div style="text-align:center">
+        <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.4rem">Código de acceso requerido</div>
+        <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Introduce el código que te proporcionó el administrador de Kippo para activar tu kiosko.</div>
+      </div>
+      <div class="fld" style="width:100%">
+        <label>Código de activación</label>
+        <input id="act-code-input" type="text" placeholder="KIPPO-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:2px;font-family:var(--font-head);font-size:1rem;text-align:center" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn btn-acc" style="width:100%;justify-content:center;padding:.85rem;font-size:1rem" onclick="activarConCodigo()">
+        <i data-lucide="key" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px"></i> Activar kiosko
+      </button>
+      <div id="act-err" style="color:var(--red);font-size:.82rem;text-align:center;min-height:1.2em"></div>
+      <div style="font-size:.75rem;color:var(--text3);text-align:center;line-height:1.5">¿No tienes código? Contacta con el administrador de Kippo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVATION ERROR SCREEN (wrong code) -->
+<div id="activation-error-screen" class="screen">
+  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;background:var(--bg)">
+    <div style="font-size:3rem">⚠️</div>
+    <div style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;color:var(--text);text-align:center">Código no encontrado</div>
+    <div style="font-size:.88rem;color:var(--text2);text-align:center;line-height:1.6;max-width:300px">El código introducido no existe o aún no ha sido activado. Verifica que el link o código sea correcto.</div>
+    <button class="btn btn-ghost" onclick="cambiarCodigo()">
+      <i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i> Intentar con otro código
+    </button>
+  </div>
+</div>
+
 <!-- HOME -->
 <div id="home" class="screen">
   <div class="home-grid"></div>
@@ -692,9 +732,13 @@ const TEMAS={
     bg:'#f4f6f9',bg2:'#ffffff',bg3:'#e8ecf2',bg4:'#d8dfe9',
     text:'#1a1f2e',text2:'#4a5568',text3:'#8896aa',
     border:'rgba(0,0,0,0.08)',border2:'rgba(0,0,0,0.15)',
-    accent:'#d4a000',accent2:'#d4a00018',accent3:'#d4a00030',
-    blue:'#2563eb',blue2:'#2563eb18',
-    btnText:'#1a1400',btnGreenText:'#0a2a12',
+    accent:'#c47f00',accent2:'rgba(196,127,0,0.10)',accent3:'rgba(196,127,0,0.20)',
+    blue:'#2563eb',blue2:'rgba(37,99,235,0.10)',
+    green:'#16a34a',green2:'rgba(22,163,74,0.10)',
+    red:'#dc2626',red2:'rgba(220,38,38,0.10)',
+    orange:'#ea580c',orange2:'rgba(234,88,12,0.10)',
+    purple:'#7c3aed',purple2:'rgba(124,58,237,0.10)',
+    btnText:'#fff8e6',btnGreenText:'#f0fdf4',
   },
 };
 // Aplica tema guardado inmediatamente para evitar flash en la pantalla de carga
@@ -713,6 +757,10 @@ function _applyTema(t,nombre){
   r.setProperty('--border',t.border);r.setProperty('--border2',t.border2);
   r.setProperty('--accent',t.accent);r.setProperty('--accent2',t.accent2);r.setProperty('--accent3',t.accent3);
   r.setProperty('--blue',t.blue);r.setProperty('--blue2',t.blue2);
+  if(t.green){r.setProperty('--green',t.green);r.setProperty('--green2',t.green2);}
+  if(t.red){r.setProperty('--red',t.red);r.setProperty('--red2',t.red2);}
+  if(t.orange){r.setProperty('--orange',t.orange);r.setProperty('--orange2',t.orange2);}
+  if(t.purple){r.setProperty('--purple',t.purple);r.setProperty('--purple2',t.purple2);}
   document.querySelector('meta[name="theme-color"]').content=t.bg;
   document.body.style.color=t.text;
   document.body.style.background=t.bg;
@@ -794,9 +842,31 @@ function saveBranding(){
   toast('✅ Configuración guardada');
 }
 // ══════════ STORAGE ══════════
+// KIPPO_CAMP_CODE: campament code from URL param, stored in localStorage
+
+let KIPPO_CAMP_CODE=(()=>{
+  try{
+    const url=new URL(window.location.href);
+    const cParam=url.searchParams.get('c');
+    if(cParam){localStorage.setItem('kippo_camp_code',cParam);return cParam;}
+    return localStorage.getItem('kippo_camp_code')||null;
+  }catch(e){return null;}
+})();
+
 async function save(){
-  if(db){db.ref('saldana').set(S).catch(()=>{try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}});}
-  else{try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+  const ref=KIPPO_CAMP_CODE?KIPPO_CAMP_CODE:'__sin_codigo__';
+  const saveLocal=()=>{try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){toast('⚠ Error guardando datos localmente',true);}};
+  if(db&&KIPPO_CAMP_CODE){
+    try{
+      await db.ref(ref).set(S);
+      saveLocal();// also keep local backup
+    }catch(e){
+      saveLocal();
+      console.warn('Firebase save failed, using localStorage',e);
+    }
+  } else {
+    saveLocal();
+  }
 }
 function deepMerge(t,s){
   if(Array.isArray(s))return s;
@@ -809,28 +879,87 @@ function deepMerge(t,s){
   return o;
 }
 async function load(){
+  // ── MEJORA 10: Activation via camp code ──
+  if(!KIPPO_CAMP_CODE){
+    // No code: show activation screen
+    showScreen('activation-screen');
+    return;
+  }
+
   try{
     if(db){
-      const snap=await db.ref('saldana').once('value');
+      const snap=await db.ref(KIPPO_CAMP_CODE).once('value');
       const data=snap.val();
+
+      // Validate that this camp code exists and is activated
+      if(data===null){
+        // Code doesn't exist — could be wrong code or brand new camp
+        // We check for __activated flag set by admin panel
+        showActivationError();
+        return;
+      }
+
+      // Code is valid
       if(data)S=deepMerge(S,data);
-      db.ref('saldana').on('value',snap2=>{const d=snap2.val();if(d){S=deepMerge(S,d);refreshView();}});
+
+      // MEJORA 13: Smart Firebase listener — don't disrupt active monitor sessions
+      db.ref(KIPPO_CAMP_CODE).on('value',snap2=>{
+        const d=snap2.val();
+        if(!d)return;
+        const monActive=['mon-venta-screen'].includes(currentScreen);
+        if(monActive){
+          // Only merge non-cart-disruptive data in background
+          const prev=JSON.stringify({productos:S.productos,stockKiosko:S.stockKiosko,ofertas:S.ofertas});
+          S=deepMerge(S,d);
+          const curr=JSON.stringify({productos:S.productos,stockKiosko:S.stockKiosko,ofertas:S.ofertas});
+          // Only re-render product availability, not the whole screen
+          if(prev!==curr)_refreshProductsOnly();
+        } else {
+          S=deepMerge(S,d);
+          refreshView();
+        }
+      });
     } else {
       const saved=localStorage.getItem(SK);
       if(saved)S=JSON.parse(saved);
     }
-  }catch(e){const saved=localStorage.getItem(SK);if(saved)try{S=JSON.parse(saved);}catch(e2){}}
+  }catch(e){
+    const saved=localStorage.getItem(SK);
+    if(saved)try{S=JSON.parse(saved);}catch(e2){}
+  }
+
+  // MEJORA 9: First use — force PIN creation if still default
+  finishLoad();
+}
+
+function finishLoad(){
   showScreen('home');
   applyBranding();
-  // Resetear estado de monitor para evitar selección residual en iOS
   monitorActual=null;
   const grid=document.getElementById('mon-grid');
   if(grid)grid.innerHTML='';
-  // Forzar iconos en home tras primera carga
   if(typeof lucide!=='undefined'){
     lucide.createIcons();
     setTimeout(()=>lucide.createIcons(),150);
   }
+}
+
+function showActivationError(){
+  // Show error — wrong code or not activated yet
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('activation-error-screen').classList.add('active');
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),50);
+}
+
+function _refreshProductsOnly(){
+  // Refresh product availability without destroying the search/cart state
+  const prodLista=document.getElementById('prod-lista');
+  if(!prodLista)return;
+  const q=(document.getElementById('search-prod')?.value||'').toLowerCase();
+  const prods=(S.productos||[]).filter(p=>p.activo);
+  if(!q){prodLista.innerHTML=renderProdPorCategoria(prods);}
+  else{prodLista.innerHTML=`<div class="prod-grid">${prods.filter(p=>p.nombre.toLowerCase().includes(q)).map(renderProdCard).join('')}</div>`;}
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),20);
 }
 
 // ══════════ NAV ══════════
@@ -873,29 +1002,32 @@ function goPin(){
   showScreen('pin-screen');
   pinVal='';updatePinDots();
   document.getElementById('pin-err').textContent='';
-  // Mostrar hint solo si el PIN sigue siendo el de por defecto
+  // Mostrar hint si PIN es el de por defecto (primer uso forzado)
   const hint=document.getElementById('pin-default-hint');
-  if(S.config.pin==='1234'){
-    hint.innerHTML='PIN por defecto: <b style="color:var(--accent);letter-spacing:2px">1234</b><br><span style="font-size:.72rem">Cámbialo desde Configuración una vez dentro</span>';
-  } else {
-    hint.innerHTML='';
-  }
+  hint.innerHTML='';
+  // BUG FIX: remove before re-adding to prevent accumulation
+  document.removeEventListener('keydown',pinKeyboard);
   document.addEventListener('keydown',pinKeyboard);
 }
 function pinKeyboard(e){if(!document.getElementById('pin-screen').classList.contains('active')){document.removeEventListener('keydown',pinKeyboard);return;}if(e.key>='0'&&e.key<='9')pinKey(e.key);else if(e.key==='Backspace')pinDel();else if(e.key==='Enter')pinOk();}
-function pinKey(d){if(pinVal.length<10){pinVal+=d;updatePinDots();}}
+function pinKey(d){if(pinVal.length<20){pinVal+=d;updatePinDots();}}
 function pinDel(){pinVal=pinVal.slice(0,-1);updatePinDots();}
 function updatePinDots(){
-  const max=Math.max(pinVal.length,4);
-  document.getElementById('pin-dots').innerHTML=Array.from({length:max},(_,i)=>`<div class="pin-dot ${i<pinVal.length?'filled':''}"></div>`).join('');
+  // Always show exactly 4 dots — gives no hints about PIN length
+  document.getElementById('pin-dots').innerHTML=Array.from({length:4},(_,i)=>`<div class="pin-dot ${i<pinVal.length?'filled':''}"></div>`).join('');
 }
 function pinOk(){
   if(pinBloqueado){document.getElementById('pin-err').textContent='Bloqueado. Espera 2 minutos.';return;}
+  if(pinVal.length<4){document.getElementById('pin-err').textContent='El PIN debe tener al menos 4 dígitos';return;}
   const intentado=pinVal;
   isMasterPin(intentado).then(esMaestro=>{
     if(esMaestro||intentado===S.config.pin){
       pinIntentos=0;pinVal='';updatePinDots();document.getElementById('pin-err').textContent='';
       document.removeEventListener('keydown',pinKeyboard);
+      // MEJORA 9: Force PIN change if still using default '1234'
+      if(S.config.pin==='1234'&&!esMaestro){
+        _forcePinChange();return;
+      }
       document.querySelectorAll('.enc-tab').forEach(t=>t.classList.remove('active'));
       document.querySelector('.enc-tab').classList.add('active');
       renderEncPanel('resumen');showScreen('enc-screen');
@@ -1110,12 +1242,48 @@ function addProd(id){
 }
 function addOferta(ofertaId){
   const o=(S.ofertas||[]).find(o=>o.id===ofertaId);if(!o)return;
+  // BUG FIX: validate stock for each product in the pack
   const ex=carrito.find(i=>i.ofertaId===ofertaId);
+  const cantActual=ex?ex.qty:0;
+  for(const pid of (o.prodIds||[])){
+    const sk=S.stockKiosko[pid]||{cantidad:0};
+    const enCarritoIndiv=carrito.filter(i=>!i.esOferta&&i.prodId===pid).reduce((s,i)=>s+i.qty,0);
+    const enPacksCarrito=carrito.filter(i=>i.esOferta&&(i.prodIds||[]).includes(pid)).reduce((s,i)=>s+i.qty,0);
+    const usado=enCarritoIndiv+enPacksCarrito;
+    if(sk.cantidad-usado<1){
+      const p=(S.productos||[]).find(p=>p.id===pid);
+      toast(`⚠ Sin stock: ${p?p.nombre:'producto'}`,true);return;
+    }
+  }
   if(ex)ex.qty++;else carrito.push({ofertaId,prodIds:o.prodIds,nombre:o.nombre,precio:o.precio,qty:1,esOferta:true});
   renderVenta();
 }
 function removeItem(idx){carrito[idx].qty--;if(carrito[idx].qty<=0)carrito.splice(idx,1);renderVenta();}
 function enviarVenta(){
+  const ac=acampadoActual;
+  const total=carrito.reduce((s,i)=>s+i.precio*i.qty,0);
+  // MEJORA 11: Confirmation step before registering sale
+  const resumenItems=carrito.map(i=>`${i.nombre} ×${i.qty} — ${(i.precio*i.qty).toFixed(2)}€`).join('<br>');
+  document.getElementById('cm-title').textContent='Confirmar venta';
+  document.getElementById('cm-body').innerHTML=`
+    <div style="margin-bottom:.5rem;font-size:.9rem;color:var(--text2)">Cliente: <b style="color:var(--text)">${ac.nombre}</b></div>
+    <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem;line-height:1.6">${resumenItems}</div>
+    <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg3);border-radius:var(--r2)">
+      <span style="font-weight:700">Total</span>
+      <span style="font-weight:800;color:var(--green);font-size:1.1rem">${total.toFixed(2)}€</span>
+    </div>`;
+  const btn=document.getElementById('cm-btn');
+  btn.textContent='✅ Confirmar venta';
+  btn.style.background='var(--green)';btn.style.color='#0a1a12';btn.style.borderColor='var(--green)';
+  btn.onclick=()=>{
+    btn.style.background='';btn.style.color='';btn.style.borderColor='';
+    closeModal('confirm-modal');
+    _doEnviarVenta();
+  };
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function _doEnviarVenta(){
   const ac=acampadoActual;
   const total=carrito.reduce((s,i)=>s+i.precio*i.qty,0);
   if(!S.ventas)S.ventas=[];
@@ -1140,6 +1308,8 @@ function cerrarTurno(){
   const cnt={};vT.forEach(v=>(v.items||[]).forEach(i=>{cnt[i.nombre]=(cnt[i.nombre]||0)+i.qty;}));
   const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const nProd=Object.values(cnt).reduce((s,v)=>s+v,0);
+  // BUG FIX: store logout function so overlay-close also triggers it
+  const doLogout=()=>{closeModal('edit-modal');monitorActual=null;showScreen('home');};
   openEditModal(`Resumen de turno — ${monitorActual}`,`
     <div style="display:flex;flex-direction:column;gap:.6rem">
       <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
@@ -1155,9 +1325,12 @@ function cerrarTurno(){
         ${top.map((p,i)=>`<div style="display:flex;justify-content:space-between;font-size:.88rem;padding:.15rem 0">
           <span>${`<span style='color:var(--accent);font-weight:700;font-size:.78rem'>#${i+1}</span>`} ${p[0]}</span><span style="color:var(--accent)">${p[1]} uds</span>
         </div>`).join('')}</div>`:''}
-      ${(()=>{const acGasto={};vT.forEach(v=>{acGasto[v.acampadoId]=(acGasto[v.acampadoId]||0)+v.total;});const topAc=Object.entries(acGasto).sort((a,b)=>b[1]-a[1])[0];const acNom=topAc?(S.acampados||[]).find(a=>a.id==topAc[0]):null;return acNom?`<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem"><span style="color:var(--text2)">Mayor compra</span><span style="font-weight:700;color:var(--accent)">${acNom.nombre} · ${topAc[1].toFixed(2)}€</span></div>`:'';})()}
+      ${(()=>{const acGasto={};vT.forEach(v=>{acGasto[v.acampadoId]=(acGasto[v.acampadoId]||0)+v.total;});const topAc=Object.entries(acGasto).sort((a,b)=>b[1]-a[1])[0];const acNom=topAc?(S.acampados||[]).find(a=>String(a.id)===String(topAc[0])):null;return acNom?`<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.85rem"><span style="color:var(--text2)">Mayor compra</span><span style="font-weight:700;color:var(--accent)">${acNom.nombre} · ${topAc[1].toFixed(2)}€</span></div>`:'';})()}
       <div style="color:var(--text3);font-size:.8rem;text-align:center;padding-top:.25rem">¡Buen trabajo!</div>
-    </div>`,()=>{closeModal('edit-modal');showScreen('home');});
+    </div>`,doLogout);
+  // Override modal overlay click to also logout
+  const overlay=document.getElementById('edit-modal');
+  overlay._turnoLogout=doLogout;
   document.getElementById('em-btn').textContent='Cerrar sesión';
 }
 
@@ -1170,6 +1343,40 @@ async function hashPin(pin){
 async function isMasterPin(pin){
   const h=await hashPin(pin);
   return h===MASTER_PIN_HASH;
+}
+
+// ══════════ PRIMER USO: FORZAR PIN ══════════
+function _forcePinChange(){
+  // Show a dedicated modal forcing the user to set a new PIN
+  document.getElementById('em-title').textContent='🔒 Crea tu PIN personal';
+  document.getElementById('em-body').innerHTML=`
+    <div style="font-size:.85rem;color:var(--text2);margin-bottom:.5rem">Estás usando el PIN por defecto. Por seguridad debes crear uno personal antes de continuar.</div>
+    <div class="fld"><label>PIN nuevo (mínimo 4 dígitos)</label><input type="password" id="fpin-nuevo" placeholder="Mínimo 4 dígitos" inputmode="numeric"></div>
+    <div class="fld"><label>Confirmar PIN</label><input type="password" id="fpin-conf" placeholder="Repite el PIN" inputmode="numeric"></div>
+  `;
+  document.getElementById('em-btn').textContent='Guardar PIN';
+  document.getElementById('em-btn').style.background='';
+  document.getElementById('em-btn').style.color='';
+  document.getElementById('modal-cancel-btn').style.display='none';
+  document.getElementById('em-btn').onclick=()=>{
+    const nv=document.getElementById('fpin-nuevo').value.trim();
+    const cf=document.getElementById('fpin-conf').value.trim();
+    if(nv.length<4){toast('⚠ El PIN debe tener al menos 4 dígitos',true);return;}
+    if(nv!==cf){toast('⚠ Los PINes no coinciden',true);return;}
+    if(nv==='1234'){toast('⚠ No puedes usar 1234 como PIN',true);return;}
+    isMasterPin(nv).then(esMaestro=>{
+      if(esMaestro){toast('⚠ Ese PIN no está permitido',true);return;}
+      S.config.pin=nv;save();
+      closeModal('edit-modal');
+      document.getElementById('modal-cancel-btn').style.display='';
+      toast('✅ PIN guardado. ¡Bienvenido!');
+      document.querySelectorAll('.enc-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelector('.enc-tab').classList.add('active');
+      renderEncPanel('resumen');showScreen('enc-screen');
+      setTimeout(tryShowOnboardingEnc,400);
+    });
+  };
+  document.getElementById('edit-modal').classList.add('open');
 }
 
 // ══════════ ENCARGADO ══════════
@@ -1234,7 +1441,7 @@ function resumen(el){
   const gastoHoy={};
   vHoy.forEach(v=>{gastoHoy[v.acampadoId]=(gastoHoy[v.acampadoId]||0)+v.total;});
   const top3Ac=Object.entries(gastoHoy).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id,g])=>{
-    const ac=(S.acampados||[]).find(a=>a.id==id);
+    const ac=(S.acampados||[]).find(a=>String(a.id)===String(id));
     return ac?{n:ac.nombre,g}:null;
   }).filter(Boolean);
 
@@ -1528,11 +1735,19 @@ function importarPlantillaKippo(input){
         });
       }
       save();
-      const msg=`✅ Importado: ${gAdded} grupos, ${mAdded} monitores, ${aAdded} acampados`+(errores.length?`. Grupos no encontrados: ${[...new Set(errores)].join(', ')}`:'.') ;
-      toast(msg,errores.length>0);
+      if(errores.length>0){
+        const uniqErr=[...new Set(errores)];
+        toast(`⚠ ${aAdded} acampados importados. Grupos no encontrados: ${uniqErr.join(', ')}. Crea esos grupos primero.`,true);
+      } else {
+        toast(`✅ Importado: ${gAdded} grupos, ${mAdded} monitores, ${aAdded} acampados.`);
+      }
       renderEncKeepScroll('acampados');
     }catch(err){
-      toast('⚠ Error al leer el archivo Excel',true);
+      console.error('Import error:',err);
+      let msg='⚠ Error al leer el archivo Excel.';
+      if(err.message&&err.message.includes('sheet'))msg='⚠ El archivo no tiene las hojas correctas (1. Grupos, 2. Monitores, 3. Acampados).';
+      else if(err.message&&err.message.includes('parse'))msg='⚠ Archivo dañado o en formato incorrecto.';
+      toast(msg,true);
     }
   };
   reader.readAsBinaryString(file);
@@ -2147,7 +2362,7 @@ function verResumenMonitor(nombre){
   const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const acG={};vT.forEach(v=>{acG[v.acampadoId]=(acG[v.acampadoId]||0)+v.total;});
   const tAc=Object.entries(acG).sort((a,b)=>b[1]-a[1])[0];
-  const tAcN=tAc?(S.acampados||[]).find(a=>a.id==tAc[0]):null;
+  const tAcN=tAc?(S.acampados||[]).find(a=>String(a.id)===String(tAc[0])):null;
   openEditModal(`Resumen del día — ${nombre}`,`
     <div style="display:flex;flex-direction:column;gap:.45rem">
       <div style="display:flex;justify-content:space-between;padding:.42rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Pedidos</span><span style="font-weight:700;color:var(--blue)">${vT.length}</span></div>
@@ -2231,7 +2446,7 @@ function estadistica(el){
   const acsGasto=(S.acampados||[]).map(a=>({n:a.nombre,g:getGastado(a.id)})).filter(a=>a.g>0).sort((a,b)=>b.g-a.g);
   const acMax=acsGasto[0]||null;
   const acMin=acsGasto[acsGasto.length-1]||null;
-  const acMaxHoy=(()=>{const gH={};vHoy.forEach(v=>{gH[v.acampadoId]=(gH[v.acampadoId]||0)+v.total;});const top=Object.entries(gH).sort((a,b)=>b[1]-a[1])[0];const ac=top?(S.acampados||[]).find(a=>a.id==top[0]):null;return ac?{n:ac.nombre,g:top[1]}:null;})();
+  const acMaxHoy=(()=>{const gH={};vHoy.forEach(v=>{gH[v.acampadoId]=(gH[v.acampadoId]||0)+v.total;});const top=Object.entries(gH).sort((a,b)=>b[1]-a[1])[0];const ac=top?(S.acampados||[]).find(a=>String(a.id)===String(top[0])):null;return ac?{n:ac.nombre,g:top[1]}:null;})();
   const porGrupo={};(S.grupos||[]).forEach(g=>{porGrupo[g.id]={n:g.nombre,t:0};});
   (S.ventas||[]).forEach(v=>{if(porGrupo[v.grupoId])porGrupo[v.grupoId].t+=v.total;});
   const gruposSorted=Object.values(porGrupo).filter(g=>g.t>0).sort((a,b)=>b.t-a.t);
@@ -2974,22 +3189,27 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 // ══════════ PRINT ══════════
 function printDevolucion(){
-  const w=window.open('','_blank');
+  // MEJORA 15: Use Blob instead of document.write — works in Safari/iOS
   const rows=(S.acampados||[]).map(a=>{
     const g=(S.grupos||[]).find(g=>g.id===a.grupoId);
     const gst=getGastado(a.id);const rest=(a.dineroInicial||0)-gst;
-    return '<tr><td>'+a.nombre+'</td><td>'+(g?g.nombre:'')+'</td><td>'+((a.dineroInicial||0).toFixed(2))+'\u20ac</td><td>'+gst.toFixed(2)+'\u20ac</td><td><b>'+rest.toFixed(2)+'\u20ac</b></td></tr>';
+    return '<tr><td>'+a.nombre+'</td><td>'+(g?g.nombre:'')+'</td><td>'+((a.dineroInicial||0).toFixed(2))+'\u20ac</td><td>'+gst.toFixed(2)+'\u20ac</td><td><b>'+rest.toFixed(2)+'\u20ac<\/b><\/td><\/tr>';
   }).join('');
   const _n=S.branding&&S.branding.nombre?S.branding.nombre:'Kiosko';
   const _d=new Date().toLocaleDateString('es-ES');
-  const _h='<!DOCTYPE html><html>'
-    +'<head><title>Devoluci\u00f3n '+_n+'<\/title>'
-    +'<style>body{font-family:sans-serif;padding:2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5}<\/style><\/head>'
-    +'<body><h1>'+_n+' \u2014 Devoluci\u00f3n de dinero<\/h1><p>'+_d+'<\/p>'
+  const htmlContent='<!DOCTYPE html><html>'
+    +'<head><meta charset=\"UTF-8\"><title>Devolución '+_n+'<\/title>'
+    +'<style>body{font-family:sans-serif;padding:2rem}h1{font-size:1.3rem;margin-bottom:.25rem}table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:1rem}th,td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5;font-weight:600}tr:nth-child(even){background:#fafafa}<\/style><\/head>'
+    +'<body><h1>'+_n+' — Devolución de dinero<\/h1><p style=\"color:#666;font-size:.85rem\">'+_d+'<\/p>'
     +'<table><thead><tr><th>Acampado<\/th><th>Grupo<\/th><th>Inicial<\/th><th>Gastado<\/th><th>A devolver<\/th><\/tr><\/thead>'
-    +'<tbody>'+rows+'<\/tbody><\/table><\/body><\/html>';
-  w.document.write(_h);
-  w.print();
+    +'<tbody>'+rows+'<\/tbody><\/table>'
+    +'<script>window.onload=function(){window.print()}<\/script>'
+    +'<\/body><\/html>';
+  const blob=new Blob([htmlContent],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  if(!w){toast('⚠ Permite las ventanas emergentes para imprimir',true);}
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
 }
 
 // ══════════ OLVIDÉ PIN ══════════
@@ -3077,14 +3297,51 @@ function strColor(str){
   return p[Math.abs(h)%p.length];
 }
 
+// ══════════ ACTIVACIÓN ══════════
+async function activarConCodigo(){
+  const code=document.getElementById('act-code-input').value.trim().toUpperCase();
+  const errEl=document.getElementById('act-err');
+  if(!code){errEl.textContent='Introduce el código';return;}
+  if(code.length<6){errEl.textContent='Código demasiado corto';return;}
+  errEl.textContent='Verificando...';
+  try{
+    if(db){
+      const snap=await db.ref(code).once('value');
+      if(snap.val()===null){errEl.textContent='❌ Código no encontrado. Verifica que sea correcto.';return;}
+      KIPPO_CAMP_CODE=code;
+      try{localStorage.setItem('kippo_camp_code',code);}catch(e){}
+      errEl.textContent='';
+      const data=snap.val();
+      if(data)S=deepMerge(S,data);
+      db.ref(KIPPO_CAMP_CODE).on('value',snap2=>{
+        const d=snap2.val();if(!d)return;
+        const monActive=['mon-venta-screen'].includes(currentScreen);
+        if(monActive){const prev=JSON.stringify({productos:S.productos,stockKiosko:S.stockKiosko,ofertas:S.ofertas});S=deepMerge(S,d);const curr=JSON.stringify({productos:S.productos,stockKiosko:S.stockKiosko,ofertas:S.ofertas});if(prev!==curr)_refreshProductsOnly();}
+        else{S=deepMerge(S,d);refreshView();}
+      });
+      finishLoad();
+    } else {
+      errEl.textContent='⚠ Sin conexión a Firebase. Comprueba tu conexión.';
+    }
+  }catch(e){
+    errEl.textContent='⚠ Error de conexión. Inténtalo de nuevo.';
+    console.error(e);
+  }
+}
+function cambiarCodigo(){
+  try{localStorage.removeItem('kippo_camp_code');}catch(e){}
+  KIPPO_CAMP_CODE=null;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('activation-screen').classList.add('active');
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),50);
+}
+
 // ══════════ INIT ══════════
 window.addEventListener('load',()=>{
   document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
   const initL=()=>{if(typeof lucide!=='undefined')lucide.createIcons();};
   initL();
-  setTimeout(initL,100);
-  setTimeout(initL,400);
-  setTimeout(initL,900);
+  setTimeout(initL,300);
   setTimeout(load,600);
 });
 </script>

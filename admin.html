@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kippo Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07111f;--bg2:#0d1e30;--bg3:#142840;--bg4:#1a3350;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#f0f0f5;--text2:#9090a8;--text3:#5a5a70;
+  --accent:#f0c040;--accent2:#f0c04022;--accent3:#f0c04044;
+  --green:#3dd68c;--green2:#3dd68c18;
+  --red:#ff5757;--red2:#ff575718;
+  --blue:#4a9eff;--blue2:#4a9eff18;
+  --purple:#a78bfa;--purple2:#a78bfa18;
+  --font-head:'Syne',sans-serif;--font-body:'Inter',sans-serif;
+  --r:12px;--r2:8px;
+}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+/* AUTH */
+#auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--bg);position:relative;overflow:hidden}
+.auth-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(240,192,64,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(240,192,64,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.auth-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(240,192,64,.1) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none}
+.auth-card{position:relative;z-index:1;background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:1.5rem;box-shadow:0 24px 64px rgba(0,0,0,.5)}
+.auth-logo{font-family:var(--font-head);font-size:1.8rem;font-weight:800;color:var(--accent);letter-spacing:4px;text-align:center}
+.auth-sub{font-size:.8rem;color:var(--text3);text-align:center;letter-spacing:2px;text-transform:uppercase;margin-top:-.5rem}
+
+/* MAIN */
+#main-screen{display:none;max-width:1100px;margin:0 auto;padding:2rem 1rem}
+.topbar-admin{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.topbar-logo{font-family:var(--font-head);font-size:1.3rem;font-weight:800;color:var(--accent);letter-spacing:4px}
+.topbar-sub{font-size:.75rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:.1rem}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.card-title{font-family:var(--font-head);font-size:.82rem;font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:.75rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+.gap-1{display:flex;flex-direction:column;gap:1rem}
+
+/* FORMS */
+.fld{display:flex;flex-direction:column;gap:.3rem}
+.fld label{font-size:.75rem;font-weight:600;color:var(--text3);letter-spacing:.3px}
+.fld input,.fld select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-family:var(--font-body);font-size:.9rem;padding:.55rem .75rem;transition:border-color .15s;width:100%}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,192,64,.1)}
+.fld input::placeholder{color:var(--text3)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:var(--r2);font-family:var(--font-body);font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:opacity .12s,transform .08s;white-space:nowrap}
+.btn:active{opacity:.8;transform:scale(.97)}
+.btn-acc{background:var(--accent);color:#1a1400}
+.btn-acc:hover{box-shadow:0 0 20px rgba(240,192,64,.3)}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{background:var(--bg4);color:var(--text)}
+.btn-danger{background:var(--red2);border:1px solid rgba(255,87,87,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(255,87,87,.2)}
+.btn-green{background:var(--green2);border:1px solid rgba(61,214,140,.3);color:var(--green)}
+.btn-sm{padding:.3rem .6rem;font-size:.75rem;border-radius:6px}
+.btn-full{width:100%;justify-content:center}
+
+/* CAMP LIST */
+.camp-list{display:flex;flex-direction:column;gap:.6rem}
+.camp-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;display:flex;align-items:center;gap:1rem;transition:border-color .15s}
+.camp-item:hover{border-color:var(--border2)}
+.camp-av{width:42px;height:42px;border-radius:var(--r2);background:var(--accent2);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:1rem;color:var(--accent);flex-shrink:0}
+.camp-info{flex:1;min-width:0}
+.camp-name{font-weight:700;font-size:.95rem;margin-bottom:.15rem}
+.camp-code{font-family:monospace;font-size:.78rem;color:var(--accent);background:var(--accent2);padding:.1rem .4rem;border-radius:4px;letter-spacing:1px}
+.camp-meta{font-size:.75rem;color:var(--text3);margin-top:.2rem}
+.camp-actions{display:flex;gap:.4rem;flex-shrink:0;flex-wrap:wrap}
+.camp-item.inactive{opacity:.5}
+
+/* CODE DISPLAY */
+.code-box{background:var(--bg);border:1px solid var(--accent3);border-radius:var(--r2);padding:.75rem 1rem;font-family:monospace;font-size:1rem;color:var(--accent);letter-spacing:2px;display:flex;align-items:center;justify-content:space-between;gap:.75rem;word-break:break-all}
+.link-box{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r2);padding:.6rem .85rem;font-size:.78rem;color:var(--text2);display:flex;align-items:center;justify-content:space-between;gap:.5rem;overflow:hidden}
+.link-box span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+
+/* TOAST */
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:.875rem;font-weight:500;padding:.65rem 1.25rem;border-radius:99px;z-index:9999;white-space:nowrap;transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* BADGE */
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:99px;font-size:.7rem;font-weight:700}
+.badge-green{background:var(--green2);color:var(--green)}
+.badge-red{background:var(--red2);color:var(--red)}
+.badge-blue{background:var(--blue2);color:var(--blue)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(8px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:1.75rem;width:100%;max-width:460px;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.modal-title{font-family:var(--font-head);font-size:1.1rem;font-weight:700}
+.modal-actions{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.25rem}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr 1fr}}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem}
+.stat-lbl{font-size:.7rem;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.3rem}
+.stat-val{font-family:var(--font-head);font-size:1.2rem;font-weight:800}
+.c-acc{color:var(--accent)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}
+
+/* SECTION */
+.section-title{font-family:var(--font-head);font-size:.9rem;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-grid"></div>
+  <div class="auth-glow"></div>
+  <div class="auth-card">
+    <div>
+      <div class="auth-logo">KIPPO</div>
+      <div class="auth-sub">Panel de Administración</div>
+    </div>
+    <div class="fld">
+      <label>Contraseña maestra</label>
+      <input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button class="btn btn-acc btn-full" onclick="adminLogin()">Entrar</button>
+    <div id="auth-err" style="color:var(--red);font-size:.82rem;text-align:center;min-height:1.2em"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main-screen">
+  <div class="topbar-admin">
+    <div>
+      <div class="topbar-logo">KIPPO ADMIN</div>
+      <div class="topbar-sub">Panel de gestión de campamentos</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="adminLogout()">Cerrar sesión</button>
+  </div>
+
+  <div class="stat-row" id="stats-row"></div>
+
+  <div class="grid-2" style="margin-bottom:1.5rem">
+    <!-- CREAR CAMPAMENTO -->
+    <div class="card gap-1">
+      <div class="card-title">➕ Crear nuevo campamento</div>
+      <div class="fld">
+        <label>Nombre del campamento</label>
+        <input id="new-camp-name" placeholder="Ej: Campamento Sol 2025">
+      </div>
+      <div class="fld">
+        <label>Cliente / Empresa</label>
+        <input id="new-camp-client" placeholder="Ej: Asociación Scouts Madrid">
+      </div>
+      <div class="fld">
+        <label>Fecha de inicio</label>
+        <input id="new-camp-date" type="date">
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.25rem">
+        <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="generarCodigoPreview()">🔄 Generar código</button>
+        <button class="btn btn-acc" style="flex:1;justify-content:center" onclick="crearCampamento()">✅ Crear</button>
+      </div>
+      <div id="codigo-preview" style="display:none">
+        <div style="font-size:.75rem;color:var(--text3);margin-bottom:.35rem">Código generado:</div>
+        <div class="code-box" id="codigo-preview-val">—</div>
+      </div>
+    </div>
+
+    <!-- INFO & LINK -->
+    <div class="card gap-1">
+      <div class="card-title">🔗 Generar link de acceso</div>
+      <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Selecciona un campamento activo para generar su link de acceso. Envíaselo al cliente para que él y su equipo puedan acceder directamente.</div>
+      <div class="fld">
+        <label>Campamento</label>
+        <select id="link-camp-select">
+          <option value="">— Selecciona un campamento —</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>URL base de la app (donde tienes el index.html)</label>
+        <input id="base-url" placeholder="https://tuusuario.github.io/kippo/index.html">
+      </div>
+      <button class="btn btn-acc btn-full" onclick="generarLink()">Generar link</button>
+      <div id="link-result" style="display:none;flex-direction:column;gap:.5rem">
+        <div class="link-box"><span id="link-val"></span><button class="btn btn-ghost btn-sm" onclick="copiarLink()">Copiar</button></div>
+        <div style="font-size:.75rem;color:var(--text3)">💡 Envía este link al cliente. Al abrirlo, la app queda vinculada automáticamente a su base de datos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA DE CAMPAMENTOS -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+      <div class="card-title" style="margin:0">📋 Campamentos registrados</div>
+      <input id="search-camps" placeholder="Buscar..." style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:.85rem;padding:.35rem .65rem;width:180px" oninput="renderCampList()">
+    </div>
+    <div class="camp-list" id="camp-list">
+      <div style="color:var(--text3);text-align:center;padding:2rem">Sin campamentos todavía</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE CAMPAMENTO -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-title" id="dm-title">Campamento</div>
+    <div id="dm-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeDetailModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAoxabxDT6YG_ofQDHVHn3IYk-cr5Ie4FI",
+  authDomain: "saldana-kiosko.firebaseapp.com",
+  databaseURL: "https://saldana-kiosko-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "saldana-kiosko",
+  storageBucket: "saldana-kiosko.firebasestorage.app",
+  messagingSenderId: "568728326177",
+  appId: "1:568728326177:web:bebbe421febb4fdbf71360"
+};
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ══════════════════════════════════
+// CONTRASEÑA MAESTRA
+// ══════════════════════════════════
+const MASTER_PASSWORD_HASH = '029eef3f515271030252e6d0c739b50107c85cb10a61ac35228e2c86ab9d22f8'; 
+// Hash SHA-256 de "kippo-admin-2025" — cámbiala por la tuya
+// Para generar tu hash: https://emn178.github.io/online-tools/sha256.html
+
+let db;
+let adminCamps = {}; // { code: { name, client, date, createdAt, active } }
+
+// ══════════ AUTH ══════════
+async function hashStr(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function adminLogin(){
+  const pass = document.getElementById('admin-pass').value;
+  const h = await hashStr(pass);
+  if(h !== MASTER_PASSWORD_HASH){
+    document.getElementById('auth-err').textContent = '❌ Contraseña incorrecta';
+    document.getElementById('admin-pass').value = '';
+    return;
+  }
+  document.getElementById('auth-err').textContent = '';
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+  }catch(e){ console.warn('Firebase init error',e); }
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+  loadAdminData();
+}
+
+function adminLogout(){
+  document.getElementById('auth-screen').style.display = '';
+  document.getElementById('main-screen').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+}
+
+// ══════════ DATA ══════════
+async function loadAdminData(){
+  if(!db)return;
+  try{
+    const snap = await db.ref('__kippo_admin__/camps').once('value');
+    adminCamps = snap.val() || {};
+    renderCampList();
+    renderStats();
+    renderLinkSelect();
+    // Auto-fill today's date
+    document.getElementById('new-camp-date').value = new Date().toISOString().split('T')[0];
+    // Load saved base URL
+    try{
+      const savedUrl = localStorage.getItem('kippo_admin_base_url');
+      if(savedUrl) document.getElementById('base-url').value = savedUrl;
+    }catch(e){}
+  }catch(e){
+    toast('⚠ Error cargando datos de Firebase', true);
+  }
+}
+
+function renderStats(){
+  const total = Object.keys(adminCamps).length;
+  const activos = Object.values(adminCamps).filter(c=>c.active!==false).length;
+  const inactivos = total - activos;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat"><div class="stat-lbl">Campamentos totales</div><div class="stat-val c-acc">${total}</div></div>
+    <div class="stat"><div class="stat-lbl">Activos</div><div class="stat-val c-green">${activos}</div></div>
+    <div class="stat"><div class="stat-lbl">Inactivos</div><div class="stat-val" style="color:var(--text3)">${inactivos}</div></div>
+  `;
+}
+
+function renderLinkSelect(){
+  const sel = document.getElementById('link-camp-select');
+  const camps = Object.entries(adminCamps).filter(([,c])=>c.active!==false);
+  sel.innerHTML = '<option value="">— Selecciona un campamento —</option>'
+    + camps.map(([code,c])=>`<option value="${code}">${c.name} (${code})</option>`).join('');
+}
+
+function renderCampList(){
+  const q = (document.getElementById('search-camps')?.value||'').toLowerCase();
+  const el = document.getElementById('camp-list');
+  const entries = Object.entries(adminCamps).filter(([code,c])=>{
+    if(!q) return true;
+    return c.name.toLowerCase().includes(q)||c.client?.toLowerCase().includes(q)||code.toLowerCase().includes(q);
+  });
+  if(!entries.length){
+    el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:2rem">Sin campamentos todavía</div>';
+    return;
+  }
+  el.innerHTML = entries.sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).map(([code,c])=>`
+    <div class="camp-item ${c.active===false?'inactive':''}">
+      <div class="camp-av">${(c.name||'?')[0].toUpperCase()}</div>
+      <div class="camp-info">
+        <div class="camp-name">${c.name} <span class="badge ${c.active===false?'badge-red':'badge-green'}">${c.active===false?'Inactivo':'Activo'}</span></div>
+        <div style="margin:.2rem 0"><span class="camp-code">${code}</span></div>
+        <div class="camp-meta">${c.client||''} ${c.date?'· '+c.date:''} · Creado ${c.createdAt?new Date(c.createdAt).toLocaleDateString('es-ES'):'-'}</div>
+      </div>
+      <div class="camp-actions">
+        <button class="btn btn-ghost btn-sm" onclick="verDetalle('${code}')" title="Ver detalles">🔍</button>
+        <button class="btn btn-ghost btn-sm" onclick="copiarCodigoRapido('${code}')" title="Copiar código">📋</button>
+        <button class="btn ${c.active===false?'btn-green':'btn-danger'} btn-sm" onclick="toggleActive('${code}')">${c.active===false?'Activar':'Desactivar'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════ CREAR ══════════
+function generarCodigo(name){
+  // Generate unique code: KIPPO-WORD-XXXX
+  const words = ['SOL','MAR','RIO','OCA','OSO','PEZ','LUZ','VIA','RED','ARC'];
+  const word = words[Math.floor(Math.random()*words.length)];
+  const nums = Math.floor(1000+Math.random()*9000);
+  const year = new Date().getFullYear().toString().slice(-2);
+  return `KIPPO-${word}${year}-${nums}`;
+}
+
+function generarCodigoPreview(){
+  const name = document.getElementById('new-camp-name').value.trim()||'CAMP';
+  const code = generarCodigo(name);
+  document.getElementById('codigo-preview').style.display = 'flex';
+  document.getElementById('codigo-preview-val').textContent = code;
+  document.getElementById('codigo-preview-val').dataset.code = code;
+}
+
+async function crearCampamento(){
+  const name = document.getElementById('new-camp-name').value.trim();
+  const client = document.getElementById('new-camp-client').value.trim();
+  const date = document.getElementById('new-camp-date').value;
+  if(!name){toast('⚠ Introduce el nombre del campamento', true);return;}
+
+  let code = document.getElementById('codigo-preview-val')?.dataset?.code;
+  if(!code || document.getElementById('codigo-preview').style.display==='none'){
+    code = generarCodigo(name);
+  }
+
+  // Make sure code is unique
+  while(adminCamps[code]){
+    code = generarCodigo(name);
+  }
+
+  const campData = {
+    name, client, date,
+    createdAt: Date.now(),
+    active: true
+  };
+
+  // Initialize the camp in Firebase with __activated marker
+  const initialCampState = {
+    __activated: true,
+    __createdAt: Date.now(),
+    __name: name,
+    config: { pin: '1234' },
+    branding: { nombre: name, tagline: 'Sistema de kiosko', tema: 'oscuro', termSing: 'Monitor', termPlur: 'Monitores', clienteSing: 'Acampado', clientePlur: 'Acampados' },
+    monitores: [], grupos: [], acampados: [], productos: [], ofertas: [], ventas: [],
+    stockKiosko: {}, stockAlmacen: {}
+  };
+
+  try{
+    await db.ref(code).set(initialCampState);
+    await db.ref(`__kippo_admin__/camps/${code}`).set(campData);
+    adminCamps[code] = campData;
+    renderCampList();
+    renderStats();
+    renderLinkSelect();
+    // Clear form
+    document.getElementById('new-camp-name').value = '';
+    document.getElementById('new-camp-client').value = '';
+    document.getElementById('codigo-preview').style.display = 'none';
+    // Auto-select the new camp in link selector and show code
+    document.getElementById('link-camp-select').value = code;
+    toast(`✅ Campamento creado: ${code}`);
+    // Show details modal with code
+    setTimeout(()=>verDetalle(code), 400);
+  }catch(e){
+    toast('⚠ Error creando campamento en Firebase', true);
+    console.error(e);
+  }
+}
+
+// ══════════ LINK ══════════
+function generarLink(){
+  const code = document.getElementById('link-camp-select').value;
+  const baseUrl = document.getElementById('base-url').value.trim();
+  if(!code){toast('⚠ Selecciona un campamento', true);return;}
+  if(!baseUrl){toast('⚠ Introduce la URL base de la app', true);return;}
+  try{localStorage.setItem('kippo_admin_base_url', baseUrl);}catch(e){}
+  const url = baseUrl.includes('?') ? `${baseUrl}&c=${code}` : `${baseUrl}?c=${code}`;
+  document.getElementById('link-val').textContent = url;
+  document.getElementById('link-val').dataset.url = url;
+  document.getElementById('link-result').style.display = 'flex';
+}
+
+function copiarLink(){
+  const url = document.getElementById('link-val').dataset.url;
+  if(!url) return;
+  navigator.clipboard.writeText(url).then(()=>toast('✅ Link copiado al portapapeles')).catch(()=>{
+    // Fallback for browsers without clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    toast('✅ Link copiado');
+  });
+}
+
+function copiarCodigoRapido(code){
+  navigator.clipboard.writeText(code).then(()=>toast(`✅ Código ${code} copiado`)).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast(`✅ Código ${code} copiado`);
+  });
+}
+
+// ══════════ TOGGLE ACTIVE ══════════
+async function toggleActive(code){
+  const c = adminCamps[code];
+  if(!c) return;
+  const newActive = c.active === false ? true : false;
+  try{
+    await db.ref(`__kippo_admin__/camps/${code}/active`).set(newActive);
+    adminCamps[code].active = newActive;
+    renderCampList();
+    renderStats();
+    renderLinkSelect();
+    toast(newActive ? `✅ ${c.name} activado` : `⛔ ${c.name} desactivado`);
+  }catch(e){
+    toast('⚠ Error actualizando estado', true);
+  }
+}
+
+// ══════════ DETALLE ══════════
+async function verDetalle(code){
+  const c = adminCamps[code];
+  if(!c) return;
+  document.getElementById('dm-title').textContent = c.name;
+
+  // Try to load camp data from Firebase
+  let campData = null;
+  try{
+    const snap = await db.ref(code).once('value');
+    campData = snap.val();
+  }catch(e){}
+
+  const nMonitores = campData?.monitores?.length || 0;
+  const nAcampados = campData?.acampados?.length || 0;
+  const nVentas = campData?.ventas?.length || 0;
+  const totalRec = (campData?.ventas||[]).reduce((s,v)=>s+(v.total||0),0);
+
+  const baseUrl = document.getElementById('base-url').value.trim();
+  const link = baseUrl ? (baseUrl.includes('?')?`${baseUrl}&c=${code}`:`${baseUrl}?c=${code}`) : null;
+
+  document.getElementById('dm-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.85rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div style="background:var(--bg3);border-radius:var(--r2);padding:.75rem">
+          <div style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem">Monitores</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--blue)">${nMonitores}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--r2);padding:.75rem">
+          <div style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem">Acampados</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--green)">${nAcampados}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--r2);padding:.75rem">
+          <div style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem">Ventas</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--accent)">${nVentas}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:var(--r2);padding:.75rem">
+          <div style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem">Recaudado</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--accent)">${totalRec.toFixed(2)}€</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.72rem;color:var(--text3);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.5px">Código de acceso</div>
+        <div class="code-box">
+          <span>${code}</span>
+          <button class="btn btn-ghost btn-sm" onclick="copiarCodigoRapido('${code}')">Copiar</button>
+        </div>
+      </div>
+      ${link ? `
+      <div>
+        <div style="font-size:.72rem;color:var(--text3);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.5px">Link directo</div>
+        <div class="link-box">
+          <span>${link}</span>
+          <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('${link}').then(()=>toast('✅ Copiado'))">Copiar</button>
+        </div>
+      </div>` : `<div style="font-size:.8rem;color:var(--text3)">Introduce la URL base arriba para generar el link directo.</div>`}
+      <div style="font-size:.78rem;color:var(--text3);line-height:1.5">
+        Cliente: <b style="color:var(--text2)">${c.client||'—'}</b><br>
+        Fecha: <b style="color:var(--text2)">${c.date||'—'}</b><br>
+        Creado: <b style="color:var(--text2)">${c.createdAt?new Date(c.createdAt).toLocaleString('es-ES'):'-'}</b>
+      </div>
+    </div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetailModal(){
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+// Close modal on outside click
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('detail-modal').addEventListener('click', e=>{
+    if(e.target===document.getElementById('detail-modal')) closeDetailModal();
+  });
+  document.getElementById('admin-pass').addEventListener('keydown', e=>{
+    if(e.key==='Enter') adminLogin();
+  });
+});
+
+// ══════════ TOAST ══════════
+function toast(msg, err=false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = err ? 'rgba(255,87,87,.4)' : 'rgba(255,255,255,.14)';
+  t.style.color = err ? 'var(--red)' : 'var(--text)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
