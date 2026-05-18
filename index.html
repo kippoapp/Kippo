@@ -851,9 +851,11 @@ function _readCampCode(){
     // Read code from hash: index.html#saldana
     // Hash is never touched by servers/redirects
     const hash=window.location.hash||'';
+    console.log('[Kippo] hash:',hash,'search:',window.location.search,'href:',window.location.href);
     const fromHash=hash.replace(/^#/,'').toLowerCase().trim();
     if(fromHash){
       try{localStorage.setItem('kippo_camp_code',fromHash);}catch(e){}
+      console.log('[Kippo] code from hash:',fromHash);
       return fromHash;
     }
     // Fallback: also try ?c= param just in case
@@ -897,6 +899,8 @@ function deepMerge(t,s){
 }
 async function load(){
   // ── MEJORA 10: Activation via camp code ──
+  // Re-read code fresh in case IIFE ran before hash was available
+  if(!KIPPO_CAMP_CODE) KIPPO_CAMP_CODE=_readCampCode();
   if(!KIPPO_CAMP_CODE){
     // No code: show activation screen
     showScreen('activation-screen');
@@ -3319,7 +3323,7 @@ async function activarConCodigo(){
   const code=document.getElementById('act-code-input').value.trim().toLowerCase();
   const errEl=document.getElementById('act-err');
   if(!code){errEl.textContent='Introduce el código';return;}
-  if(code.length<6){errEl.textContent='Código demasiado corto';return;}
+  if(code.length<2){errEl.textContent='Código demasiado corto';return;}
   errEl.textContent='Verificando...';
   try{
     if(db){
