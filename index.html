@@ -848,13 +848,22 @@ const SK='kippo_state';
 
 function _readCampCode(){
   try{
-    // Read ?c= param from URL — works even if URL has uppercase
-    const search=window.location.search||window.location.href.split('?')[1]||'';
-    const match=search.match(/(?:^|&)c=([^&]+)/i);
+    // Read code from hash: index.html#saldana
+    // Hash is never touched by servers/redirects
+    const hash=window.location.hash||'';
+    const fromHash=hash.replace(/^#/,'').toLowerCase().trim();
+    if(fromHash){
+      try{localStorage.setItem('kippo_camp_code',fromHash);}catch(e){}
+      return fromHash;
+    }
+    // Fallback: also try ?c= param just in case
+    const search=window.location.search||'';
+    const match=search.match(/[?&]c=([^&]+)/i);
     if(match&&match[1]){
       const c=decodeURIComponent(match[1]).toLowerCase().trim();
       if(c){try{localStorage.setItem('kippo_camp_code',c);}catch(e){}return c;}
     }
+    // Fallback: localStorage
     const stored=localStorage.getItem('kippo_camp_code');
     return stored?stored.toLowerCase().trim():null;
   }catch(e){return null;}
