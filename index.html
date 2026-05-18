@@ -844,14 +844,22 @@ function saveBranding(){
 // ══════════ STORAGE ══════════
 // KIPPO_CAMP_CODE: campament code from URL param, stored in localStorage
 
-let KIPPO_CAMP_CODE=(()=>{
+const SK='kippo_state';
+
+function _readCampCode(){
   try{
-    const url=new URL(window.location.href);
-    const cParam=url.searchParams.get('c');
-    if(cParam){const c=cParam.toLowerCase();localStorage.setItem('kippo_camp_code',c);return c;}
-    const stored=localStorage.getItem('kippo_camp_code');return stored?stored.toLowerCase():null;
+    // Read ?c= param from URL — works even if URL has uppercase
+    const search=window.location.search||window.location.href.split('?')[1]||'';
+    const match=search.match(/(?:^|&)c=([^&]+)/i);
+    if(match&&match[1]){
+      const c=decodeURIComponent(match[1]).toLowerCase().trim();
+      if(c){try{localStorage.setItem('kippo_camp_code',c);}catch(e){}return c;}
+    }
+    const stored=localStorage.getItem('kippo_camp_code');
+    return stored?stored.toLowerCase().trim():null;
   }catch(e){return null;}
-})();
+}
+let KIPPO_CAMP_CODE=_readCampCode();
 
 async function save(){
   const ref=KIPPO_CAMP_CODE?KIPPO_CAMP_CODE:'__sin_codigo__';
