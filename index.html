@@ -442,38 +442,45 @@ i[data-lucide] svg{display:block}
   <img src="icon/Klogotipo_192.png" style="width:96px;height:96px;border-radius:22px;box-shadow:0 0 40px rgba(240,192,64,.25);animation:pulse 2s ease-in-out infinite">
 </div>
 
-<!-- ACTIVATION SCREEN (no camp code) -->
-<div id="activation-screen" class="screen">
-  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem;background:var(--bg);position:relative;overflow:hidden">
-    <div class="home-grid"></div>
-    <div class="home-glow"></div>
-    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.5rem;width:100%;max-width:360px">
-      <div style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;color:var(--accent);letter-spacing:6px">KIPPO</div>
+<!-- ACTIVATION SCREEN (no camp code) — always light mode, Kippo branding -->
+<div id="activation-screen" class="screen" style="background:#f4f6f9">
+  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:2rem;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(196,127,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(196,127,0,.06) 1px,transparent 1px);background-size:36px 36px;pointer-events:none"></div>
+    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(196,127,0,.08) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-60%);pointer-events:none"></div>
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.75rem;width:100%;max-width:360px">
+      <img src="icon/Klogocompleto_negro.png" alt="Kippo" style="height:48px;object-fit:contain;display:block">
       <div style="text-align:center">
-        <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.4rem">Código de acceso requerido</div>
-        <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Introduce el código que te proporcionó el administrador de Kippo para activar tu kiosko.</div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:#1a1f2e;margin-bottom:.4rem">Accede a tu kiosko</div>
+        <div style="font-size:.85rem;color:#4a5568;line-height:1.6">Introduce el código que te proporcionó el administrador de Kippo.</div>
       </div>
-      <div class="fld" style="width:100%">
-        <label>Código de activación</label>
-        <input id="act-code-input" type="text" placeholder="Ej: saldana o KIPPO-SOL25-1234" style="text-transform:uppercase;letter-spacing:2px;font-family:var(--font-head);font-size:1rem;text-align:center" >
+      <div style="display:flex;flex-direction:column;gap:.3rem;width:100%">
+        <label style="font-size:.75rem;font-weight:600;color:#8896aa;letter-spacing:.3px">Código de acceso</label>
+        <input id="act-code-input" type="text" placeholder="Ej: kippo-sol25-7342"
+          style="background:#fff;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;color:#1a1f2e;font-family:'Inter',sans-serif;font-size:.95rem;padding:.65rem .85rem;width:100%;outline:none"
+          onfocus="this.style.borderColor='#c47f00';this.style.boxShadow='0 0 0 3px rgba(196,127,0,0.12)'"
+          onblur="this.style.borderColor='rgba(0,0,0,0.12)';this.style.boxShadow='none'"
+          onkeydown="if(event.key==='Enter')activarConCodigo()">
       </div>
-      <button class="btn btn-acc" style="width:100%;justify-content:center;padding:.85rem;font-size:1rem" onclick="activarConCodigo()">
-        <i data-lucide="key" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px"></i> Activar kiosko
+      <button onclick="activarConCodigo()"
+        style="width:100%;padding:.85rem;background:#c47f00;color:#fff8e6;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">
+        Entrar
       </button>
-      <div id="act-err" style="color:var(--red);font-size:.82rem;text-align:center;min-height:1.2em"></div>
-      <div style="font-size:.75rem;color:var(--text3);text-align:center;line-height:1.5">¿No tienes código? Contacta con el administrador de Kippo.</div>
+      <div id="act-err" style="color:#dc2626;font-size:.82rem;text-align:center;min-height:1.2em"></div>
+      <div style="font-size:.73rem;color:#8896aa;text-align:center;line-height:1.5">¿No tienes código? Contacta con el administrador de Kippo.</div>
     </div>
   </div>
 </div>
 
-<!-- ACTIVATION ERROR SCREEN (wrong code) -->
-<div id="activation-error-screen" class="screen">
-  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;background:var(--bg)">
-    <div style="font-size:3rem">⚠️</div>
-    <div style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;color:var(--text);text-align:center">Código no encontrado</div>
-    <div style="font-size:.88rem;color:var(--text2);text-align:center;line-height:1.6;max-width:300px">El código introducido no existe o aún no ha sido activado. Verifica que el link o código sea correcto.</div>
-    <button class="btn btn-ghost" onclick="cambiarCodigo()">
-      <i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i> Intentar con otro código
+<!-- ACTIVATION ERROR SCREEN (wrong code) — always light mode -->
+<div id="activation-error-screen" class="screen" style="background:#f4f6f9">
+  <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem">
+    <img src="icon/Klogocompleto_negro.png" alt="Kippo" style="height:40px;object-fit:contain;margin-bottom:.5rem">
+    <div style="font-size:2.5rem">⚠️</div>
+    <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#1a1f2e;text-align:center">Código no encontrado</div>
+    <div style="font-size:.88rem;color:#4a5568;text-align:center;line-height:1.6;max-width:300px">El código introducido no existe o aún no ha sido activado. Verifica que el link o código sea correcto.</div>
+    <button onclick="cambiarCodigo()"
+      style="background:#fff;border:1.5px solid rgba(0,0,0,0.15);border-radius:10px;color:#4a5568;font-size:.88rem;font-weight:600;padding:.6rem 1.2rem;cursor:pointer;font-family:'Inter',sans-serif">
+      ← Intentar con otro código
     </button>
   </div>
 </div>
@@ -495,8 +502,16 @@ i[data-lucide] svg{display:block}
         <i data-lucide="shield" style="width:18px;height:18px"></i> Encargado / Director
       </button>
     </div>
+
   </div>
 </div>
+
+<!-- CAMBIAR CAMPAMENTO — fixed bottom, only visible on home screen -->
+<button id="btn-cambiar-camp" onclick="cambiarCodigo()"
+  style="display:none;position:fixed;bottom:max(1.25rem,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:none;border:none;color:var(--text3);font-size:.72rem;cursor:pointer;font-family:var(--font-body);opacity:.45;transition:opacity .2s;padding:.5rem 1rem;white-space:nowrap;z-index:50"
+  onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.45'">
+  <i data-lucide="log-out" style="width:11px;height:11px;vertical-align:-1px;margin-right:4px"></i> Cambiar campamento
+</button>
 
 <!-- PIN -->
 <div id="pin-screen" class="screen">
@@ -996,6 +1011,7 @@ function showScreen(id){
       document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       currentScreen=id;
+      const btnCamp2=document.getElementById('btn-cambiar-camp');if(btnCamp2)btnCamp2.style.display=id==='home'?'block':'none';
       if(typeof lucide!=='undefined')lucide.createIcons();
       setTimeout(()=>overlay.classList.remove('show'),80);
     },200);
@@ -1003,6 +1019,7 @@ function showScreen(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     currentScreen=id;
+    const btnCamp=document.getElementById('btn-cambiar-camp');if(btnCamp)btnCamp.style.display=id==='home'?'block':'none';
     if(id==='enc-screen'){
       const ec=document.getElementById('enc-content');
       if(ec)ec.scrollTop=0;
