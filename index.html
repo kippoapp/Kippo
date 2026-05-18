@@ -1006,7 +1006,7 @@ function _withNavLock(fn){
   if(_navLock)return;
   _navLock=true;
   fn();
-  setTimeout(()=>_navLock=false,350);
+  setTimeout(()=>_navLock=false,450);
 }
 function showScreen(id){
   const oldBar=document.getElementById('floating-bar');
@@ -1020,8 +1020,11 @@ function showScreen(id){
       const _ns2=document.getElementById(id);
       _ns2.classList.add('active');
       _ns2.style.pointerEvents='none';
-      setTimeout(()=>_ns2.style.pointerEvents='',350);
+      setTimeout(()=>_ns2.style.pointerEvents='',450);
       currentScreen=id;
+      // Scroll to top on monitor screens
+      const _monS=['mon-login-screen','mon-grupos-screen','mon-acs-screen','mon-venta-screen'];
+      if(_monS.includes(id)){requestAnimationFrame(()=>{_ns2.scrollTop=0;window.scrollTo(0,0);});}
       const btnCamp2=document.getElementById('btn-cambiar-camp');if(btnCamp2)btnCamp2.style.display=id==='home'?'block':'none';
       if(typeof lucide!=='undefined')lucide.createIcons();
       setTimeout(()=>overlay.classList.remove('show'),80);
@@ -1031,8 +1034,13 @@ function showScreen(id){
     const _ns=document.getElementById(id);
     _ns.classList.add('active');
     _ns.style.pointerEvents='none';
-    setTimeout(()=>_ns.style.pointerEvents='',350);
+    setTimeout(()=>_ns.style.pointerEvents='',450);
     currentScreen=id;
+    // Scroll to top on all monitor screens
+    const _monScreens=['mon-login-screen','mon-grupos-screen','mon-acs-screen','mon-venta-screen'];
+    if(_monScreens.includes(id)){
+      requestAnimationFrame(()=>{_ns.scrollTop=0;window.scrollTo(0,0);});
+    }
     const btnCamp=document.getElementById('btn-cambiar-camp');if(btnCamp)btnCamp.style.display=id==='home'?'block':'none';
     if(id==='enc-screen'){
       const ec=document.getElementById('enc-content');
@@ -1477,7 +1485,7 @@ function renderEncKeepScroll(tab){
 // ─── RESUMEN ───
 function resumen(el){
   const hoy=new Date().toLocaleDateString('es-ES');
-  const vHoy=(S.ventas||[]).filter(v=>v.dia===hoy);
+  const vHoy=(S.ventas||[]).filter(v=>v.dia===hoy&&!v.anulada);
   const vHoyTotal=vHoy.reduce((s,v)=>s+v.total,0);
   const acampHoy=new Set(vHoy.map(v=>v.acampadoId)).size;
   const sinSaldo=(S.acampados||[]).filter(a=>{const r=(a.dineroInicial||0)-getGastado(a.id);return r<5&&r>=0;});
@@ -2581,18 +2589,36 @@ function estadistica(el){
       `:'<div style="color:var(--text3);font-size:.85rem">Sin datos aún</div>'}
     </div>
 
-    ${Object.keys(cntCat).length?Object.entries(cntCat).map(([cat,prods])=>{
-      const sorted=Object.entries(prods).sort((a,b)=>b[1]-a[1]);
-      return `<div class="card">
-        <div class="card-title">${catChip(cat)}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.4rem">
-          ${sorted.map((p,i)=>`<div style="background:${i===0?'var(--accent2)':i===1?'var(--blue2)':i===2?'var(--green2)':'var(--bg3)'};border:1px solid ${i===0?'var(--accent3)':i===1?'rgba(74,158,255,.25)':i===2?'rgba(61,214,140,.25)':'var(--border2)'};border-radius:99px;padding:.3rem .75rem;font-size:.83rem;display:flex;align-items:center;gap:.4rem">
-            <span style="font-weight:600;color:${i===0?'var(--accent)':i===1?'var(--blue)':i===2?'var(--green)':'var(--text)'}">${p[0]}</span>
-            <span style="color:var(--text3);font-size:.75rem">${p[1]} uds</span>
-          </div>`).join('')}
-        </div>
-      </div>`;
-    }).join(''):''}
+    ${Object.keys(cntCat).length?`<div class="card">
+      <div class="card-title"><i data-lucide="bar-chart-horizontal" style="width:13px;height:13px;vertical-align:-2px"></i> Unidades vendidas por categoría</div>
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        ${Object.entries(cntCat).map(([cat,prods])=>{
+          const sorted=Object.entries(prods).sort((a,b)=>b[1]-a[1]);
+          const maxUds=sorted[0]?sorted[0][1]:1;
+          const catColors=['var(--accent)','var(--blue)','var(--green)','var(--purple)','var(--orange)','var(--red)'];
+          return `<div>
+            <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem">
+              <span style="font-size:.72rem;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase">${catChip(cat)}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.35rem">
+              ${sorted.slice(0,8).map((p,i)=>{
+                const pct=Math.max(4,Math.round(p[1]/maxUds*100));
+                const col=catColors[i%catColors.length];
+                return `<div style="display:flex;align-items:center;gap:.6rem">
+                  <div style="width:110px;min-width:80px;font-size:.8rem;color:var(--text2);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p[0]}</div>
+                  <div style="flex:1;height:22px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                    <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;opacity:.85;transition:width .4s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px">
+                    </div>
+                  </div>
+                  <div style="width:48px;font-size:.78rem;font-weight:700;color:${col};text-align:right">${p[1]} uds</div>
+                </div>`;
+              }).join('')}
+              ${sorted.length>8?`<div style="font-size:.72rem;color:var(--text3);text-align:center;padding-top:.25rem">+${sorted.length-8} productos más</div>`:''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:''}
 
     ${topCombos.length?`<div class="card">
       <div class="card-title"><i data-lucide="link-2" style="width:13px;height:13px;vertical-align:-2px"></i> Combos más pedidos</div>

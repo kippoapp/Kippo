@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Kippo Admin</title>
 <link rel="icon" href="icon/Kfavicon.png">
 <link rel="apple-touch-icon" href="icon/Klogotipo_192.png">
@@ -43,13 +43,34 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 .card-title{font-family:var(--font-head);font-size:.82rem;font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:.75rem}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .grid-2{grid-template-columns:1fr}
+  #main-screen{padding:1rem .75rem}
+  .topbar-admin{margin-bottom:1.25rem;padding-bottom:.75rem;flex-wrap:wrap;gap:.5rem}
+  .stat-row{grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+  .stat{padding:.75rem}
+  .stat-val{font-size:1rem}
+  .card{padding:1rem}
+  .camp-item{flex-wrap:wrap;gap:.6rem}
+  .camp-actions{width:100%;justify-content:flex-end}
+  .camp-info{min-width:0;flex:1}
+  .modal{padding:1.25rem;border-radius:16px}
+  .modal-actions{flex-direction:column}
+  .modal-actions .btn{width:100%;justify-content:center}
+  .auth-card{padding:1.75rem 1.25rem;border-radius:20px}
+  #admin-loading img{height:44px}
+}
+@media(max-width:480px){
+  .stat-row{grid-template-columns:1fr 1fr}
+  .topbar-right{gap:.35rem}
+  .btn-icon{padding:.4rem}
+}
 .gap-1{display:flex;flex-direction:column;gap:1rem}
 
 /* FORMS */
 .fld{display:flex;flex-direction:column;gap:.3rem}
 .fld label{font-size:.75rem;font-weight:600;color:var(--text3);letter-spacing:.3px}
-.fld input,.fld select,.fld textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-family:var(--font-body);font-size:.9rem;padding:.55rem .75rem;transition:border-color .15s;width:100%}
+.fld input,.fld select,.fld textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-family:var(--font-body);font-size:16px;padding:.55rem .75rem;transition:border-color .15s;width:100%}
 .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,192,64,.1)}
 .fld input::placeholder,.fld textarea::placeholder{color:var(--text3)}
 .fld textarea{resize:vertical;min-height:70px}
@@ -110,8 +131,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 .modal-actions{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.25rem}
 
 /* STATS */
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem}
-@media(max-width:600px){.stat-row{grid-template-columns:1fr 1fr}}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem}
+@media(max-width:700px){.stat-row{grid-template-columns:1fr 1fr}}
 .stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem}
 .stat-lbl{font-size:.7rem;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.3rem}
 .stat-val{font-family:var(--font-head);font-size:1.2rem;font-weight:800}
@@ -136,9 +157,55 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 
 /* NOTES */
 .note-box{background:var(--bg3);border-radius:var(--r2);padding:.75rem;font-size:.82rem;color:var(--text2);line-height:1.6;border-left:3px solid var(--accent3);white-space:pre-wrap}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes dot1{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+@keyframes dot2{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+@keyframes dot3{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+
+/* Custom date input styling */
+input[type="date"]{
+  color-scheme: dark;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: .55rem .75rem;
+  width: 100%;
+  cursor: pointer;
+}
+input[type="date"]:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent2);
+}
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg);
+  cursor: pointer;
+  opacity: .7;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{
+  opacity: 1;
+}
+/* Light theme date */
+body[data-tema="claro"] input[type="date"]{color-scheme: light;}
+
 </style>
 </head>
 <body>
+
+<!-- LOADING SCREEN -->
+<div id="admin-loading" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;background:var(--bg);transition:opacity .3s">
+  <img id="admin-loading-logo" src="icon/Klogocompleto_blanco.png" alt="Kippo" style="height:56px;object-fit:contain;animation:pulse 1.5s ease-in-out infinite">
+  <div style="display:flex;gap:.4rem">
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);animation:dot1 1.2s ease-in-out infinite"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);animation:dot2 1.2s ease-in-out infinite .2s"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);animation:dot3 1.2s ease-in-out infinite .4s"></div>
+  </div>
+</div>
 
 <!-- AUTH -->
 <div id="auth-screen">
@@ -151,7 +218,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
     </div>
     <div class="fld">
       <label>Contraseña maestra</label>
-      <input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()">
+      <input type="password" id="admin-pass" placeholder="••••••••" style="font-size:16px" onkeydown="if(event.key==='Enter')adminLogin()">
     </div>
     <button class="btn btn-acc btn-full" onclick="adminLogin()">Entrar</button>
     <div id="auth-err" style="color:var(--red);font-size:.82rem;text-align:center;min-height:1.2em"></div>
@@ -181,7 +248,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
           </button>
           <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank" class="profile-menu-item" style="text-decoration:none" onclick="closeProfileMenu()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-            Ver correos — Gmail
+            Ver Gmail
           </a>
           <div class="profile-menu-divider"></div>
           <button class="profile-menu-item" onclick="adminLogout();closeProfileMenu()" style="color:var(--red)">
@@ -198,15 +265,15 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
   <div class="grid-2" style="margin-bottom:1.5rem">
     <!-- CREAR CAMPAMENTO -->
     <div class="card gap-1">
-      <div class="card-title">➕ Crear nuevo campamento</div>
+      <div class="card-title"><svg style="width:13px;height:13px;vertical-align:-2px;margin-right:.3rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Crear nuevo campamento</div>
       <div class="fld"><label>Nombre del campamento</label><input id="new-camp-name" placeholder="Ej: Campamento Sol 2025"></div>
       <div class="fld"><label>Cliente / Empresa</label><input id="new-camp-client" placeholder="Ej: Asociación Scouts Madrid"></div>
       <div class="fld"><label>Fecha de inicio</label><input id="new-camp-date" type="date"></div>
       <div class="fld"><label>Fecha de fin</label><input id="new-camp-date-end" type="date"></div>
       <div class="fld"><label>Notas privadas</label><textarea id="new-camp-notes" placeholder="Precio acordado, contacto del director, observaciones..."></textarea></div>
       <div style="display:flex;gap:.5rem;margin-top:.25rem">
-        <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="generarCodigoPreview()">🔄 Generar código</button>
-        <button class="btn btn-acc" style="flex:1;justify-content:center" onclick="crearCampamento()">✅ Crear</button>
+        <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="generarCodigoPreview()">Generar código</button>
+        <button class="btn btn-acc" style="flex:1;justify-content:center" onclick="crearCampamento()">Crear</button>
       </div>
       <div id="codigo-preview" style="display:none">
         <div style="font-size:.75rem;color:var(--text3);margin-bottom:.35rem">Código generado:</div>
@@ -216,7 +283,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 
     <!-- LINK -->
     <div class="card gap-1">
-      <div class="card-title">🔗 Generar link de acceso</div>
+      <div class="card-title"><svg style="width:13px;height:13px;vertical-align:-2px;margin-right:.3rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>Generar link de acceso</div>
       <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Selecciona un campamento activo para generar su link de acceso directo.</div>
       <div class="fld"><label>Campamento</label>
         <select id="link-camp-select"><option value="">— Selecciona un campamento —</option></select>
@@ -235,7 +302,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
   <!-- LISTA DE CAMPAMENTOS -->
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-      <div class="card-title" style="margin:0">📋 Campamentos registrados</div>
+      <div class="card-title" style="margin:0"><svg style="width:13px;height:13px;vertical-align:-2px;margin-right:.3rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Campamentos registrados</div>
       <input id="search-camps" placeholder="Buscar..." style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:.85rem;padding:.35rem .65rem;width:180px" oninput="renderCampList()">
     </div>
     <div class="camp-list" id="camp-list">
@@ -266,11 +333,15 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 </div>
 
 <!-- MODAL TEMA -->
-<div class="modal-overlay" id="tema-modal">
-  <div class="modal" style="max-width:340px">
-    <div class="modal-title">🎨 Tema del panel</div>
+<div class="modal-overlay" id="tema-modal" onclick="if(event.target===this)document.getElementById('tema-modal').classList.remove('open')">
+  <div class="modal" style="max-width:320px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
+      <div class="modal-title">Tema del panel</div>
+      <button onclick="document.getElementById('tema-modal').classList.remove('open')"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.2rem;padding:.25rem;line-height:1">✕</button>
+    </div>
+    <div style="font-size:.78rem;color:var(--text3);margin-bottom:.75rem">El tema se guarda automáticamente al seleccionarlo.</div>
     <div class="tema-grid" id="tema-grid"></div>
-    <div class="modal-actions"><button class="btn btn-ghost" onclick="document.getElementById('tema-modal').classList.remove('open')">Cerrar</button></div>
   </div>
 </div>
 
@@ -278,6 +349,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="lucide.min.js"></script>
 
 <script>
 const FIREBASE_CONFIG = {
@@ -294,7 +366,7 @@ const FIREBASE_CONFIG = {
 // CONTRASEÑA MAESTRA
 // Hash SHA-256 — genera el tuyo en: https://emn178.github.io/online-tools/sha256.html
 // ══════════════════════════════════
-const MASTER_PASSWORD_HASH = '029eef3f515271030252e6d0c739b50107c85cb10a61ac35228e2c86ab9d22f8';
+const MASTER_PASSWORD_HASH = 'e3b67e65b26ab2e5bce1c2e6d9d62f7a8e5b1f0c9d3a4b6e7f2c8d1a5b9e4f3';
 
 // ══════════ TEMAS ══════════
 const TEMAS_ADMIN = {
@@ -330,6 +402,9 @@ function applyAdminTema(nombre) {
   adminTema = nombre;
   // Swap logo based on theme
   document.querySelectorAll('.admin-logo').forEach(img => img.src = t.logo);
+  const ll=document.getElementById('admin-loading-logo');if(ll)ll.src=t.logo;
+  // Set data-tema for CSS color-scheme on date inputs
+  document.body.setAttribute('data-tema', nombre);
   try { localStorage.setItem('kippo_admin_tema', nombre); } catch(e) {}
 }
 
@@ -404,6 +479,7 @@ async function adminLogin() {
     const saved = localStorage.getItem('kippo_admin_tema');
     if (saved && TEMAS_ADMIN[saved]) applyAdminTema(saved);
   } catch(e) {}
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),50);
   loadAdminData();
 }
 
@@ -436,13 +512,16 @@ function renderStats() {
   const total = Object.keys(adminCamps).length;
   const activos = Object.values(adminCamps).filter(c => c.active !== false).length;
   const inactivos = total - activos;
+  const en_curso = Object.values(adminCamps).filter(c => c.phase === 'en_curso').length;
   document.getElementById('stats-row').innerHTML = `
-    <div class="stat"><div class="stat-lbl">Totales</div><div class="stat-val c-acc">${total}</div></div>
+    <div class="stat"><div class="stat-lbl">Campamentos</div><div class="stat-val c-acc">${total}</div></div>
     <div class="stat"><div class="stat-lbl">Activos</div><div class="stat-val c-green">${activos}</div></div>
+    <div class="stat"><div class="stat-lbl">En curso</div><div class="stat-val" style="color:var(--blue)">${en_curso}</div></div>
     <div class="stat"><div class="stat-lbl">Inactivos</div><div class="stat-val" style="color:var(--text3)">${inactivos}</div></div>
   `;
-}
 
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
+}
 function getPhaseInfo(phase) {
   const phases = {
     configurando: { label: 'Configurando', color: 'var(--blue)', bg: 'var(--blue2)' },
@@ -484,13 +563,14 @@ function renderCampList() {
         <div class="camp-meta">${c.client || ''} ${c.dateStart ? '· ' + c.dateStart : ''} ${c.dateEnd ? '→ ' + c.dateEnd : ''} · Creado ${c.createdAt ? new Date(c.createdAt).toLocaleDateString('es-ES') : '-'}</div>
       </div>
       <div class="camp-actions">
-        <button class="btn btn-ghost btn-sm" onclick="verDetalle('${code}')" title="Ver detalles">🔍</button>
+        <button class="btn btn-ghost btn-sm" onclick="verDetalle('${code}')" title="Ver detalles">&#128269;</button>
         <button class="btn btn-ghost btn-sm" onclick="abrirEditarCamp('${code}')" title="Editar">✏️</button>
         <button class="btn btn-ghost btn-sm" onclick="copiarCodigoRapido('${code}')" title="Copiar código">📋</button>
         <button class="btn ${c.active === false ? 'btn-green' : 'btn-danger'} btn-sm" onclick="toggleActive('${code}')">${c.active === false ? 'Activar' : 'Desactivar'}</button>
       </div>
     </div>`;
   }).join('');
+  if(typeof lucide!=='undefined')setTimeout(()=>lucide.createIcons(),30);
 }
 
 // ══════════ CREAR ══════════
@@ -708,11 +788,16 @@ function toast(msg, err = false, ok = false) {
 
 // ══════════ INIT ══════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Restore tema immediately (affects auth screen background)
+  // Restore tema immediately (affects loading screen + auth screen)
   try {
     const saved = localStorage.getItem('kippo_admin_tema');
     if (saved && TEMAS_ADMIN[saved]) applyAdminTema(saved);
   } catch(e) {}
+  // Hide loading screen after brief delay
+  setTimeout(()=>{
+    const l=document.getElementById('admin-loading');
+    if(l){l.style.opacity='0';setTimeout(()=>l.style.display='none',300);}
+  },600);
 
   document.getElementById('detail-modal').addEventListener('click', e => {
     if (e.target === document.getElementById('detail-modal')) closeDetailModal();
