@@ -455,7 +455,7 @@ i[data-lucide] svg{display:block}
       </div>
       <div class="fld" style="width:100%">
         <label>Código de activación</label>
-        <input id="act-code-input" type="text" placeholder="KIPPO-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:2px;font-family:var(--font-head);font-size:1rem;text-align:center" oninput="this.value=this.value.toUpperCase()">
+        <input id="act-code-input" type="text" placeholder="Ej: saldana o KIPPO-SOL25-1234" style="text-transform:uppercase;letter-spacing:2px;font-family:var(--font-head);font-size:1rem;text-align:center" >
       </div>
       <button class="btn btn-acc" style="width:100%;justify-content:center;padding:.85rem;font-size:1rem" onclick="activarConCodigo()">
         <i data-lucide="key" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px"></i> Activar kiosko
@@ -848,8 +848,8 @@ let KIPPO_CAMP_CODE=(()=>{
   try{
     const url=new URL(window.location.href);
     const cParam=url.searchParams.get('c');
-    if(cParam){localStorage.setItem('kippo_camp_code',cParam);return cParam;}
-    return localStorage.getItem('kippo_camp_code')||null;
+    if(cParam){const c=cParam.toLowerCase();localStorage.setItem('kippo_camp_code',c);return c;}
+    const stored=localStorage.getItem('kippo_camp_code');return stored?stored.toLowerCase():null;
   }catch(e){return null;}
 })();
 
@@ -3299,7 +3299,7 @@ function strColor(str){
 
 // ══════════ ACTIVACIÓN ══════════
 async function activarConCodigo(){
-  const code=document.getElementById('act-code-input').value.trim().toUpperCase();
+  const code=document.getElementById('act-code-input').value.trim().toLowerCase();
   const errEl=document.getElementById('act-err');
   if(!code){errEl.textContent='Introduce el código';return;}
   if(code.length<6){errEl.textContent='Código demasiado corto';return;}
