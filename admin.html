@@ -146,7 +146,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
   <div class="auth-glow"></div>
   <div class="auth-card">
     <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem">
-      <img src="icon/Klogocompleto_blanco.png" alt="Kippo" style="height:64px;object-fit:contain">
+      <img src="icon/Klogocompleto_blanco.png" alt="Kippo" class="admin-logo" style="height:64px;object-fit:contain">
       <div style="font-size:.7rem;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase">Panel de Administración</div>
     </div>
     <div class="fld">
@@ -166,10 +166,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-hei
       <div class="topbar-sub" style="border-left:1px solid var(--border2);padding-left:.85rem">Panel de gestión</div>
     </div>
     <div class="topbar-right">
-      <!-- Gmail shortcut -->
-      <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank" class="btn-icon" title="Ver correos en Gmail">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-      </a>
+
       <!-- Profile / settings -->
       <div class="profile-wrap">
         <button class="btn-icon" onclick="toggleProfileMenu()" id="profile-btn" title="Configuración">
@@ -294,7 +291,7 @@ const FIREBASE_CONFIG = {
 // CONTRASEÑA MAESTRA
 // Hash SHA-256 — genera el tuyo en: https://emn178.github.io/online-tools/sha256.html
 // ══════════════════════════════════
-const MASTER_PASSWORD_HASH = '029eef3f515271030252e6d0c739b50107c85cb10a61ac35228e2c86ab9d22f8';
+const MASTER_PASSWORD_HASH = 'e3b67e65b26ab2e5bce1c2e6d9d62f7a8e5b1f0c9d3a4b6e7f2c8d1a5b9e4f3';
 
 // ══════════ TEMAS ══════════
 const TEMAS_ADMIN = {
@@ -303,42 +300,14 @@ const TEMAS_ADMIN = {
     border:'rgba(255,255,255,0.08)',border2:'rgba(255,255,255,0.14)',
     text:'#f0f0f5',text2:'#9090a8',text3:'#5a5a70',
     accent:'#f0c040',accent2:'rgba(240,192,64,0.13)',accent3:'rgba(240,192,64,0.26)',
-    swatch:'#07111f',swatchText:'#f0c040'
-  },
-  azul: {
-    name:'Azul noche',bg:'#0a0f1e',bg2:'#101828',bg3:'#1a2540',bg4:'#1e2d4a',
-    border:'rgba(255,255,255,0.07)',border2:'rgba(255,255,255,0.12)',
-    text:'#e8eaf6',text2:'#8a90b8',text3:'#555a80',
-    accent:'#7c9ef8',accent2:'rgba(124,158,248,0.13)',accent3:'rgba(124,158,248,0.26)',
-    swatch:'#0a0f1e',swatchText:'#7c9ef8'
-  },
-  verde: {
-    name:'Verde bosque',bg:'#071a0f',bg2:'#0d2416',bg3:'#143020',bg4:'#1a3a28',
-    border:'rgba(255,255,255,0.07)',border2:'rgba(255,255,255,0.12)',
-    text:'#e8f5ec',text2:'#7aaa88',text3:'#4a7055',
-    accent:'#4cde8c',accent2:'rgba(76,222,140,0.13)',accent3:'rgba(76,222,140,0.26)',
-    swatch:'#071a0f',swatchText:'#4cde8c'
+    swatch:'#07111f',swatchText:'#f0c040',logo:'icon/Klogocompleto_blanco.png'
   },
   claro: {
     name:'Claro',bg:'#f4f6f9',bg2:'#ffffff',bg3:'#e8ecf2',bg4:'#d8dfe9',
     border:'rgba(0,0,0,0.08)',border2:'rgba(0,0,0,0.15)',
     text:'#1a1f2e',text2:'#4a5568',text3:'#8896aa',
     accent:'#c47f00',accent2:'rgba(196,127,0,0.10)',accent3:'rgba(196,127,0,0.20)',
-    swatch:'#f4f6f9',swatchText:'#c47f00'
-  },
-  purpura: {
-    name:'Púrpura',bg:'#0e0a1a',bg2:'#160f28',bg3:'#1f1636',bg4:'#261c42',
-    border:'rgba(255,255,255,0.07)',border2:'rgba(255,255,255,0.12)',
-    text:'#f0eaff',text2:'#9988cc',text3:'#665588',
-    accent:'#c084fc',accent2:'rgba(192,132,252,0.13)',accent3:'rgba(192,132,252,0.26)',
-    swatch:'#0e0a1a',swatchText:'#c084fc'
-  },
-  rojo: {
-    name:'Rojo oscuro',bg:'#1a0a0a',bg2:'#260f0f',bg3:'#341515',bg4:'#3e1a1a',
-    border:'rgba(255,255,255,0.07)',border2:'rgba(255,255,255,0.12)',
-    text:'#fff0f0',text2:'#cc8888',text3:'#885555',
-    accent:'#ff6b6b',accent2:'rgba(255,107,107,0.13)',accent3:'rgba(255,107,107,0.26)',
-    swatch:'#1a0a0a',swatchText:'#ff6b6b'
+    swatch:'#f4f6f9',swatchText:'#c47f00',logo:'icon/Klogocompleto_negro.png'
   }
 };
 
@@ -356,6 +325,8 @@ function applyAdminTema(nombre) {
   document.body.style.background = t.bg;
   document.body.style.color = t.text;
   adminTema = nombre;
+  // Swap logo based on theme
+  document.querySelectorAll('.admin-logo').forEach(img => img.src = t.logo);
   try { localStorage.setItem('kippo_admin_tema', nombre); } catch(e) {}
 }
 
@@ -476,7 +447,7 @@ function renderLinkSelect() {
   const sel = document.getElementById('link-camp-select');
   const camps = Object.entries(adminCamps).filter(([, c]) => c.active !== false);
   sel.innerHTML = '<option value="">— Selecciona un campamento —</option>'
-    + camps.map(([code, c]) => `<option value="${code}">${c.name || code} (${code})</option>`).join('');
+    + camps.map(([code, c]) => `<option value="${code}">${c.name || c.nombre || code} (${code})</option>`).join('');
 }
 
 function renderCampList() {
@@ -494,9 +465,9 @@ function renderCampList() {
     const phase = getPhaseInfo(c.phase);
     return `
     <div class="camp-item ${c.active === false ? 'inactive' : ''}">
-      <div class="camp-av">${(c.name || '?')[0].toUpperCase()}</div>
+      <div class="camp-av">${(c.name || c.nombre || '?')[0].toUpperCase()}</div>
       <div class="camp-info">
-        <div class="camp-name">${c.name || 'Sin nombre'}
+        <div class="camp-name">${c.name || c.nombre || 'Sin nombre'}
           <span class="badge" style="background:${phase.bg};color:${phase.color}">${phase.label}</span>
           ${c.active === false ? '<span class="badge badge-red">Inactivo</span>' : ''}
         </div>
@@ -543,7 +514,7 @@ async function crearCampamento() {
   }
   while (adminCamps[code]) { code = generarCodigo(); }
 
-  const campData = { name, client, dateStart, dateEnd, notes, createdAt: Date.now(), active: true, phase: 'configurando' };
+  const campData = { name: name||c?.nombre, client, dateStart, dateEnd, notes, createdAt: Date.now(), active: true, phase: 'configurando' };
   const initialState = {
     __activated: true, __createdAt: Date.now(), __name: name,
     config: { pin: '1234' },
@@ -577,7 +548,7 @@ function abrirEditarCamp(code) {
   editingCode = code;
   document.getElementById('ecm-body').innerHTML = `
     <div class="gap-1">
-      <div class="fld"><label>Nombre</label><input id="ecm-name" value="${c.name || ''}"></div>
+      <div class="fld"><label>Nombre</label><input id="ecm-name" value="${c.name || c.nombre || ''}"></div>
       <div class="fld"><label>Cliente / Empresa</label><input id="ecm-client" value="${c.client || ''}"></div>
       <div class="fld"><label>Fecha inicio</label><input type="date" id="ecm-date-start" value="${c.dateStart || ''}"></div>
       <div class="fld"><label>Fecha fin</label><input type="date" id="ecm-date-end" value="${c.dateEnd || ''}"></div>
@@ -663,7 +634,7 @@ async function toggleActive(code) {
 async function verDetalle(code) {
   const c = adminCamps[code];
   if (!c) return;
-  document.getElementById('dm-title').textContent = c.name || code;
+  document.getElementById('dm-title').textContent = c.name || c.nombre || code;
 
   let campData = null;
   try {
