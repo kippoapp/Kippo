@@ -162,7 +162,7 @@ i[data-lucide] svg{display:block}
 .venta-name{font-family:var(--font-head);font-size:1.1rem;font-weight:700}
 .venta-saldo{font-size:.9rem;margin-top:.2rem}
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.6rem}
-.prod-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);padding:.85rem .7rem;text-align:center;cursor:pointer;transition:border-color .1s,transform .08s;position:relative;user-select:none}
+.prod-card{touch-action:manipulation;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);padding:.85rem .7rem;text-align:center;cursor:pointer;transition:border-color .1s,transform .08s;position:relative;user-select:none}
 .prod-card:active{transform:scale(.96)}
 .prod-card.oferta{border-color:var(--accent)}
 .prod-card.agotado{opacity:.35;pointer-events:none}
@@ -588,7 +588,7 @@ i[data-lucide] svg{display:block}
 <!-- MON: ACAMPADOS -->
 <div id="mon-acs-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-grupos-screen');renderGrupos()"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
+    <button class="btn-back" onclick="if(_navLock)return;showScreen('mon-grupos-screen');renderGrupos()"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-grupo">Grupo</div>
     <div class="topbar-badge brand-term">Monitor</div>
   </div>
@@ -604,7 +604,7 @@ i[data-lucide] svg{display:block}
 <!-- MON: VENTA -->
 <div id="mon-venta-screen" class="screen">
   <div class="topbar">
-    <button class="btn-back" onclick="showScreen('mon-acs-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
+    <button class="btn-back" onclick="if(_navLock)return;showScreen('mon-acs-screen')"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px"></i></button>
     <div class="topbar-title" id="tb-acampado">Venta</div>
     <div class="topbar-badge brand-term">Monitor</div>
   </div>
@@ -1123,7 +1123,7 @@ function selectMon(nombre,el){
   if(bar)bar.style.display='';
   if(nom)nom.textContent=nombre;
 }
-function entrarMonitor(){
+function entrarMonitor(){if(_navLock)return;
   if(!monitorActual)return;
   document.getElementById('tb-monitor').textContent=monitorActual;
   document.getElementById('mon-grupos-list').innerHTML='';
@@ -1147,9 +1147,12 @@ function renderGrupos(){
 
 }
 function selGrupo(id){
+  if(_navLock)return;
   grupoActual=(S.grupos||[]).find(g=>g.id===id);
   document.getElementById('tb-grupo').textContent=grupoActual.nombre;
   document.getElementById('search-ac').value='';
+  // Reset acampados scroll
+  const _acList=document.getElementById('mon-acs-list');if(_acList)_acList.scrollTop=0;
   renderAcampados();
   showScreen('mon-acs-screen');
 }
@@ -1175,10 +1178,14 @@ function renderAcampados(){
 
 }
 function selAcampado(id){
+  if(_navLock)return;
   acampadoActual=(S.acampados||[]).find(a=>a.id===id);
   if(!acampadoActual)return;
   carrito=[];
   document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
+  // Reset venta screen scroll
+  const _prodL=document.getElementById('prod-lista');if(_prodL)_prodL.scrollTop=0;
+  const _cartL=document.getElementById('venta-cart');if(_cartL)_cartL.scrollTop=0;
   renderVenta();
   showScreen('mon-venta-screen');
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
@@ -1325,13 +1332,26 @@ function enviarVenta(){
   const total=carrito.reduce((s,i)=>s+i.precio*i.qty,0);
   // MEJORA 11: Confirmation step before registering sale
   const resumenItems=carrito.map(i=>`${i.nombre} ×${i.qty} — ${(i.precio*i.qty).toFixed(2)}€`).join('<br>');
-  document.getElementById('cm-title').textContent='Confirmar venta';
+  document.getElementById('cm-title').innerHTML=`<span style="font-family:var(--font-head);letter-spacing:1px">Confirmar venta</span>`;
   document.getElementById('cm-body').innerHTML=`
-    <div style="margin-bottom:.5rem;font-size:.9rem;color:var(--text2)">Cliente: <b style="color:var(--text)">${ac.nombre}</b></div>
-    <div style="font-size:.85rem;color:var(--text2);margin-bottom:.75rem;line-height:1.6">${resumenItems}</div>
-    <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg3);border-radius:var(--r2)">
-      <span style="font-weight:700">Total</span>
-      <span style="font-weight:800;color:var(--green);font-size:1.1rem">${total.toFixed(2)}€</span>
+    <div style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;background:var(--accent2);border:1px solid var(--accent3);border-radius:var(--r2);margin-bottom:.75rem">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:.9rem;color:#1a1400;flex-shrink:0">${ac.nombre[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Cliente</div>
+        <div style="font-weight:700;color:var(--text);font-size:.95rem">${ac.nombre}</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem">
+      ${carrito.map(i=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.4rem .6rem;background:var(--bg3);border-radius:var(--r2);font-size:.85rem">
+          <span style="color:var(--text2);flex:1">${i.nombre}</span>
+          <span style="color:var(--text3);margin:0 .5rem">×${i.qty}</span>
+          <span style="font-weight:700;color:var(--text)">${(i.precio*i.qty).toFixed(2)}€</span>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.65rem .85rem;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r2)">
+      <span style="font-family:var(--font-head);font-size:.8rem;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase">Total</span>
+      <span style="font-family:var(--font-head);font-weight:800;color:var(--green);font-size:1.25rem">${total.toFixed(2)}€</span>
     </div>`;
   const btn=document.getElementById('cm-btn');
   btn.style.background='';btn.style.color='';btn.style.borderColor='';btn.textContent='';
@@ -1357,8 +1377,11 @@ function _doEnviarVenta(){
   carrito=[];save();toast('✅ Venta registrada',false,true);
   renderGrupos();
   showScreen('mon-grupos-screen');
-  const _gl2=document.getElementById('mon-grupos-list');
-  if(_gl2)_gl2.scrollTop=0;
+  // Reset all monitor screen scrolls
+  ['mon-grupos-list','mon-acs-list','prod-lista','venta-cart'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.scrollTop=0;
+  });
+  window.scrollTo(0,0);
 }
 
 // ══════════ CERRAR TURNO ══════════
