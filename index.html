@@ -592,7 +592,7 @@ i[data-lucide] svg{display:block}
     <div class="topbar-title" id="tb-grupo">Grupo</div>
     <div class="topbar-badge brand-term">Monitor</div>
   </div>
-  <div class="scroll">
+  <div class="scroll" id="mon-acs-scroll">
     <div class="search-wrap">
       <span class="search-icon"><i data-lucide="search" style="width:14px;height:14px;vertical-align:-2px"></i></span>
       <input class="search-input" type="search" id="search-ac" placeholder="Buscar acampado..." oninput="renderAcampados()">
@@ -1023,8 +1023,8 @@ function showScreen(id){
       setTimeout(()=>_ns2.style.pointerEvents='',450);
       currentScreen=id;
       // Scroll to top on monitor screens
-      const _monS=['mon-login-screen','mon-grupos-screen','mon-acs-screen','mon-venta-screen'];
-      if(_monS.includes(id)){requestAnimationFrame(()=>{_ns2.scrollTop=0;window.scrollTo(0,0);});}
+      const _monScrollMap2={'mon-grupos-screen':'mon-grupos-list','mon-acs-screen':'mon-acs-scroll','mon-venta-screen':'mon-venta-content','mon-login-screen':null};
+      if(id in _monScrollMap2){requestAnimationFrame(()=>{window.scrollTo(0,0);_ns2.scrollTop=0;const _sid2=_monScrollMap2[id];if(_sid2){const _se2=document.getElementById(_sid2);if(_se2)_se2.scrollTop=0;}});}
       const btnCamp2=document.getElementById('btn-cambiar-camp');if(btnCamp2)btnCamp2.style.display=id==='home'?'block':'none';
       if(typeof lucide!=='undefined')lucide.createIcons();
       setTimeout(()=>overlay.classList.remove('show'),80);
@@ -1037,9 +1037,14 @@ function showScreen(id){
     setTimeout(()=>_ns.style.pointerEvents='',450);
     currentScreen=id;
     // Scroll to top on all monitor screens
-    const _monScreens=['mon-login-screen','mon-grupos-screen','mon-acs-screen','mon-venta-screen'];
-    if(_monScreens.includes(id)){
-      requestAnimationFrame(()=>{_ns.scrollTop=0;window.scrollTo(0,0);});
+    const _monScrollMap={'mon-grupos-screen':'mon-grupos-list','mon-acs-screen':'mon-acs-scroll','mon-venta-screen':'mon-venta-content','mon-login-screen':null};
+    if(id in _monScrollMap){
+      requestAnimationFrame(()=>{
+        window.scrollTo(0,0);
+        _ns.scrollTop=0;
+        const _sid=_monScrollMap[id];
+        if(_sid){const _se=document.getElementById(_sid);if(_se)_se.scrollTop=0;}
+      });
     }
     const btnCamp=document.getElementById('btn-cambiar-camp');if(btnCamp)btnCamp.style.display=id==='home'?'block':'none';
     if(id==='enc-screen'){
@@ -1151,10 +1156,12 @@ function selGrupo(id){
   grupoActual=(S.grupos||[]).find(g=>g.id===id);
   document.getElementById('tb-grupo').textContent=grupoActual.nombre;
   document.getElementById('search-ac').value='';
-  // Reset acampados scroll
-  const _acList=document.getElementById('mon-acs-list');if(_acList)_acList.scrollTop=0;
   renderAcampados();
   showScreen('mon-acs-screen');
+  // Reset scroll AFTER render
+  requestAnimationFrame(()=>{
+    const _as=document.getElementById('mon-acs-scroll');if(_as)_as.scrollTop=0;
+  });
 }
 
 // ══════════ ACAMPADOS ══════════
@@ -1183,11 +1190,13 @@ function selAcampado(id){
   if(!acampadoActual)return;
   carrito=[];
   document.getElementById('tb-acampado').textContent=acampadoActual.nombre;
-  // Reset venta screen scroll
-  const _prodL=document.getElementById('prod-lista');if(_prodL)_prodL.scrollTop=0;
-  const _cartL=document.getElementById('venta-cart');if(_cartL)_cartL.scrollTop=0;
   renderVenta();
   showScreen('mon-venta-screen');
+  // Reset scroll AFTER render (prod-lista is created by renderVenta)
+  requestAnimationFrame(()=>{
+    const _vc=document.getElementById('mon-venta-content');if(_vc)_vc.scrollTop=0;
+    const _pl=document.getElementById('prod-lista');if(_pl)_pl.scrollTop=0;
+  });
   requestAnimationFrame(()=>{const s=document.getElementById('mon-venta-content');if(s)s.scrollTop=0;});
 }
 
@@ -1377,11 +1386,13 @@ function _doEnviarVenta(){
   carrito=[];save();toast('✅ Venta registrada',false,true);
   renderGrupos();
   showScreen('mon-grupos-screen');
-  // Reset all monitor screen scrolls
-  ['mon-grupos-list','mon-acs-list','prod-lista','venta-cart'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.scrollTop=0;
+  // Reset all monitor screen scrolls after render
+  requestAnimationFrame(()=>{
+    ['mon-grupos-list','mon-acs-scroll','mon-venta-content'].forEach(sid=>{
+      const el=document.getElementById(sid);if(el)el.scrollTop=0;
+    });
+    window.scrollTo(0,0);
   });
-  window.scrollTo(0,0);
 }
 
 // ══════════ CERRAR TURNO ══════════
